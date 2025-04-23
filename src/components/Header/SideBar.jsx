@@ -18,7 +18,12 @@ const SideBar = () => {
             <div className="collapse-title font-semibold">How do I update my profile information?</div>
             <div className="collapse-content text-sm">Go to "My Account" settings and select "Edit Profile" to make changes.</div>
         </div>
+
+        <input type="file" className="file-input file-input-neutral" />
     </div>
+
+
+
   )
 }
 
