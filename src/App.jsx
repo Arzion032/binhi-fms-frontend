@@ -1,15 +1,18 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
-import SideBar from './components/Header/SideBar'
+import React from "react";
+import Sidebar from "./components/Sidebar";
+import Topbar from "./components/Topbar";
+import Tabs from "./components/Tabs";
 
 function App() {
-  const [count, setCount] = useState(0)
-
   return (
-    <SideBar />
-  )
+    <div className="bg-gray-50 min-h-screen font-sans">
+      <Sidebar />
+      <div className="ml-64">
+        <Topbar />
+        <Tabs />
+      </div>
+    </div>
+  );
 }
 
-export default App
+export default App;
