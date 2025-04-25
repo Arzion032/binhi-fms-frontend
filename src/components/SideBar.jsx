@@ -1,29 +1,440 @@
 import React from "react";
+import logo from '../assets/logo.png';
 
 const Sidebar = () => {
   return (
-    <aside className="w-64 h-screen bg-white shadow-lg fixed">
-      <div className="p-4 text-green-700 font-bold text-2xl">Binhi</div>
-      <p className="text-sm text-gray-500 px-4">
-        Federation & Marketplace Management System
-      </p>
+    <aside className="w-64 h-screen bg-white shadow-lg fixed flex flex-col items-center p-4 rounded-r-3xl border border-gray-700">
+      <img src={logo} alt="Logo" className="w-150 h-50 mb-4" />
+      
+        {/* Federation Management Title */}
+        <div className="text-sm font-Inter text-black-700 mb-6 text-left">
+    Federation Management
+  </div>
 
-      <ul className="menu p-4">
-        <li className="menu-title">Federation Management</li>
-        <li><a>Dashboard</a></li>
-        <li><a>Membership</a></li>
-        <li><a>Financial</a></li>
-        <li><a>Inventory</a></li>
-        <li><a>Document</a></li>
+      <ul className="space-y-2 w-full">
+        {/* Dashboard Menu */}
+        <li>
+          <details className="group [&_summary::-webkit-details-marker]:hidden">
+            <summary className="flex cursor-pointer items-center justify-between rounded-lg px-3 py-1.5 text-gray-500 hover:bg-gray-100 hover:text-gray-700">
+              <span className="flex items-center space-x-2">
+                <svg className="w-5 h-5 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7h18M3 12h18M3 17h18" />
+                </svg>
+                <span className="text-sm font-Inter font-bold">Dashboard</span>
+              </span>
+              <span className="shrink-0 transition duration-300 group-open:-rotate-180">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="w-5 h-5"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+              </span>
+            </summary>
+            <ul className="mt-1 space-y-1 px-3">
+              <li>
+                <a
+                  href="#"
+                  className="block rounded-lg px-3 py-1.5 text-sm font-medium text-gray-500 hover:bg-gray-100 hover:text-gray-700"
+                >
+                  Overview
+                </a>
+              </li>
+              <li>
+                <a
+                  href="#"
+                  className="block rounded-lg px-3 py-1.5 text-sm font-medium text-gray-500 hover:bg-gray-100 hover:text-gray-700"
+                >
+                  Reports
+                </a>
+              </li>
+            </ul>
+          </details>
+        </li>
 
-        <li className="menu-title">Marketplace</li>
-        <li><a>Products</a></li>
-        <li><a>Customers</a></li>
-        <li><a>Orders</a></li>
-        <li><a>Farmer Payout</a></li>
+        {/* Membership Menu */}
+        <li>
+          <details className="group [&_summary::-webkit-details-marker]:hidden">
+            <summary className="flex cursor-pointer items-center justify-between rounded-lg px-3 py-1.5 text-gray-500 hover:bg-gray-100 hover:text-gray-700">
+              <span className="flex items-center space-x-2">
+                <svg className="w-5 h-5 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v12m6-6H6" />
+                </svg>
+                <span className="text-sm font-Inter font-bold">Membership</span>
+              </span>
+              <span className="shrink-0 transition duration-300 group-open:-rotate-180">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="w-5 h-5"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+              </span>
+            </summary>
+            <ul className="mt-1 space-y-1 px-3">
+              <li>
+                <a
+                  href="#"
+                  className="block rounded-lg px-3 py-1.5 text-sm font-medium text-gray-500 hover:bg-gray-100 hover:text-gray-700"
+                >
+                  Members List
+                </a>
+              </li>
+              <li>
+                <a
+                  href="#"
+                  className="block rounded-lg px-3 py-1.5 text-sm font-medium text-gray-500 hover:bg-gray-100 hover:text-gray-700"
+                >
+                  Add Member
+                </a>
+              </li>
+            </ul>
+          </details>
+        </li>
+
+        {/* Financial Menu */}
+        <li>
+          <details className="group [&_summary::-webkit-details-marker]:hidden">
+            <summary className="flex cursor-pointer items-center justify-between rounded-lg px-3 py-1.5 text-gray-500 hover:bg-gray-100 hover:text-gray-700">
+              <span className="flex items-center space-x-2">
+                <svg className="w-5 h-5 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h18v18H3z" />
+                </svg>
+                <span className="text-sm font-Inter font-bold">Financial</span>
+              </span>
+              <span className="shrink-0 transition duration-300 group-open:-rotate-180">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="w-5 h-5"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+              </span>
+            </summary>
+            <ul className="mt-1 space-y-1 px-3">
+              <li>
+                <a
+                  href="#"
+                  className="block rounded-lg px-3 py-1.5 text-sm font-medium text-gray-500 hover:bg-gray-100 hover:text-gray-700"
+                >
+                  Transactions
+                </a>
+              </li>
+              <li>
+                <a
+                  href="#"
+                  className="block rounded-lg px-3 py-1.5 text-sm font-medium text-gray-500 hover:bg-gray-100 hover:text-gray-700"
+                >
+                  Reports
+                </a>
+              </li>
+            </ul>
+          </details>
+        </li>
+
+        {/* Inventory Menu */}
+        <li>
+          <details className="group [&_summary::-webkit-details-marker]:hidden">
+            <summary className="flex cursor-pointer items-center justify-between rounded-lg px-3 py-1.5 text-gray-500 hover:bg-gray-100 hover:text-gray-700">
+              <span className="flex items-center space-x-2">
+                <svg className="w-5 h-5 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3h14c1.1 0 1.99.9 1.99 2L21 19c0 1.1-.89 2-1.99 2H5c-1.1 0-1.99-.9-1.99-2L3 5c0-1.1.89-2 1.99-2z" />
+                </svg>
+                <span className="text-sm font-Inter font-bold">Inventory</span>
+              </span>
+              <span className="shrink-0 transition duration-300 group-open:-rotate-180">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="w-5 h-5"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+              </span>
+            </summary>
+            <ul className="mt-1 space-y-1 px-3">
+              <li>
+                <a
+                  href="#"
+                  className="block rounded-lg px-3 py-1.5 text-sm font-medium text-gray-500 hover:bg-gray-100 hover:text-gray-700"
+                >
+                  Stock Management
+                </a>
+              </li>
+              <li>
+                <a
+                  href="#"
+                  className="block rounded-lg px-3 py-1.5 text-sm font-medium text-gray-500 hover:bg-gray-100 hover:text-gray-700"
+                >
+                  Stock Alerts
+                </a>
+              </li>
+            </ul>
+          </details>
+        </li>
+
+        {/* Document Menu */}
+        <li>
+          <details className="group [&_summary::-webkit-details-marker]:hidden">
+            <summary className="flex cursor-pointer items-center justify-between rounded-lg px-3 py-1.5 text-gray-500 hover:bg-gray-100 hover:text-gray-700">
+              <span className="flex items-center space-x-2">
+                <svg className="w-5 h-5 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 2h12c1.1 0 2 .9 2 2v16c0 1.1-.9 2-2 2H6c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2z" />
+                </svg>
+                <span className="text-sm font-Inter font-bold">Document</span>
+              </span>
+              <span className="shrink-0 transition duration-300 group-open:-rotate-180">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="w-5 h-5"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+              </span>
+            </summary>
+            <ul className="mt-1 space-y-1 px-3">
+              <li>
+                <a
+                  href="#"
+                  className="block rounded-lg px-3 py-1.5 text-sm font-medium text-gray-500 hover:bg-gray-100 hover:text-gray-700"
+                >
+                  Uploads
+                </a>
+              </li>
+              <li>
+                <a
+                  href="#"
+                  className="block rounded-lg px-3 py-1.5 text-sm font-medium text-gray-500 hover:bg-gray-100 hover:text-gray-700"
+                >
+                  Archive
+                </a>
+              </li>
+            </ul>
+          </details>
+        </li>
       </ul>
 
-      <div className="absolute bottom-0 w-full p-4">
+      <div className="mb-6"></div>
+
+      {/* Marketplace Title */}
+      <div className="text-sm font-Inter text-black-700 mb-6">Marketplace</div>
+
+      <ul className="space-y-2 w-full">
+        {/* Products Menu */}
+        <li>
+          <details className="group [&_summary::-webkit-details-marker]:hidden">
+            <summary className="flex cursor-pointer items-center justify-between rounded-lg px-3 py-1.5 text-gray-500 hover:bg-gray-100 hover:text-gray-700">
+              <span className="flex items-center space-x-2">
+                <svg className="w-5 h-5 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v12m6-6H6" />
+                </svg>
+                <span className="text-sm font-Inter font-bold">Products</span>
+              </span>
+              <span className="shrink-0 transition duration-300 group-open:-rotate-180">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="w-5 h-5"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+              </span>
+            </summary>
+            <ul className="mt-1 space-y-1 px-3">
+              <li>
+                <a
+                  href="#"
+                  className="block rounded-lg px-3 py-1.5 text-sm font-medium text-gray-500 hover:bg-gray-100 hover:text-gray-700"
+                >
+                  Product List
+                </a>
+              </li>
+              <li>
+                <a
+                  href="#"
+                  className="block rounded-lg px-3 py-1.5 text-sm font-medium text-gray-500 hover:bg-gray-100 hover:text-gray-700"
+                >
+                  Add Product
+                </a>
+              </li>
+            </ul>
+          </details>
+        </li>
+
+        {/* Customers Menu */}
+        <li>
+          <details className="group [&_summary::-webkit-details-marker]:hidden">
+            <summary className="flex cursor-pointer items-center justify-between rounded-lg px-3 py-1.5 text-gray-500 hover:bg-gray-100 hover:text-gray-700">
+              <span className="flex items-center space-x-2">
+                <svg className="w-5 h-5 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v12m6-6H6" />
+                </svg>
+                <span className="text-sm font-Inter font-bold">Customers</span>
+              </span>
+              <span className="shrink-0 transition duration-300 group-open:-rotate-180">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="w-5 h-5"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+              </span>
+            </summary>
+            <ul className="mt-1 space-y-1 px-3">
+              <li>
+                <a
+                  href="#"
+                  className="block rounded-lg px-3 py-1.5 text-sm font-medium text-gray-500 hover:bg-gray-100 hover:text-gray-700"
+                >
+                  Customer List
+                </a>
+              </li>
+              <li>
+                <a
+                  href="#"
+                  className="block rounded-lg px-3 py-1.5 text-sm font-medium text-gray-500 hover:bg-gray-100 hover:text-gray-700"
+                >
+                  Add Customer
+                </a>
+              </li>
+            </ul>
+          </details>
+        </li>
+
+        {/* Orders Menu */}
+        <li>
+          <details className="group [&_summary::-webkit-details-marker]:hidden">
+            <summary className="flex cursor-pointer items-center justify-between rounded-lg px-3 py-1.5 text-gray-500 hover:bg-gray-100 hover:text-gray-700">
+              <span className="flex items-center space-x-2">
+                <svg className="w-5 h-5 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v12m6-6H6" />
+                </svg>
+                <span className="text-sm font-Inter font-bold">Orders</span>
+              </span>
+              <span className="shrink-0 transition duration-300 group-open:-rotate-180">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="w-5 h-5"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+              </span>
+            </summary>
+            <ul className="mt-1 space-y-1 px-3">
+              <li>
+                <a
+                  href="#"
+                  className="block rounded-lg px-3 py-1.5 text-sm font-medium text-gray-500 hover:bg-gray-100 hover:text-gray-700"
+                >
+                  Order History
+                </a>
+              </li>
+              <li>
+                <a
+                  href="#"
+                  className="block rounded-lg px-3 py-1.5 text-sm font-medium text-gray-500 hover:bg-gray-100 hover:text-gray-700"
+                >
+                  Track Order
+                </a>
+              </li>
+            </ul>
+          </details>
+        </li>
+
+        {/* Farmer Payout Menu */}
+        <li>
+          <details className="group [&_summary::-webkit-details-marker]:hidden">
+            <summary className="flex cursor-pointer items-center justify-between rounded-lg px-3 py-1.5 text-gray-500 hover:bg-gray-100 hover:text-gray-700">
+              <span className="flex items-center space-x-2">
+                <svg className="w-5 h-5 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v12m6-6H6" />
+                </svg>
+                <span className="text-sm font-Inter font-bold">Farmer Payout</span>
+              </span>
+              <span className="shrink-0 transition duration-300 group-open:-rotate-180">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="w-5 h-5"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+              </span>
+            </summary>
+            <ul className="mt-1 space-y-1 px-3">
+              <li>
+                <a
+                  href="#"
+                  className="block rounded-lg px-3 py-1.5 text-sm font-medium text-gray-500 hover:bg-gray-100 hover:text-gray-700"
+                >
+                  Payout History
+                </a>
+              </li>
+              <li>
+                <a
+                  href="#"
+                  className="block rounded-lg px-3 py-1.5 text-sm font-medium text-gray-500 hover:bg-gray-100 hover:text-gray-700"
+                >
+                  New Payout
+                </a>
+              </li>
+            </ul>
+          </details>
+        </li>
+      </ul>
+
+      <div className="mt-auto w-full p-4">
         <div className="text-sm text-gray-500 mb-2">Settings</div>
         <div className="flex items-center space-x-2 bg-gray-100 p-2 rounded">
           <img
@@ -38,6 +449,8 @@ const Sidebar = () => {
         </div>
       </div>
     </aside>
+
+    
   );
 };
 

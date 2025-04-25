@@ -5,7 +5,7 @@ import Tabs from "./components/Tabs";
 
 function App() {
   return (
-    <div className="bg-gray-50 min-h-screen font-sans">
+    <div className="bg-binhi min-h-screen font-sans">
       <Sidebar />
       <div className="ml-64">
         <Topbar />
