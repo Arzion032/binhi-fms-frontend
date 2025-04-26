@@ -1,5 +1,16 @@
 import React from "react";
 import logo from '../assets/logo.png';
+import Dashboard from '../assets/Dashboard.png';
+import Membership from '../assets/Membership.png';
+import Financial from '../assets/Financial.png';
+import Inventory from '../assets/Inventory.png';
+import Document from '../assets/Document.png';
+import Products from '../assets/Products.png';
+import Customers from '../assets/Customers.png';
+import Orders from '../assets/Orders.png';
+import Payout from '../assets/Payout.png';
+import Settings from '../assets/Settings.png';
+
 
 const Sidebar = () => {
   return (
@@ -17,9 +28,7 @@ const Sidebar = () => {
           <details className="group [&_summary::-webkit-details-marker]:hidden">
             <summary className="flex cursor-pointer items-center justify-between rounded-lg px-3 py-1.5 text-gray-500 hover:bg-gray-100 hover:text-gray-700">
               <span className="flex items-center space-x-2">
-                <svg className="w-5 h-5 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7h18M3 12h18M3 17h18" />
-                </svg>
+              <img src={Dashboard} alt="Dashboard" className="w-5 h-5" />
                 <span className="text-sm font-Inter font-bold">Dashboard</span>
               </span>
               <span className="shrink-0 transition duration-300 group-open:-rotate-180">
@@ -63,10 +72,8 @@ const Sidebar = () => {
           <details className="group [&_summary::-webkit-details-marker]:hidden">
             <summary className="flex cursor-pointer items-center justify-between rounded-lg px-3 py-1.5 text-gray-500 hover:bg-gray-100 hover:text-gray-700">
               <span className="flex items-center space-x-2">
-                <svg className="w-5 h-5 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v12m6-6H6" />
-                </svg>
-                <span className="text-sm font-Inter font-bold">Membership</span>
+              <img src={Membership} alt="Membership" className="w-5 h-5" />
+              <span className="text-sm font-Inter font-bold">Membership</span>
               </span>
               <span className="shrink-0 transition duration-300 group-open:-rotate-180">
                 <svg
@@ -109,9 +116,7 @@ const Sidebar = () => {
           <details className="group [&_summary::-webkit-details-marker]:hidden">
             <summary className="flex cursor-pointer items-center justify-between rounded-lg px-3 py-1.5 text-gray-500 hover:bg-gray-100 hover:text-gray-700">
               <span className="flex items-center space-x-2">
-                <svg className="w-5 h-5 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h18v18H3z" />
-                </svg>
+              <img src={Financial} alt="Financial" className="w-5 h-5" />
                 <span className="text-sm font-Inter font-bold">Financial</span>
               </span>
               <span className="shrink-0 transition duration-300 group-open:-rotate-180">
@@ -155,9 +160,7 @@ const Sidebar = () => {
           <details className="group [&_summary::-webkit-details-marker]:hidden">
             <summary className="flex cursor-pointer items-center justify-between rounded-lg px-3 py-1.5 text-gray-500 hover:bg-gray-100 hover:text-gray-700">
               <span className="flex items-center space-x-2">
-                <svg className="w-5 h-5 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3h14c1.1 0 1.99.9 1.99 2L21 19c0 1.1-.89 2-1.99 2H5c-1.1 0-1.99-.9-1.99-2L3 5c0-1.1.89-2 1.99-2z" />
-                </svg>
+              <img src={Inventory} alt="Inventory" className="w-5 h-5" />
                 <span className="text-sm font-Inter font-bold">Inventory</span>
               </span>
               <span className="shrink-0 transition duration-300 group-open:-rotate-180">
@@ -201,9 +204,7 @@ const Sidebar = () => {
           <details className="group [&_summary::-webkit-details-marker]:hidden">
             <summary className="flex cursor-pointer items-center justify-between rounded-lg px-3 py-1.5 text-gray-500 hover:bg-gray-100 hover:text-gray-700">
               <span className="flex items-center space-x-2">
-                <svg className="w-5 h-5 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 2h12c1.1 0 2 .9 2 2v16c0 1.1-.9 2-2 2H6c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2z" />
-                </svg>
+              <img src={Document} alt="Document" className="w-5 h-5" />
                 <span className="text-sm font-Inter font-bold">Document</span>
               </span>
               <span className="shrink-0 transition duration-300 group-open:-rotate-180">
@@ -254,9 +255,7 @@ const Sidebar = () => {
           <details className="group [&_summary::-webkit-details-marker]:hidden">
             <summary className="flex cursor-pointer items-center justify-between rounded-lg px-3 py-1.5 text-gray-500 hover:bg-gray-100 hover:text-gray-700">
               <span className="flex items-center space-x-2">
-                <svg className="w-5 h-5 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v12m6-6H6" />
-                </svg>
+              <img src={Products} alt="Products" className="w-5 h-5" />
                 <span className="text-sm font-Inter font-bold">Products</span>
               </span>
               <span className="shrink-0 transition duration-300 group-open:-rotate-180">
@@ -300,9 +299,7 @@ const Sidebar = () => {
           <details className="group [&_summary::-webkit-details-marker]:hidden">
             <summary className="flex cursor-pointer items-center justify-between rounded-lg px-3 py-1.5 text-gray-500 hover:bg-gray-100 hover:text-gray-700">
               <span className="flex items-center space-x-2">
-                <svg className="w-5 h-5 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v12m6-6H6" />
-                </svg>
+              <img src={Customers} alt="Customers" className="w-5 h-5" />
                 <span className="text-sm font-Inter font-bold">Customers</span>
               </span>
               <span className="shrink-0 transition duration-300 group-open:-rotate-180">
@@ -346,9 +343,8 @@ const Sidebar = () => {
           <details className="group [&_summary::-webkit-details-marker]:hidden">
             <summary className="flex cursor-pointer items-center justify-between rounded-lg px-3 py-1.5 text-gray-500 hover:bg-gray-100 hover:text-gray-700">
               <span className="flex items-center space-x-2">
-                <svg className="w-5 h-5 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v12m6-6H6" />
-                </svg>
+              <img src={Orders
+              } alt="Orders" className="w-5 h-5" />
                 <span className="text-sm font-Inter font-bold">Orders</span>
               </span>
               <span className="shrink-0 transition duration-300 group-open:-rotate-180">
@@ -392,9 +388,7 @@ const Sidebar = () => {
           <details className="group [&_summary::-webkit-details-marker]:hidden">
             <summary className="flex cursor-pointer items-center justify-between rounded-lg px-3 py-1.5 text-gray-500 hover:bg-gray-100 hover:text-gray-700">
               <span className="flex items-center space-x-2">
-                <svg className="w-5 h-5 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v12m6-6H6" />
-                </svg>
+              <img src={Payout} alt="Payout" className="w-5 h-5" />
                 <span className="text-sm font-Inter font-bold">Farmer Payout</span>
               </span>
               <span className="shrink-0 transition duration-300 group-open:-rotate-180">
@@ -435,7 +429,11 @@ const Sidebar = () => {
       </ul>
 
       <div className="mt-auto w-full p-4">
-        <div className="text-sm text-gray-500 mb-2">Settings</div>
+      <span className="flex items-center space-x-2">
+              <img src={Settings} alt="Settings" className="w-5 h-5" />
+                <span className="text-sm font-Inter ">Settings</span>
+              </span>
+              <div className="mb-3"></div>
         <div className="flex items-center space-x-2 bg-gray-100 p-2 rounded">
           <img
             src="https://i.pravatar.cc/40"
