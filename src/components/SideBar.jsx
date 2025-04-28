@@ -18,9 +18,9 @@ const Sidebar = () => {
       <img src={logo} alt="Logo" className="w-150 h-50 mb-4" />
       
         {/* Federation Management Title */}
-        <div className="text-sm font-Inter text-black-700 mb-6 text-left">
-    Federation Management
-  </div>
+        <div className="w-full text-left text-sm font-Inter text-gray-700 mb-6">
+  Federation Management
+      </div>
 
       <ul className="space-y-2 w-full">
         {/* Dashboard Menu */}
@@ -247,7 +247,7 @@ const Sidebar = () => {
       <div className="mb-6"></div>
 
       {/* Marketplace Title */}
-      <div className="text-sm font-Inter text-black-700 mb-6">Marketplace</div>
+      <div className="w-full text-left text-sm font-Inter text-gray-700 mb-6">Marketplace</div>
 
       <ul className="space-y-2 w-full">
         {/* Products Menu */}
@@ -434,19 +434,19 @@ const Sidebar = () => {
                 <span className="text-sm font-Inter ">Settings</span>
               </span>
               <div className="mb-3"></div>
-        <div className="flex items-center space-x-2 bg-gray-100 p-2 rounded">
-          <img
-            src="https://i.pravatar.cc/40"
-            className="rounded-full w-8 h-8"
-            alt="user"
-          />
-          <div>
-            <p className="text-sm font-medium">Layla Imnida</p>
-            <p className="text-xs text-gray-500">laylaimnida@gmail.com</p>
-          </div>
-        </div>
-      </div>
-    </aside>
+              <div className="flex items-center gap-2 p-2 rounded hover:bg-gray-100">
+    <img
+      src="https://i.pravatar.cc/40"
+      className="rounded-full w-5 h-5"
+      alt="user"
+    />
+    <div className="flex flex-col">
+      <span className="text-sm font-medium">Layla Imnida</span>
+      <span className="text-xs text-gray-500 leading-tight">laylaimnida@gmail.com</span>
+    </div>
+  </div>
+  </div>
+</aside>
 
     
   );
