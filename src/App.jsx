@@ -1,20 +1,21 @@
 import React from "react";
-import SideBar from "./components/SideBar";
-import TopBar from "./components/TopBar";
 import Tabs from "./components/Tabs";
-
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import Layout from "./components/Layout/Layout";
 
 function App() {
 
   return (
     <div className="bg-binhi min-h-screen font-sans">
-      <SideBar />
-      <div className="ml-64">
-        <TopBar />
-        <Tabs />
-      </div>
+
+      <Router>
+      <Routes>
+        <Route path="/membership" element={<Layout><Tabs/></Layout>} />
+      </Routes>
+    </Router>
     </div>
-  );
+    
+  )
 }
 
 export default App;

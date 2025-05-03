@@ -10,6 +10,7 @@ import Customers from '../assets/Customers.png';
 import Orders from '../assets/Orders.png';
 import Payout from '../assets/Payout.png';
 import Settings from '../assets/Settings.png';
+import { Link } from "react-router-dom";
 
 
 const Sidebar = () => {
@@ -27,10 +28,10 @@ const Sidebar = () => {
         <li>
           <details className="group [&_summary::-webkit-details-marker]:hidden">
             <summary className="flex cursor-pointer items-center justify-between rounded-lg px-3 py-1.5 text-gray-500 hover:bg-gray-100 hover:text-gray-700">
-              <span className="flex items-center space-x-2">
+              <Link to="/login" className="flex items-center space-x-2">
               <img src={Dashboard} alt="Dashboard" className="w-5 h-5" />
                 <span className="text-sm font-Inter font-bold">Dashboard</span>
-              </span>
+              </Link>
               <span className="shrink-0 transition duration-300 group-open:-rotate-180">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -71,10 +72,10 @@ const Sidebar = () => {
         <li>
           <details className="group [&_summary::-webkit-details-marker]:hidden">
             <summary className="flex cursor-pointer items-center justify-between rounded-lg px-3 py-1.5 text-gray-500 hover:bg-gray-100 hover:text-gray-700">
-              <span className="flex items-center space-x-2">
+              <Link to="/membership" className="flex items-center space-x-2">
               <img src={Membership} alt="Membership" className="w-5 h-5" />
               <span className="text-sm font-Inter font-bold">Membership</span>
-              </span>
+              </Link>
               <span className="shrink-0 transition duration-300 group-open:-rotate-180">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
