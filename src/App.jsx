@@ -1,15 +1,15 @@
 import React from "react";
-import Sidebar from "./components/Sidebar";
-import Topbar from "./components/Topbar";
+import SideBar from "./components/SideBar";
+import TopBar from "./components/TopBar";
 import Tabs from "./components/Tabs";
 
 
 function App() {
   return (
     <div className="bg-binhi min-h-screen font-sans">
-      <Sidebar />
+      <SideBar />
       <div className="ml-64">
-        <Topbar />
+        <TopBar />
         <Tabs />
       </div>
     </div>

@@ -1,5 +1,5 @@
 import React from "react";
-import logo from '../assets/logo.png';
+import Logo from '../assets/Logo.png';
 import Dashboard from '../assets/Dashboard.png';
 import Membership from '../assets/Membership.png';
 import Financial from '../assets/Financial.png';
@@ -15,7 +15,7 @@ import Settings from '../assets/Settings.png';
 const Sidebar = () => {
   return (
     <aside className="w-64 h-screen bg-white shadow-lg fixed flex flex-col items-center p-4 rounded-r-3xl border border-gray-700">
-      <img src={logo} alt="Logo" className="w-150 h-50 mb-4" />
+      <img src={Logo} alt="Logo" className="w-150 h-50 mb-4" />
       
         {/* Federation Management Title */}
         <div className="w-full text-left text-sm font-Inter text-gray-700 mb-6">
