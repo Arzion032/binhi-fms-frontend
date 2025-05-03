@@ -1,28 +1,134 @@
 import React, { useState, useRef, useEffect } from "react";
-import { FaTrash, FaEdit, FaPlus } from "react-icons/fa";
+import { Trash2 } from "lucide-react";
+import { FaTrash, FaEdit, FaPlus } from "react-icons/fa";	
+import { Search } from "lucide-react";
+import Step1 from '../assets/Step1.png';
+import Step2 from '../assets/Step2.png';
+import loop from '../assets/loop.png';
+import Member from '../assets/Member.png';
+import Dis from '../assets/Dis.png';
+import Firstname from '../assets/Firstname.png';
+import Role from '../assets/Role.png';
+import Number from '../assets/Number.png';
+import DOB from '../assets/DOB.png';
+import Barangay from '../assets/Barangay.png';
+import Docs from '../assets/Docs.png';
+import Juan from '../assets/Juan.png';
 
-const Tabs = () => {
-  const [activeTab, setActiveTab] = useState(0);
+const currentMembersInitial = [
+  {
+    id: 1,
+    firstName: "Juan",
+    lastName: "Dela Cruz",
+    email: "juandelacruz@gmail.com",
+    role: "Member",
+    address: "Masiang, Bulacan",
+    dob: "20 Aug 1999",
+    dateAdded: "March 21, 2025",
+  },
+  {
+    id: 1,
+    firstName: "Juan",
+    lastName: "Dela Cruz",
+    email: "juandelacruz@gmail.com",
+    role: "Member",
+    address: "Masiang, Bulacan",
+    dob: "20 Aug 1999",
+    dateAdded: "March 21, 2025",
+  },
+  {
+    id: 1,
+    firstName: "Juan",
+    lastName: "Dela Cruz",
+    email: "juandelacruz@gmail.com",
+    role: "Member",
+    address: "Masiang, Bulacan",
+    dob: "20 Aug 1999",
+    dateAdded: "March 21, 2025",
+  },
+  {
+    id: 1,
+    firstName: "Juan",
+    lastName: "Dela Cruz",
+    email: "juandelacruz@gmail.com",
+    role: "Member",
+    address: "Masiang, Bulacan",
+    dob: "20 Aug 1999",
+    dateAdded: "March 21, 2025",
+  },
+  {
+    id: 1,
+    firstName: "Juan",
+    lastName: "Dela Cruz",
+    email: "juandelacruz@gmail.com",
+    role: "Member",
+    address: "Masiang, Bulacan",
+    dob: "20 Aug 1999",
+    dateAdded: "March 21, 2025",
+  },
+  
+];
+
+const pendingMembersInitial = [
+  {
+    id: 1,
+    name: "Juan Dela Cruz",
+    email: "juandelacruz@gmail.com",
+    role: "Member",
+    dob: "July 17, 1997",
+    address: "Matthew St., Macamot, Bulacan",
+    submitted: "March 12, 2025, 11:34 AM",
+    doc: "nat_id_juandc.pdf",
+    avatar: "https://via.placeholder.com/40"
+  },
+];
+
+
+
+const rejectedMembersInitial = [
+  {
+    id: 1,
+    name: "Juan Dela Cruz",
+    email: "juandelacruz@gmail.com",
+    appliedAs: "Member",
+    reason: "Duplicate Registration",
+    document: "nat_id_juandc.pdf",
+    rejectedOn: "March 21, 2025",
+  },
+];
+
+export default function MemberTabs() {
+  // Tabs: current, pending, rejected
+  const [activeTab, setActiveTab] = useState("current");
   const [underlineStyle, setUnderlineStyle] = useState({ left: 0, width: 0 });
-  const [members, setMembers] = useState(
-    [
-    {
-      id: 1,
-      firstName: "Juan",
-      lastName: "Dela Cruz",
-      email: "juandcruz@gmail.com",
-      role: "Member",
-      address: "Masinag, Barangay Masinag, Purok 5, Street 10",
-      dob: "1999-08-20",
-      number: "09171234567",
-      barangay: "Barangay Masinag",
-      purok: "Purok 5",
-      street: "Street 10",
-      document: "ID12345",
-      profilePic: "https://via.placeholder.com/100"
-    },
-  ]);
+  const tabRefs = useRef([]);
+  
+  // Members state for current tab
+  const [members, setMembers] = useState(currentMembersInitial);
+  
+  // Search states
+  const [searchCurrent, setSearchCurrent] = useState("");
+  const [searchRejected, setSearchRejected] = useState("");
+  
+  // Selected members for bulk actions
+  const [selectedMembers, setSelectedMembers] = useState([]);
+  
+  // Editing member and edit form
   const [editingMember, setEditingMember] = useState(null);
+  const [editForm, setEditForm] = useState({
+    firstName: '',
+    lastName: '',
+    role: '',
+    number: '',
+    DateofBirth: '',
+    barangay: '',
+    purok: '',
+    street: '',
+    document: '',
+  });
+  
+  // Add member modal and form
+  const [isAddMemberModalOpen, setIsAddMemberModalOpen] = useState(false);
   const [addMemberForm, setAddMemberForm] = useState({
     step: 1,
     emailOrPhone: '',
@@ -31,66 +137,112 @@ const Tabs = () => {
     firstName: '',
     lastName: '',
     address: '',
+    barangay: '',
+    purok: '',
+    street: '',
   });
-  const [editForm, setEditForm] = useState({ 
-    firstName: '', lastName: '', role: '', number: '', dob: '', barangay: '', purok: '', street: '', document: '' 
-  });
-  const [confirmAction, setConfirmAction] = useState(null);
-  const [isAddMemberModalOpen, setIsAddMemberModalOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
+  
+  // Success and confirm modals
   const [successModalOpen, setSuccessModalOpen] = useState(false);
-  const tabRefs = [useRef(null), useRef(null), useRef(null)];
+  const [confirmAction, setConfirmAction] = useState(null); // eg {type:'deleteMember',id:1}
 
-  const filteredMembers = members.filter((member) => 
-    `${member.firstName} ${member.lastName}`.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    member.email.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  // Filter functions
+  const filterMembersBySearch = (list, search) => {
+    if (!search.trim()) return list;
+    return list.filter(m => {
+      const fullName = (m.firstName ? (m.firstName + " " + (m.lastName || "")).toLowerCase() : m.name?.toLowerCase?.() || "");
+      return fullName.includes(search.toLowerCase());
+    });
+  };
+  
+  // Filtered members for current tab
+  const filteredMembers = filterMembersBySearch(members, searchCurrent);
+  
+  // For rejected members search
+  const [rejectedMembers] = useState(rejectedMembersInitial);
+  const filteredRejectedMembers = filterMembersBySearch(rejectedMembers, searchRejected);
 
-  const handleTabChange = (tabIndex) => {
-    setActiveTab(tabIndex);
+  // Handle underline movement for tabs
+  useEffect(() => {
+    const index = ["current", "pending", "rejected"].indexOf(activeTab);
+    const currentTab = tabRefs.current[index];
+    if (currentTab) {
+      setUnderlineStyle({
+        left: currentTab.offsetLeft,
+        width: currentTab.offsetWidth,
+      });
+    }
+  }, [activeTab]);
+  
+  // Toggle select all current filtered members
+  const toggleSelectAll = () => {
+    if (selectedMembers.length === filteredMembers.length) {
+      setSelectedMembers([]);
+    } else {
+      setSelectedMembers(filteredMembers.map(m => m.id));
+    }
+  };
+  
+  // Toggle select member by id
+  const toggleSelectMember = (id) => {
+    setSelectedMembers(prev => prev.includes(id) ? prev.filter(mId => mId !== id) : [...prev, id]);
   };
 
+  // Bulk delete selected members
+  const handleBulkDelete = () => {
+    setMembers(prev => prev.filter(m => !selectedMembers.includes(m.id)));
+    setSelectedMembers([]);
+  };
+
+  // Handle edit click
   const handleEditClick = (member) => {
     setEditingMember(member);
     setEditForm({
-      firstName: member.firstName,
-      lastName: member.lastName,
-      role: member.role,
-      number: member.number,
-      dob: member.dob,
-      barangay: member.barangay,
-      purok: member.purok,
-      street: member.street,
-      document: member.document,
+      firstName: member.firstName || '',
+      lastName: member.lastName || '',
+      role: member.role || '',
+      number: member.number || '',
+      DateofBirth: member.dob || '',
+      barangay: member.barangay || '',
+      purok: member.purok || '',
+      street: member.street || '',
+      document: member.document || '',
+      email: member.email || '',
     });
   };
 
-  const handleDeleteMember = (id) => {
-    setConfirmAction({ type: 'deleteMember', id });
-  };
-  
-
+  // Handle edit input change
   const handleEditChange = (e) => {
-    setEditForm({ ...editForm, [e.target.name]: e.target.value });
+    const { name, value, files } = e.target;
+    if(name === "document" && files.length > 0){
+      setEditForm(prev => ({ ...prev, document: files[0]}));
+    } else {
+      setEditForm(prev => ({ ...prev, [name]: value }));
+    }
   };
 
+  // Confirm edit changes
   const handleConfirmEdit = () => {
     setConfirmAction('confirmEdit');
   };
 
+  // Cancel edit changes
   const handleCancelEdit = () => {
     setConfirmAction('cancelEdit');
   };
 
+  // Proceed action for confirm modals
   const proceedAction = () => {
     if (confirmAction === 'confirmEdit') {
-      setMembers((prev) =>
-        prev.map((m) =>
-          m.id === editingMember.id ? { ...m, ...editForm } : m
-        )
-      );
+      if(editingMember){
+        setMembers(prev =>
+          prev.map(m =>
+            m.id === editingMember.id ? { ...m, ...editForm } : m
+          )
+        );
+      }
       setEditingMember(null);
-    } else if (confirmAction === 'discardChanges') {
+    } else if (confirmAction === 'discardChanges' || confirmAction === 'cancelEdit') {
       setIsAddMemberModalOpen(false);
       setEditingMember(null);
       setSuccessModalOpen(false);
@@ -102,383 +254,688 @@ const Tabs = () => {
         firstName: '',
         lastName: '',
         address: '',
+        barangay: '',
+        purok: '',
+        street: '',
       });
     } else if (confirmAction?.type === 'deleteMember') {
-      setMembers((prev) => prev.filter((m) => m.id !== confirmAction.id));
+      setMembers(prev => prev.filter(m => m.id !== confirmAction.id));
     }
     setConfirmAction(null);
   };
-  
-  
+
+  // Cancel confirm modal
   const cancelAction = () => {
     setConfirmAction(null);
   };
 
+  // Handle add member form input change
   const handleAddMemberInputChange = (e) => {
-    setAddMemberForm({ ...addMemberForm, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    setAddMemberForm(prev => ({ ...prev, [name]: value }));
   };
 
+  // Add member submit
   const handleAddMemberSubmit = () => {
+    if(addMemberForm.password !== addMemberForm.confirmPassword){
+      alert("Passwords do not match!");
+      return;
+    }
+    const newId = members.length > 0 ? Math.max(...members.map(m => m.id)) + 1 : 1;
     const newMember = {
-      id: members.length + 1,
-      ...addMemberForm,
-      address: `${addMemberForm.barangay}, ${addMemberForm.purok}, ${addMemberForm.street}`,
+      id: newId,
+      firstName: addMemberForm.firstName,
+      lastName: addMemberForm.lastName,
+      email: addMemberForm.emailOrPhone,
+      role: "Member",
+      address: addMemberForm.address,
+      dob: addMemberForm.DateofBirth || '',
+      dateAdded: (new Date()).toDateString(),
+      barangay: addMemberForm.barangay,
+      purok: addMemberForm.purok,
+      street: addMemberForm.street,
     };
     setMembers([...members, newMember]);
-    setSuccessModalOpen(true); // Show success modal
-     // Close the modal after adding
+    setSuccessModalOpen(true);
+    setIsAddMemberModalOpen(false);
     setAddMemberForm({
+      step: 1,
+      emailOrPhone: '',
+      password: '',
+      confirmPassword: '',
       firstName: '',
       lastName: '',
-      email: '',
-      role: '',
-      number: '',
-      dob: '',
+      address: '',
       barangay: '',
       purok: '',
       street: '',
-      document: null,
-    }); // Reset form
+    });
+  };
+  
+  // Icons for edit form fields
+  const fieldIcons = {
+    firstName: Firstname,
+    role: Role,
+    number: Number,
+    DateofBirth: DOB,
+    barangay: Barangay,
+    document: Docs,
   };
 
-  useEffect(() => {
-    const currentTab = tabRefs[activeTab].current;
-    if (currentTab) {
-      setUnderlineStyle({
-        left: currentTab.offsetLeft,
-        width: currentTab.offsetWidth,
-      });
-    }
-  }, [activeTab]);
+  
 
   return (
-    <div>
-      {/* Tabs */}
+    <div className="p-4">
+      {/* Tabs Navigation */}
       <div className="mb-4 border-b border-gray-200 dark:border-gray-700 relative">
-        <ul className="flex flex-wrap -mb-px text-sm font-medium text-center" id="default-styled-tab" role="tablist">
-          <li className="mr-[1cm]" role="presentation">
-            <button
-              ref={tabRefs[0]}
-              className={`inline-block p-4 ${activeTab === 0 ? "text-green-600" : "text-gray-500 hover:text-gray-600"}`}
-              onClick={() => handleTabChange(0)}
-              role="tab"
-            >
-              Current Members
-            </button>
-          </li>
-          <li className="mr-[1cm]" role="presentation">
-            <button
-              ref={tabRefs[1]}
-              className={`inline-block p-4 ${activeTab === 1 ? "text-green-600" : "text-gray-500 hover:text-gray-600"}`}
-              onClick={() => handleTabChange(1)}
-              role="tab"
-            >
-              Pending Members
-            </button>
-          </li>
-          <li className="mr-[1cm]" role="presentation">
-            <button
-              ref={tabRefs[2]}
-              className={`inline-block p-4 ${activeTab === 2 ? "text-green-600" : "text-gray-500 hover:text-gray-600"}`}
-              onClick={() => handleTabChange(2)}
-              role="tab"
-            >
-              Rejected Members
-            </button>
-          </li>
+        <ul
+          className="flex flex-wrap -mb-px text-sm font-medium text-center"
+          role="tablist"
+        >
+          {["current", "pending", "rejected"].map((tab, index) => (
+            <li key={tab} className="mr-10" role="presentation">
+              <button
+                ref={(el) => (tabRefs.current[index] = el)}
+                className={`inline-block p-4 ${activeTab === tab ? "text-green-600" : "text-gray-500 hover:text-gray-600"}`}
+                onClick={() => setActiveTab(tab)}
+                role="tab"
+                aria-selected={activeTab === tab}
+              >
+                {tab === "current" ? "Current Members" : tab === "pending" ? "Pending Members" : "Rejected Members"}
+              </button>
+            </li>
+          ))}
         </ul>
-
         <div
           className="absolute bottom-0 h-0.5 bg-green-600 transition-all duration-300"
           style={{ left: underlineStyle.left, width: underlineStyle.width }}
         />
       </div>
 
-      {/* Search Bar */}
-      <div className="mb-4">
-        <input
-          type="text"
-          placeholder="Search Members..."
-          className="p-2 border rounded w-full"
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-        />
-      </div>
+      {/* Current Members Tab */}
+      {activeTab === "current" && (
+        <>
+          <div className="flex items-center justify-between w-full mb-4">
+            {/* Left Side */}
+            <div className="flex items-center">
+              <img
+                src={loop}
+                alt="loop"
+                className="ml-5 mr-5 w-[20px] max-w-full object-contain"
+              />
+              <span className="text-[15.5px] text-lg font-semibold mr-2">All Members</span>
+            </div>
+            {/* Right Side */}
+            <div className="flex items-center space-x-4">
+              {/* Search Bar */}
+              <div className="relative w-[279px]">
+                <input
+                  type="text"
+                  placeholder="Search Members..."
+                  className="w-full h-[41px] pl-10 pr-3 border rounded-full p-2"
+                  value={searchCurrent}
+                  onChange={(e) => setSearchCurrent(e.target.value)}
+                />
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 w-5 h-5" />
+              </div>
 
-       {/* Add Member Button */}
-      <button
-        onClick={() => setIsAddMemberModalOpen(true)}
-        className="mb-4 p-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-      >
-        <FaPlus className="inline mr-2" />
-        Add Member
-      </button>
+              {/* Add Member Button */}
+              <button
+                onClick={() => {
+                  setIsAddMemberModalOpen(true);
+                  setAddMemberForm({ step: 1, emailOrPhone: '', password: '', confirmPassword: '', firstName: '', lastName: '', address: '', barangay: '', purok: '', street: '' });
+                }}
+                className="flex items-center justify-center gap-2 bg-app-primary hover:bg-app-primary/90 text-white rounded-full px-6 py-2"
+                data-model-id="1391:4664"
+              >
+                <FaPlus className="w-5 h-5" />
+                <span className="font-semibold text-[16px]">Add Member</span>
+              </button>
+            </div>
+          </div>
 
+          {/* Bulk Delete Button */}
+          <div className="p-0 rounded-lg bg-gray-50 dark:bg-gray-800" role="tabpanel" tabIndex={0}>
+            <div className="flex justify-between items-center mb-4">
+            </div>
 
-      {/* Current Members Content */}
-      {activeTab === 0 && (
-        <div className="p-4 rounded-lg bg-gray-50 dark:bg-gray-800" role="tabpanel">
-          <table className="min-w-full">
-            <thead>
-              <tr className="text-left">
-                <th className="p-2">Name</th>
-                <th className="p-2">Email</th>
-                <th className="p-2">Role</th>
-                <th className="p-2">Address</th>
-                <th className="p-2">DOB</th>
-                <th className="p-2">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredMembers.map((member) => (
-                <tr key={member.id} className="border-t">
-                  <td className="p-2">{member.firstName} {member.lastName}</td>
-                  <td className="p-2">{member.email}</td>
-                  <td className="p-2">{member.role}</td>
-                  <td className="p-2">{member.address}</td>
-                  <td className="p-2">{member.dob}</td>
-                  <td className="p-2 flex gap-2">
-                    <button
-                      onClick={() => handleEditClick(member)}
-                      className="text-blue-500 hover:text-blue-700"
-                    >
-                      <FaEdit />
-                    </button>
-                    <button
-  onClick={() => handleDeleteMember(member.id)}
-  className="text-red-500 hover:text-red-700"
->
-  <FaTrash />
-</button>
-
-                  </td>
+            {/* Table */}
+            <table className="min-w-full border-spacing-y-2">
+              <thead>
+                <tr className="text-left" style={{ backgroundColor: "#F4F4F4" }}>
+                  <th className="p-2 rounded-tl-lg rounded-tr-lg">
+                    <input
+                      type="checkbox"
+                      checked={selectedMembers.length === filteredMembers.length && filteredMembers.length > 0}
+                      onChange={toggleSelectAll}
+                      aria-label="Select all members"
+                    />
+                  </th>
+                  <th className="p-2">Username</th>
+                  <th className="p-2">Role</th>
+                  <th className="p-2">Address</th>
+                  <th className="p-2">Date of Birth</th>
+                  <th className="p-2">Date Added</th>
+                  <th className="p-2">Actions</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody>
+                {filteredMembers.map((member) => (
+                  <tr key={member.id} className="border-t">
+                    <td className="p-2">
+                      <input
+                        type="checkbox"
+                        checked={selectedMembers.includes(member.id)}
+                        onChange={() => toggleSelectMember(member.id)}
+                        aria-label={`Select member ${member.firstName} ${member.lastName}`}
+                      />
+                    </td>
+                    <td className="p-2 flex items-center">
+                      <img
+                        src={Juan}
+                        alt={`${member.firstName} ${member.lastName}`}
+                        className="w-10 h-10 rounded-full object-cover mr-3"
+                      />
+                      <div>
+                        <div>{member.firstName} {member.lastName}</div>
+                        <div className="text-sm text-gray-600">{member.email}</div>
+                      </div>
+                    </td>
+                    <td className="p-2">
+                      <div
+                        className="text-center font-bold"
+                        style={{
+                          color: '#0038A8',
+                          borderRadius: '200px',
+                          border: '0.75px solid #0038A8',
+                          opacity: 0.75,
+                          background: '#C0D5FF',
+                          padding: '0px 8px',
+                          fontSize: '12px',
+                          display: 'inline-block',
+                        }}
+                      >
+                        {member.role}
+                      </div>
+                    </td>
+                    <td className="p-2">{member.address}</td>
+                    <td className="p-2">{member.dob}</td>
+                    <td className="p-2">{member.dateAdded}</td>
+                    <td className="p-2 flex gap-2">
+                      <button
+                        onClick={() => handleEditClick(member)}
+                        className="text-blue-500 hover:text-blue-700"
+                        aria-label={`Edit member ${member.firstName} ${member.lastName}`}
+                      >
+                        <FaEdit />
+                      </button>
+                      <button
+                        onClick={() => setConfirmAction({ type: 'deleteMember', id: member.id })}
+                        className="text-red-500 hover:text-red-700"
+                        aria-label={`Delete member ${member.firstName} ${member.lastName}`}
+                      >
+                        <FaTrash />
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+                {filteredMembers.length === 0 && (
+                  <tr>
+                    <td colSpan={7} className="p-4 text-center text-gray-600">No members found.</td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </>
+      )}
+
+      {/* Pending Members Tab */}
+      {activeTab === "pending" && (
+        <>
+          <div className="card card-dash bg-base-100 w-96">
+  <div className="card-body">
+    <h2 className="card-title">Card Title</h2>
+    <p>A card component has a figure, a body part, and inside body there are title and actions parts</p>
+    <div className="card-actions justify-end">
+
+    </div>
+  </div>
+</div>
+       
+        </>
+      )}
+
+      {/* Rejected Members Tab */}
+      {activeTab === "rejected" && (
+        <>
+         <div className="flex items-center justify-between w-full mb-4">
+            {/* Left Side */}
+            <div className="flex items-center">
+              <img
+                src={loop}
+                alt="loop"
+                className="ml-5 mr-5 w-[20px] max-w-full object-contain"
+              />
+              <span className="text-[15.5px] text-lg font-semibold mr-2">Rejected Members</span>
+            </div>
+            {/* Right Side */}
+            <div className="flex items-center space-x-4">
+              {/* Search Bar */}
+              <div className="relative w-[279px]">
+                <input
+                  type="text"
+                  placeholder="Search Members..."
+                  className="w-full h-[41px] pl-10 pr-3 border rounded-full p-2"
+                  value={searchCurrent}
+                  onChange={(e) => setSearchCurrent(e.target.value)}
+                />
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 w-5 h-5" />
+              </div>
+
+              {/* Add Member Button */}
+              <button
+                onClick={() => {
+                  setIsAddMemberModalOpen(true);
+                  setAddMemberForm({ step: 1, emailOrPhone: '', password: '', confirmPassword: '', firstName: '', lastName: '', address: '', barangay: '', purok: '', street: '' });
+                }}
+                className="flex items-center justify-center gap-2 bg-app-primary hover:bg-app-primary/90 text-white rounded-full px-6 py-2"
+                data-model-id="1391:4664"
+              >
+                <FaPlus className="w-5 h-5" />
+                <span className="font-semibold text-[16px]">Add Member</span>
+              </button>
+            </div>
+          </div>
+
+          {/* Bulk Delete Button */}
+          <div className="p-0 rounded-lg bg-gray-50 dark:bg-gray-800" role="tabpanel" tabIndex={0}>
+            <div className="flex justify-between items-center mb-4">
+            </div>
+
+            {/* Table */}
+            <table className="min-w-full border-spacing-y-2">
+  <thead>
+    <tr className="text-left" style={{ backgroundColor: "#F4F4F4" }}>
+      <th className="p-2 rounded-tl-lg rounded-tr-lg">
+        <input
+          type="checkbox"
+          checked={selectedMembers.length === filteredMembers.length && filteredMembers.length > 0}
+          onChange={toggleSelectAll}
+          aria-label="Select all members"
+        />
+      </th>
+      <th className="p-2">Username</th>
+      <th className="p-2">Applied As</th>
+      <th className="p-2">Reason of Rejection</th>
+      <th className="p-2">Document</th>
+      <th className="p-2">Rejected on</th>
+      <th className="p-2">Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    {filteredMembers.map((rejectedMembers) => (
+      <tr key={rejectedMembers.id} className="border-t">
+        <td className="p-2">
+          <input
+            type="checkbox"
+            checked={selectedMembers.includes(rejectedMembers.id)}
+            onChange={() => toggleSelectMember(rejectedMembers.id)}
+            aria-label={`Select member ${rejectedMembers.name}`}
+          />
+        </td>
+        <td className="p-2 flex items-center">
+          <img
+            src={Juan}
+            alt={rejectedMembers.name}
+            className="w-10 h-10 rounded-full object-cover mr-3"
+          />
+          <div>
+            <div>{rejectedMembers.name}</div>
+            <div className="text-sm text-gray-600">{rejectedMembers.email}</div>
+          </div>
+        </td>
+        <td className="p-2">
+          <div
+            className="text-center font-bold"
+            style={{
+              color: '#0038A8',
+              borderRadius: '200px',
+              border: '0.75px solid #0038A8',
+              opacity: 0.75,
+              background: '#C0D5FF',
+              padding: '0px 8px',
+              fontSize: '12px',
+              display: 'inline-block',
+            }}
+          >
+            {rejectedMembers.appliedAs}
+          </div>
+        </td>
+        <td className="p-2">
+          <div
+            className="text-center font-bold"
+            style={{
+              color: '#0038A8',
+              borderRadius: '200px',
+              border: '0.75px solid #0038A8',
+              opacity: 0.75,
+              background: '#C0D5FF',
+              padding: '0px 8px',
+              fontSize: '12px',
+              display: 'inline-block',
+            }}
+          >
+            {rejectedMembers.reason}
+          </div>
+        </td>
+        <td className="p-2">{rejectedMembers.document}</td>
+        <td className="p-2">{rejectedMembers.rejectedOn}</td>
+        <td className="p-2 flex gap-2">
+          <button
+            onClick={() => handleEditClick(rejectedMembers)}
+            className="text-blue-500 hover:text-blue-700"
+            aria-label={`Edit member ${rejectedMembers.name}`}
+          >
+            <FaEdit />
+          </button>
+          <button
+            onClick={() => setConfirmAction({ type: 'deleteMember', id: rejectedMembers.id })}
+            className="text-red-500 hover:text-red-700"
+            aria-label={`Delete member ${rejectedMembers.name}`}
+          >
+            <FaTrash />
+          </button>
+        </td>
+      </tr>
+    ))}
+    {filteredMembers.length === 0 && (
+      <tr>
+        <td colSpan={7} className="p-4 text-center text-gray-600">
+          No members found.
+        </td>
+      </tr>
+    )}
+  </tbody>
+</table>
+
+          </div>
+        </>
       )}
 
       {/* Add Member Modal */}
       {isAddMemberModalOpen && (
-  <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-    <div className="bg-[#F8FCF8] dark:bg-gray-700 p-6 rounded-lg w-[90%] max-w-lg relative">
-      
-      {/* X Button */}
-      <button
-        onClick={() => setConfirmAction('discardAddMember')}
-        className="absolute top-4 right-4 text-gray-500 hover:text-gray-700"
-      >
-        ✖
-      </button>
-
-      <div className="mb-6">
-        <h3 className="text-xl font-semibold">{addMemberForm.step === 2 ? 'Basic Information' : 'Account Credentials'}</h3>
-      </div>
-
-      {/* Step 1: Account Credentials */}
-      {addMemberForm.step === 1 && (
-        <div className="space-y-4">
-          <div className="flex flex-col gap-2">
-            <label>Email or Phone Number</label>
-            <input
-              type="text"
-              name="emailOrPhone"
-              value={addMemberForm.emailOrPhone || ''}
-              onChange={handleAddMemberInputChange}
-              className="p-2 border rounded"
-            />
-          </div>
-          <div className="flex flex-col gap-2">
-            <label>Password</label>
-            <input
-              type="password"
-              name="password"
-              value={addMemberForm.password || ''}
-              onChange={handleAddMemberInputChange}
-              className="p-2 border rounded"
-            />
-          </div>
-          <div className="flex flex-col gap-2">
-            <label>Re-enter Password</label>
-            <input
-              type="password"
-              name="confirmPassword"
-              value={addMemberForm.confirmPassword || ''}
-              onChange={handleAddMemberInputChange}
-              className="p-2 border rounded"
-            />
-          </div>
-
-          {/* Next Button */}
-          <div className="flex justify-end mt-6">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+          <div
+            className={`bg-[#F8FCF8] dark:bg-gray-700 p-6 rounded-3xl relative w-[523px] ${
+              addMemberForm.step === 1 ? 'h-[775px]' : 'h-auto'
+            }`}
+          >
+            {/* X Button */}
             <button
-              onClick={() => {
-                if (addMemberForm.password !== addMemberForm.confirmPassword) {
-                  alert("Passwords do not match!");
-                  return;
-                }
-                setAddMemberForm({ ...addMemberForm, step: 2 });
-              }}
-              className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+              onClick={() => setConfirmAction('discardChanges')}
+              className="absolute top-4 right-4 text-gray-500 hover:text-gray-700"
+              aria-label="Close add member modal"
             >
-              Next
+              ✖
             </button>
+
+            {/* Step 1 */}
+            {addMemberForm.step === 1 && (
+              <div className="space-y-4">
+                <div className="mb-4">
+                  <img src={Step1} alt="Step 1" />
+                </div>
+                <div className="flex flex-col gap-3">
+                  <label>Phone Number/Email</label>
+                  <input
+                    type="text"
+                    name="emailOrPhone"
+                    value={addMemberForm.emailOrPhone}
+                    onChange={handleAddMemberInputChange}
+                    className="w-[450px] h-[60px] border rounded-full mx-auto"
+                  />
+                </div>
+                <div className="flex flex-col gap-2">
+                  <label>Password</label>
+                  <input
+                    type="password"
+                    name="password"
+                    value={addMemberForm.password}
+                    onChange={handleAddMemberInputChange}
+                    className="w-[450px] h-[60px] border rounded-full mx-auto"
+                  />
+                </div>
+                <div className="flex flex-col gap-2">
+                  <label>Re-enter Password</label>
+                  <input
+                    type="password"
+                    name="confirmPassword"
+                    value={addMemberForm.confirmPassword}
+                    onChange={handleAddMemberInputChange}
+                    className="w-[450px] h-[60px] border rounded-full mx-auto"
+                  />
+                </div>
+
+                {/* Password Requirements */}
+                <div className="text-sm text-gray-600 mt-2">
+                  <p>Your password must contain...</p>
+                  <ul className="list-disc pl-5">
+                    <li className="text-[#4CAE4F]">Minimum of 8 Characters</li>
+                    <li className="text-[#4CAE4F]">At least 1 lower and upper case letters</li>
+                    <li className="text-[#4CAE4F]">At least 1 symbol (@#$)</li>
+                    <li className="text-[#4CAE4F]">At least 1 number (123)</li>
+                  </ul>
+                </div>
+
+                <div className="mt-auto">
+                  <button
+                    onClick={() => {
+                      if (addMemberForm.password !== addMemberForm.confirmPassword) {
+                        alert("Passwords do not match!");
+                        return;
+                      }
+                      setAddMemberForm((prev) => ({ ...prev, step: 2 }));
+                    }}
+                    className="w-[476px] h-[60px] bg-[#4CAE4F] text-white rounded-full hover:bg-[#429C3D]"
+                  >
+                    Next
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Step 2 */}
+            {addMemberForm.step === 2 && (
+              <div className="space-y-6">
+                <div className="mb-4">
+                  <img src={Step2} alt="Step 2" />
+                </div>
+                <div className="flex gap-4">
+                  <div className="bg-[#F8FCF8] dark:bg-gray-700 rounded-lg flex-1 flex flex-col">
+                    <label className="block mb-2">First Name</label>
+                    <input
+                      type="text"
+                      name="firstName"
+                      value={addMemberForm.firstName}
+                      onChange={handleAddMemberInputChange}
+                      className="h-[60px] p-2 border rounded-full"
+                    />
+                  </div>
+                  <div className="flex-1 flex flex-col gap-2">
+                    <label>Last Name</label>
+                    <input
+                      type="text"
+                      name="lastName"
+                      value={addMemberForm.lastName}
+                      onChange={handleAddMemberInputChange}
+                      className="h-[60px] p-2 border rounded-full"
+                    />
+                  </div>
+                </div>
+                <div className="flex flex-col gap-2">
+                  <label>Address</label>
+                  <input
+                    type="text"
+                    name="address"
+                    value={addMemberForm.address}
+                    onChange={handleAddMemberInputChange}
+                    className="h-[60px] p-2 border rounded-full"
+                  />
+                </div>
+                {/* Map Placeholder */}
+                <div className="w-full h-40 bg-gray-300 rounded flex justify-center items-center text-gray-600">
+                  Map Placeholder
+                </div>
+                <div className="flex justify-end mt-6">
+                  <button
+                    onClick={handleAddMemberSubmit}
+                    className="w-[476px] h-[60px] bg-[#4CAE4F] text-white rounded-full hover:bg-[#429C3D]"
+                  >
+                    Finish
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       )}
 
-      {/* Step 2: Basic Info */}
-      {addMemberForm.step === 2 && (
-        <div className="space-y-4">
-          <div className="flex gap-4">
-            <div className="flex-1 flex flex-col gap-2">
-              <label>First Name</label>
-              <input
-                type="text"
-                name="firstName"
-                value={addMemberForm.firstName}
-                onChange={handleAddMemberInputChange}
-                className="p-2 border rounded"
-              />
-            </div>
-            <div className="flex-1 flex flex-col gap-2">
-              <label>Last Name</label>
-              <input
-                type="text"
-                name="lastName"
-                value={addMemberForm.lastName}
-                onChange={handleAddMemberInputChange}
-                className="p-2 border rounded"
-              />
-            </div>
-          </div>
-          <div className="flex flex-col gap-2">
-            <label>Address</label>
-            <input
-              type="text"
-              name="address"
-              value={addMemberForm.address || ''}
-              onChange={handleAddMemberInputChange}
-              className="p-2 border rounded"
-            />
-          </div>
-
-          {/* Map Placeholder */}
-          <div className="w-full h-40 bg-gray-300 rounded flex justify-center items-center text-gray-600">
-            Map Placeholder
-          </div>
-
-          {/* Finish Button */}
-          <div className="flex justify-end mt-6">
-          <button
-              onClick={handleAddMemberSubmit}
-              className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
+      {/* Success Modal */}
+      {successModalOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+          <div
+            className="bg-white dark:bg-gray-800 p-6 w-[90%] max-w-sm relative rounded-[25px]"
+          >
+            <button
+              onClick={() => setConfirmAction('discardChanges')}
+              className="absolute top-4 right-4 text-gray-500 hover:text-gray-700"
+              aria-label="Close success modal"
             >
-              Finish
+              ✖
             </button>
+
+            <div className="mb-6 text-center">
+              <div className="mb-4">
+                <img src={Member} alt="Member" />
+              </div>
+              <p className="mb-6 text-lg font-semibold">Member added successfully!</p>
+            </div>
+
+            <div className="flex justify-center gap-4">
+              <button
+                onClick={() => {
+                  setSuccessModalOpen(false);
+                  setIsAddMemberModalOpen(true);
+                  setAddMemberForm(prev => ({ ...prev, step: 2 }));
+                }}
+                className="px-10 py-2 bg-white text-[#4CAE4F] border border-[#4CAE4F] rounded-full hover:bg-[#4CAE4F] hover:text-white font-bold"
+              >
+                Back
+              </button>
+              <button
+                onClick={() => {
+                  setSuccessModalOpen(false);
+                  setIsAddMemberModalOpen(false);
+                  setAddMemberForm({
+                    step: 1,
+                    emailOrPhone: '',
+                    password: '',
+                    confirmPassword: '',
+                    firstName: '',
+                    lastName: '',
+                    address: '',
+                    barangay: '',
+                    purok: '',
+                    street: '',
+                  });
+                }}
+                className="px-10 py-2 bg-[#4CAE4F] text-white rounded-full hover:bg-green-600 font-bold"
+              >
+                Done
+              </button>
+            </div>
           </div>
         </div>
       )}
-    </div>
-  </div>
-)}
-
-{/* Success Modal */}
-{successModalOpen && (
-  <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-    <div className="bg-white dark:bg-gray-800 p-6 rounded-lg w-[90%] max-w-sm relative">
-      
-      {/* X Button */}
-      <button
-        onClick={() => setConfirmAction('discardChanges')}
-        className="absolute top-4 right-4 text-gray-500 hover:text-gray-700"
-      >
-        ✖
-      </button>
-
-      <div className="mb-6 text-center">
-        <h3 className="text-xl font-semibold">Member added successfully!</h3>
-      </div>
-
-      <div className="flex justify-center gap-4">
-        <button
-          onClick={() => {
-            setSuccessModalOpen(false);
-            setIsAddMemberModalOpen(true);
-            setAddMemberForm({ ...addMemberForm, step: 2 }); // Go back to Step 2
-          }}
-          className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-        >
-          Back
-        </button>
-        <button
-          onClick={() => {
-            setSuccessModalOpen(false);
-            setIsAddMemberModalOpen(false);
-            setAddMemberForm({
-              step: 1,
-              emailOrPhone: '',
-              password: '',
-              confirmPassword: '',
-              firstName: '',
-              lastName: '',
-              address: '',
-            }); // Reset form
-          }}
-          className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
-        >
-          Done
-        </button>
-      </div>
-    </div>
-  </div>
-)}
 
       {/* Edit Member Modal */}
       {editingMember && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-          <div className="bg-white dark:bg-gray-800 p-6 rounded-lg w-[90%] max-w-md">
-            <div className="mb-6">
-              <h3 className="text-xl font-semibold">Edit Member</h3>
+          <div className="bg-[#F8FCF8] p-6 rounded-3xl w-[450px] shadow-lg">
+            {/* Header */}
+            <div className="flex justify-between items-start mb-4">
+              <div className="flex items-center gap-4">
+                <img
+                  src="https://i.pravatar.cc/40"
+                  alt="user"
+                  className="w-16 h-16 rounded-full object-cover"
+                />
+                <div>
+                  <h2 className="text-lg font-semibold leading-tight">
+                    {editingMember.firstName} {editingMember.lastName}
+                  </h2>
+                  <p className="text-sm text-gray-600">{editingMember.email}</p>
+                </div>
+              </div>
+              <button
+                onClick={handleCancelEdit}
+                className="text-gray-500 hover:text-gray-800 text-xl"
+                aria-label="Close edit member modal"
+              >
+                &times;
+              </button>
             </div>
-            <div className="space-y-4">
-              {['firstName', 'lastName', 'role', 'number', 'dob', 'barangay', 'purok', 'street'].map((field) => (
+
+            <hr className="mb-4" />
+
+            {/* Edit Form Fields */}
+            <div className="space-y-1">
+              {['firstName', 'lastName', 'role', 'number', 'DateofBirth', 'barangay', 'purok', 'street'].map((field) => (
                 <div key={field} className="flex items-center gap-4">
-                  <label className="w-24 capitalize">
-                    {field.replace(/([A-Z])/g, ' $1')}
-                  </label>
+                  <div className="w-32 flex items-center gap-2">
+                    {fieldIcons[field] ? (
+                      <img src={fieldIcons[field]} alt={field} className="w-5 h-5" />
+                    ) : (
+                      <span className="w-5 h-5" /> // Empty placeholder to align labels
+                    )}
+                    <label className="capitalize">{field.replace(/([A-Z])/g, ' $1')}</label>
+                  </div>
                   <input
-                    type={field === 'dob' ? 'date' : 'text'}
+                    type={field === 'DateofBirth' ? 'date' : 'text'}
                     name={field}
-                    value={editForm[field]}
+                    value={editForm[field] || ''}
                     onChange={handleEditChange}
-                    className="flex-1 p-2 border rounded"
+                    className="flex-1 p-2 rounded bg-[#F8FCF8] font-medium" 
                   />
                 </div>
               ))}
               <div className="flex items-center gap-4">
-                <label className="w-24 capitalize">Document</label>
+                <div className="w-32 flex items-center gap-2">
+                  <img src={fieldIcons.document} alt="document" className="w-5 h-5" />
+                  <label className="capitalize">Document</label>
+                </div>
                 <input
                   type="file"
                   name="document"
-                  onChange={(e) => setEditForm({ ...editForm, document: e.target.files[0] })}
-                  className="flex-1 p-2 border rounded"
+                  onChange={handleEditChange}
+                  className="flex-1 p-2 rounded font-medium"
                 />
               </div>
             </div>
-            <div className="flex justify-end gap-4 mt-6">
+
+            <div className="mt-6 flex justify-center items-center gap-4">
               <button
                 onClick={handleCancelEdit}
-                className="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400"
+                className="px-12 py-2 bg-[#E02A3B] text-white border border-[#E02A3B] rounded-full hover:bg-[#E02A3B] hover:text-white"
               >
-                Cancel
+                Disregard
               </button>
               <button
                 onClick={handleConfirmEdit}
-                className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
+                className="px-14 py-2 bg-[#4CAE4F] text-white border border-[#4CAE4F] rounded-full hover:bg-[#4CAE4F] hover:text-white"
               >
-                Save Changes
+                Confirm
               </button>
             </div>
           </div>
@@ -488,62 +945,40 @@ const Tabs = () => {
       {/* Confirmation Modal */}
       {confirmAction && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-          <div className="bg-white dark:bg-gray-800 p-6 rounded-lg w-[80%] max-w-xs text-center">
-            <p className="mb-6 text-lg font-semibold">
-  {confirmAction === 'confirmEdit' 
-    ? 'Are you sure you want to confirm changes?' 
-    : confirmAction === 'discardChanges' 
-    ? 'Are you sure you want to discard changes?'
-    : 'Are you sure you want to disregard changes?'}
-</p>
-{confirmAction && (
-  <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-    <div className="bg-white dark:bg-gray-800 p-6 rounded-lg w-[80%] max-w-xs text-center">
-      <p className="mb-6 text-lg font-semibold">
-        {confirmAction?.type === 'deleteMember'
-          ? 'Are you sure you want to delete this member?'
-          : confirmAction === 'confirmEdit' 
-          ? 'Are you sure you want to confirm changes?' 
-          : 'Are you sure you want to discard changes?'}
-      </p>
-
-      <div className="flex justify-center gap-4">
-        <button
-          onClick={proceedAction}
-          className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
-        >
-          Yes
-        </button>
-        <button
-          onClick={cancelAction}
-          className="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400"
-        >
-          No
-        </button>
-      </div>
-    </div>
-  </div>
-)}
+          <div className="bg-white dark:bg-gray-800 p-6 rounded-[25px] w-[380px] h-[300px] text-center">
+            {(confirmAction === 'discardChanges' || confirmAction === 'cancelEdit') ? (
+              <div className="mb-4">
+                <div className="mb-6 text-center">
+                  <div className="mb-4 flex justify-center items-center">
+                    <img src={Dis} alt="Dis" className="w-[260px] max-w-full object-contain" />
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <p className="mb-6 text-lg font-semibold">
+                Are you sure you want to confirm changes?
+              </p>
+            )}
 
             <div className="flex justify-center gap-4">
               <button
-                onClick={proceedAction}
-                className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
+                onClick={cancelAction}
+                className="px-10 py-2 bg-[#FF3B4E] text-white rounded-full hover:bg-[#E02A3B] font-bold"
               >
-                Yes
+                Cancel
               </button>
               <button
-                onClick={cancelAction}
-                className="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400"
+                onClick={proceedAction}
+                className="px-7 py-2 bg-white text-[#E02A3B] border border-[#E02A3B] rounded-full hover:bg-[#E02A3B] hover:text-white font-bold"
               >
-                No
+                Disregard
               </button>
             </div>
           </div>
         </div>
       )}
+
     </div>
   );
-};
+}
 
-export default Tabs;
