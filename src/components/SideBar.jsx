@@ -116,10 +116,10 @@ const Sidebar = () => {
         <li>
           <details className="group [&_summary::-webkit-details-marker]:hidden">
             <summary className="flex cursor-pointer items-center justify-between rounded-lg px-3 py-1.5 text-gray-500 hover:bg-gray-100 hover:text-gray-700">
-              <span className="flex items-center space-x-2">
+              <Link to="/financial" className="flex items-center space-x-2">
               <img src={Financial} alt="Financial" className="w-5 h-5" />
                 <span className="text-sm font-Inter font-bold">Financial</span>
-              </span>
+              </Link>
               <span className="shrink-0 transition duration-300 group-open:-rotate-180">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
