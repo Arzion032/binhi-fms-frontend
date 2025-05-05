@@ -69,22 +69,6 @@ const currentMembersInitial = [
   
 ];
 
-const pendingMembersInitial = [
-  {
-    id: 1,
-    name: "Juan Dela Cruz",
-    email: "juandelacruz@gmail.com",
-    role: "Member",
-    dob: "July 17, 1997",
-    address: "Matthew St., Macamot, Bulacan",
-    submitted: "March 12, 2025, 11:34 AM",
-    doc: "nat_id_juandc.pdf",
-    avatar: "https://via.placeholder.com/40"
-  },
-];
-
-
-
 const rejectedMembersInitial = [
   {
     id: 1,
@@ -327,7 +311,7 @@ export default function MemberTabs() {
   return (
 
     
-    <div className="p-4">
+    <div className="p-0">
        <div className="w-full bg-binhi-100 shadow-sm">
       {/* Navbar with breadcrumbs and right icon */}
       <div className="flex items-center justify-between px-6 py-3">
@@ -536,16 +520,225 @@ export default function MemberTabs() {
       {/* Pending Members Tab */}
       {activeTab === "pending" && (
         <>
-          <div className="card card-dash bg-base-100 w-96">
-  <div className="card-body">
-    <h2 className="card-title">Card Title</h2>
-    <p>A card component has a figure, a body part, and inside body there are title and actions parts</p>
-    <div className="card-actions justify-end">
+      <div className="flex items-center justify-between w-full mb-4">
+  {/* Left Side */}
+  <div className="flex items-center">
+    <img
+      src={loop}
+      alt="loop"
+      className="ml-5 mr-5 w-[20px] max-w-full object-contain"
+    />
+    <span className="text-[15.5px] text-lg font-semibold mr-2">
+      Pending Members
+    </span>
+  </div>
 
+  {/* Right Side */}
+  <div className="flex items-center space-x-4">
+    {/* Search Bar */}
+    <div className="relative w-[279px]">
+      <input
+        type="text"
+        placeholder="Search Members..."
+        className="w-full h-[41px] pl-10 pr-3 border rounded-full p-2"
+        value={searchCurrent}
+        onChange={(e) => setSearchCurrent(e.target.value)}
+      />
+      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 w-5 h-5" />
     </div>
+
+    {/* Add Member Button */}
+    <button
+      onClick={() => {
+        setIsAddMemberModalOpen(true);
+        setAddMemberForm({
+          step: 1,
+          emailOrPhone: '',
+          password: '',
+          confirmPassword: '',
+          firstName: '',
+          lastName: '',
+          address: '',
+          barangay: '',
+          purok: '',
+          street: ''
+        });
+      }}
+      className="flex items-center justify-center gap-2 bg-app-primary hover:bg-app-primary/90 text-white rounded-full px-6 py-2"
+    >
+      <FaPlus className="w-5 h-5" />
+      <span className="font-semibold text-[16px]">Add Member</span>
+    </button>
   </div>
 </div>
-       
+
+{/* Main Content */}
+<div
+  className="p-0 rounded-lg bg-gray-50 dark:bg-gray-800"
+  role="tabpanel"
+  tabIndex={0}
+>
+  <div className="flex h-[691px] w-[px] p-4 bg-gray-100">
+    {/* Sidebar */}
+<div className="w-1/5 bg-white rounded-xl shadow-md p-4">
+  {/* Fixed Header */}
+  <div className="w-full bg-[#D9D9D9] px-4 py-2">
+  <div className="flex justify-between items-center">
+    <span className="font-bold text-sm">Sort:</span>
+    <span className="text-sm font-bold text-gray-600">Date Added</span>
+  </div>
+  </div>
+
+  {/* Scrollable User List */}
+  <div className="space-y-2 overflow-y-auto" style={{ maxHeight: '620px' }}>
+    {/* Example list items */}
+    {[
+      'Juan Dela Cruz',
+      'Miles Padilla Ocampo',
+      'Jayson Labrador Padilla',
+      'Ryuu Tenn de Mesa',
+      'Yuji Silva Fortunado',
+      'Juan Dela Cruz',
+      'Miles Padilla Ocampo',
+      'Jayson Labrador Padilla',
+      'Ryuu Tenn de Mesa',
+      'Yuji Silva Fortunado',
+    ].map((name, idx) => {
+      const role = Math.random() > 0.5 ? 'Farmer' : 'Member';
+      const avatarId = 10 + idx; // ensures different avatars
+      return (
+        <div
+          key={idx}
+          className="flex items-start gap-3 p-2 rounded-xl cursor-pointer"
+          style={{ backgroundColor: '#FFFFFF' }}
+          onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#D9D9D9')}
+          onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#FFFFFF')}
+        >
+          <img
+            src={`https://i.pravatar.cc/40?img=${avatarId}`}
+            alt="user"
+            className="rounded-full w-10 h-10"
+            onError={(e) => {
+              e.target.onerror = null;
+              e.target.src = 'path/to/local/image.png';
+            }}
+          />
+          <div className="flex flex-col">
+            <span className="font-medium text-sm">{name}</span>
+            <span
+              className="text-center font-bold"
+              style={{
+                color: '#0038A8',
+                borderRadius: '200px',
+                border: '0.75px solid #0038A8',
+                opacity: 0.75,
+                background: '#C0D5FF',
+                padding: '0px 8px',
+                fontSize: '10px',
+                display: 'inline-block',
+                height: '16px',
+                width: '60px',
+              }}
+            >
+              {role}
+            </span>
+            <span className="text-xs text-gray-400">Apr 9, 2025, 11:34 AM</span>
+          </div>
+        </div>
+      );
+    })}
+  </div>
+</div>
+
+
+    {/* Details Panel */}
+    <div className="flex-1 bg-white rounded-xl shadow-md ml-4 p-6">
+  <div className="flex justify-between items-start mb-6">
+    <div className="flex items-center gap-4">
+      <img
+        src="https://i.pravatar.cc/40"
+        alt="user"
+        className="rounded-full w-12 h-12"
+      />
+      <div>
+        <h2 className="text-lg font-semibold">Juan Dela Cruz</h2>
+        <p className="text-sm text-gray-500">juandelacruz@gmail.com</p>
+      </div>
+    </div>
+    <div className="text-gray-400 text-2xl cursor-pointer">•••</div>
+  </div>
+
+  <div className="border-b border-gray-300 my-4"></div>
+
+  <div className="space-y-4 text-sm text-gray-700">
+    <div>
+      <p className="font-semibold">Applied as</p>
+      <span
+              className="text-center font-bold"
+              style={{
+                color: '#0038A8',
+                borderRadius: '200px',
+                border: '0.75px solid #0038A8',
+                opacity: 0.75,
+                background: '#C0D5FF',
+                padding: '0px 8px',
+                fontSize: '10px',
+                display: 'inline-block',
+                height: '18px',
+                width: '60px',
+              }}
+            >
+              Member
+            </span>
+    </div>
+
+    <div>
+      <p className="font-semibold">Uploaded Document</p>
+      <p className="text-xs text-gray-500">National ID</p>
+      <a href="#" className="text-blue-600 underline">
+        nat_id_juande.pdf
+      </a>
+      <p className="text-xs text-gray-400">Click to view</p>
+    </div>
+
+    <div>
+      <p className="font-semibold">Date of Birth</p>
+      <p>July 17, 1997</p>
+    </div>
+
+    <div>
+      <p className="font-semibold">Address</p>
+      <p>Matthew St., Macamot, Bulacan</p>
+    </div>
+
+    <div>
+      <p className="font-semibold">Submitted on</p>
+      <p>March 12, 2025, 11:34 AM</p>
+    </div>
+  </div>
+
+ 
+  {/* Action Buttons */}
+ 
+<div className="border-b border-gray-300 my-4"></div>
+  <div className="flex justify-end gap-4 mt-20">
+    <button
+      className="px-4 py-2 rounded-3xl bg-[#FF3B4E] font-bold text-white hover:bg-red-600"
+      style={{ width: '156px', height: '39px' }}
+    >
+      Reject
+    </button>
+    <button
+      className="px-4 py-2 rounded-3xl bg-[#4CAE4F] font-bold text-white hover:bg-green-600"
+      style={{ width: '156px', height: '39px' }}
+    >
+      Approve
+    </button>
+  </div>
+</div>
+  </div>
+</div>
+
         </>
       )}
 
