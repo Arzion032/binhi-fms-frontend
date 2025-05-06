@@ -1,12 +1,40 @@
-import React from 'react';
+import React, { useState, useRef, useEffect } from 'react';
+import { FaFilePdf, FaFileExcel } from 'react-icons/fa6';
 import StatisticsChart from './StatisticsChart';
 
 const Financial = () => {
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [downloadDropdownOpen, setDownloadDropdownOpen] = useState(false);
+  const dropdownRef = useRef();
+  const dropdownDownloadRef = useRef();
+
+  const handleAddTransaction = (type) => {
+    console.log(`Adding a new ${type} transaction`);
+    setDropdownOpen(false);
+  };
+
+  const handleDownload = (type) => {
+    console.log(`Downloading ${type}`);
+    setDownloadDropdownOpen(false);
+  };
+
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setDropdownOpen(false);
+      }
+      if (dropdownDownloadRef.current && !dropdownDownloadRef.current.contains(event.target)) {
+        setDownloadDropdownOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
   return (
     <div className="p-8 bg-[#f9fbf8] min-h-screen text-sm">
-      {/* ✅ Sticky: Breadcrumb + Title + Tabs */}
+      {/* Only this part will be sticky */}
       <div className="sticky top-0 z-30 bg-[#f9fbf8] pt-4 pb-3">
-        {/* Breadcrumb */}
         <div className="text-sm breadcrumbs font-inter text-base mb-2">
           <ul className="flex gap-1">
             <li><a className="text-binhigreen underline">Dashboard</a></li>
@@ -14,59 +42,123 @@ const Financial = () => {
             <li className="text-gray-400">Financial Overview</li>
           </ul>
         </div>
-
-        {/* Page Title */}
         <h1 className="text-4xl font-bold text-black mb-1">Financial Tracker</h1>
+        <div className="flex items-center gap-4 border-b border-gray-200">
+          <button className="text-green-600 font-semibold border-b-4 border-green-500 pb-1 px-2 bg-transparent">
+            Financial Overview
+          </button>
+          <a href="/transaction-history" className="text-gray-400 font-semibold pb-1 px-2 bg-transparent hover:bg-[#e6f0ea] rounded transition-colors">
+            Transaction History
+          </a>
+        </div>
+      </div>
 
-        {/* Tabs with underline */}
-        <div className="relative">
-          <div className="flex items-center gap-4 border-b border-gray-200">
-            <button className="text-green-600 font-semibold border-b-4 border-green-500 pb-1 px-2 bg-transparent">
-              Financial Overview
+      {/* NON-STICKY CONTENT STARTS HERE */}
+      
+      {/* Balance */}
+      <div className="flex flex-wrap items-center justify-between my-4 gap-2">
+        <div className="flex items-center gap-2 text-base font-medium">
+          <span style={{ color: '#4da6ff' }} className="text-lg">🔄 Current Federation Balance:</span>
+          <span className="text-blue-700 font-bold text-lg">₱52,438</span>
+          <span className="text-gray-400 text-lg ml-2 opacity-60">Last Updated Apr 30</span>
+        </div>
+        
+        {/* Add Transaction and Download buttons - these will scroll away */}
+        <div className="flex gap-2">
+          {/* Add Transaction Dropdown */}
+          <div className="relative z-20" ref={dropdownRef}>
+            <button
+              onClick={() => setDropdownOpen(!dropdownOpen)}
+              className="btn bg-green-600 text-white rounded-full px-4 py-2 font-semibold flex items-center gap-1 hover:bg-green-700"
+            >
+              + Add Transaction
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="white"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className={`w-4 h-4 ml-1 transition-transform duration-200 ${dropdownOpen ? 'rotate-180' : ''}`}
+              >
+                <polyline points="6 9 12 15 18 9" />
+              </svg>
             </button>
-            <button className="text-gray-400 font-semibold pb-1 px-2 bg-[#e6f0ea] rounded">
-              Transaction History
+            {dropdownOpen && (
+              <ul className="absolute left-1/2 transform -translate-x-1/2 mt-2 menu p-2 shadow bg-white border border-black rounded-box w-52">
+                <li><a onClick={() => handleAddTransaction('income')}>Income</a></li>
+                <li><a onClick={() => handleAddTransaction('expense')}>Expense</a></li>
+              </ul>
+            )}
+          </div>
+
+          {/* Download Dropdown */}
+          <div className="relative z-20" ref={dropdownDownloadRef}>
+            <button
+              onClick={() => setDownloadDropdownOpen(!downloadDropdownOpen)}
+              className="btn bg-white border border-green-600 text-green-600 rounded-full px-6 py-2 font-semibold flex items-center gap-2 hover:bg-green-50"
+            >
+              Download
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className={`w-4 h-4 transition-transform duration-200 ${downloadDropdownOpen ? 'rotate-180' : ''}`}
+              >
+                <polyline points="6 9 12 15 18 9" />
+              </svg>
             </button>
+            {downloadDropdownOpen && (
+              <ul className="absolute left-1/2 transform -translate-x-1/2 mt-2 menu p-2 shadow bg-white border border-black rounded-box w-60">
+                <li>
+                  <a onClick={() => handleDownload('PDF')} className="flex items-center gap-2">
+                    <FaFilePdf className="text-red-500" />
+                    Download PDF
+                  </a>
+                </li>
+                <li>
+                  <a onClick={() => handleDownload('Excel')} className="flex items-center gap-2">
+                    <FaFileExcel className="text-green-600" />
+                    Download Excel
+                  </a>
+                </li>
+                <div className="border-t my-2" />
+                <li>
+                  <a onClick={() => handleDownload('Custom Range')}>Custom Date Range</a>
+                </li>
+              </ul>
+            )}
           </div>
         </div>
       </div>
 
-      {/* Federation Balance and Actions */}
-      <div className="flex flex-wrap items-center justify-between my-4 gap-2">
-        <div className="flex items-center gap-2 text-base font-medium">
-          <span className="text-blue-700 text-lg">🔄 Current Federation Balance:</span>
-          <span className="text-blue-700 font-bold text-lg">₱52,438</span>
-          <span className="text-gray-400 text-lg ml-2 opacity-60">Last Updated Apr 30</span>
-        </div>
-        <div className="flex gap-2">
-          <button className="bg-green-600 text-white rounded-full px-4 py-2 font-semibold flex items-center gap-1">
-            + Add Transaction <span className="ml-1">▼</span>
-          </button>
-          <button className="bg-white border border-green-600 text-green-600 rounded-full px-9 py-2 font-semibold flex items-center gap-1">
-            Download <span className="ml-1">▼</span>
-          </button>
-        </div>
-      </div>
-
-      {/* Main Layout */}
       <div className="flex flex-col lg:flex-row gap-4 items-stretch mt-2">
-        {/* LEFT: Cards + Statistics */}
         <div className="flex-1 flex flex-col gap-4">
-          {/* Summary Cards */}
+          {/* Income & Expense Cards */}
           <div className="flex flex-col md:flex-row gap-4">
             {/* Income Card */}
-            <div className="relative flex-1 bg-white rounded-2xl border border-gray-300 flex flex-col justify-between h-[170px] shadow-sm">
-              <div className="absolute left-0 top-0 h-full w-3 bg-green-500 rounded-tl-2xl rounded-bl-2xl z-10"></div>
-              <div className="absolute top-4 right-4 z-20">
-                <button className="w-8 h-8 rounded-full border border-green-400 text-green-500 bg-white hover:bg-green-50 flex items-center justify-center shadow-sm">
-                  <span className="text-xl font-bold">+</span>
+            <div className="relative flex-1 bg-white rounded-2xl border border-gray-300 flex flex-col justify-between h-[170px] shadow-sm group">
+              <div className="absolute left-0 top-0 h-full w-3 rounded-tl-2xl rounded-bl-2xl bg-[#4caf50]" />
+              <div className="absolute top-4 right-4 z-20 group">
+                <button className="flex items-center gap-2 px-3 py-1 text-green-600 border border-green-600 rounded-full transition-all duration-200 group-hover:px-4 hover:bg-green-600 hover:text-white">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" width="18" height="18">
+                    <circle cx="12" cy="12" r="10" />
+                    <line x1="12" y1="8" x2="12" y2="16" />
+                    <line x1="8" y1="12" x2="16" y2="12" />
+                  </svg>
+                  <span className="text-sm font-semibold">Add Income</span>
                 </button>
               </div>
               <div className="flex flex-col justify-between h-full p-5">
                 <div>
                   <div className="flex items-center gap-2 mb-1">
                     <span className="font-semibold text-gray-700">Total Income</span>
-                    <span className="text-gray-400 text-base">🔔</span>
+                    <span className="text-yellow-400 text-base">🔔</span>
                   </div>
                   <div className="text-3xl font-bold text-black mb-1">₱12,999</div>
                 </div>
@@ -75,7 +167,7 @@ const Financial = () => {
                     from last week <span className="text-xs">▼</span>
                   </div>
                   <div className="flex flex-col items-end">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="w-8 h-8 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
                       <path d="M2 17h16M6 13l4-4 4 4M6 9l4-4 4 4" />
                     </svg>
                     <span className="text-green-600 text-base font-semibold">↑ 8.69%</span>
@@ -84,19 +176,24 @@ const Financial = () => {
               </div>
             </div>
 
-            {/* Expenses Card */}
-            <div className="relative flex-1 bg-white rounded-2xl border border-gray-300 flex flex-col justify-between h-[170px] shadow-sm">
-              <div className="absolute left-0 top-0 h-full w-3 bg-red-600 rounded-tl-2xl rounded-bl-2xl z-10"></div>
-              <div className="absolute top-4 right-4 z-20">
-                <button className="w-8 h-8 rounded-full border border-red-400 text-red-500 bg-white hover:bg-red-50 flex items-center justify-center shadow-sm">
-                  <span className="text-xl font-bold">+</span>
+            {/* Expense Card */}
+            <div className="relative flex-1 bg-white rounded-2xl border border-gray-300 flex flex-col justify-between h-[170px] shadow-sm group">
+              <div className="absolute left-0 top-0 h-full w-3 rounded-tl-2xl rounded-bl-2xl bg-[#ff4d4f]" />
+              <div className="absolute top-4 right-4 z-20 group">
+                <button className="flex items-center gap-2 px-3 py-1 text-[#ff4d4f] border border-[#ff4d4f] rounded-full transition-all duration-200 group-hover:px-4 hover:bg-[#ff4d4f] hover:text-white">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" width="18" height="18">
+                    <circle cx="12" cy="12" r="10" />
+                    <line x1="12" y1="8" x2="12" y2="16" />
+                    <line x1="8" y1="12" x2="16" y2="12" />
+                  </svg>
+                  <span className="text-sm font-semibold">Add Expense</span>
                 </button>
               </div>
               <div className="flex flex-col justify-between h-full p-5">
                 <div>
                   <div className="flex items-center gap-2 mb-1">
                     <span className="font-semibold text-gray-700">Total Expenses</span>
-                    <span className="text-gray-400 text-base">🔔</span>
+                    <span className="text-yellow-400 text-base">🔔</span>
                   </div>
                   <div className="text-3xl font-bold text-black mb-1">₱12,999</div>
                 </div>
@@ -105,10 +202,10 @@ const Financial = () => {
                     from last week <span className="text-xs">▼</span>
                   </div>
                   <div className="flex flex-col items-end">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="w-8 h-8 text-red-500" fill="currentColor" viewBox="0 0 20 20">
-                      <path d="M10 3c-3.866 0-7 1.343-7 3s3.134 3 7 3 7-1.343 7-3-3.134-3-7-3zM10 9c-2.386 0-4.467-.527-5.656-1.326-.001.02-.001.04-.001.06 0 1.657 3.134 3 7 3s7-1.343 7-3c0-.02 0-.04-.001-.06C14.467 8.473 12.386 9 10 9zM10 12c-2.386 0-4.467-.527-5.656-1.326-.001.02-.001.04-.001.06 0 1.657 3.134 3 7 3s7-1.343 7-3c0-.02 0-.04-.001-.06C14.467 11.473 12.386 12 10 12zM10 15c-2.386 0-4.467-.527-5.656-1.326-.001.02-.001.04-.001.06 0 1.657 3.134 3 7 3s7-1.343 7-3c0-.02 0-.04-.001-.06C14.467 14.473 12.386 15 10 15z" />
+                    <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" style={{ color: '#ff4d4f' }} fill="currentColor" viewBox="0 0 20 20">
+                      <path d="M10 3c-3.866 0-7 1.343-7 3s3.134 3 7 3 7-1.343 7-3-3.134-3-7-3z" />
                     </svg>
-                    <span className="text-red-500 text-base font-semibold">↑ 8.69%</span>
+                    <span className="text-base font-semibold" style={{ color: '#ff4d4f' }}>↑ 8.69%</span>
                   </div>
                 </div>
               </div>
@@ -121,11 +218,11 @@ const Financial = () => {
           </div>
         </div>
 
-        {/* RIGHT: History */}
+        {/* History */}
         <div className="w-full lg:max-w-[340px] min-w-[300px] bg-white rounded-2xl border border-gray-300 p-6 shadow-sm flex flex-col h-full min-h-[750px]">
           <div className="flex justify-between items-center mb-2">
             <h3 className="text-xl font-bold text-black">History</h3>
-            <a className="text-sm text-gray-500 hover:underline flex items-center gap-1">View All <span className="ml-1">→</span></a>
+            <a href="/transaction-history" className="text-sm text-gray-500 hover:underline flex items-center gap-1">View All <span className="ml-1">→</span></a>
           </div>
           <div className="flex-1 overflow-y-auto">
             <table className="w-full text-sm">
@@ -140,12 +237,36 @@ const Financial = () => {
                 {[
                   { date: 'Apr 12, 2024', name: 'Juan', amount: '₱800', color: 'green' },
                   { date: 'Apr 13, 2024', name: 'Emman', amount: '₱1,203', color: 'red' },
-                  // Add more entries if needed
+                  { date: 'Apr 14, 2024', name: 'Grace', amount: '₱500', color: 'green' },
+                  { date: 'Apr 14, 2024', name: 'Grace', amount: '₱500', color: 'green' },
+                  { date: 'Apr 14, 2024', name: 'Grace', amount: '₱500', color: 'green' },
+                  { date: 'Apr 14, 2024', name: 'Grace', amount: '₱500', color: 'green' },
+                  { date: 'Apr 13, 2024', name: 'Emman', amount: '₱1,203', color: 'red' },
+                  { date: 'Apr 14, 2024', name: 'Grace', amount: '₱500', color: 'green' },
+                  { date: 'Apr 13, 2024', name: 'Emman', amount: '₱1,203', color: 'red' },
+                  { date: 'Apr 14, 2024', name: 'Grace', amount: '₱500', color: 'green' },
+                  { date: 'Apr 13, 2024', name: 'Emman', amount: '₱1,203', color: 'red' },
+                  { date: 'Apr 14, 2024', name: 'Grace', amount: '₱500', color: 'green' },
+                  { date: 'Apr 14, 2024', name: 'Grace', amount: '₱500', color: 'green' },
+                  { date: 'Apr 13, 2024', name: 'Emman', amount: '₱1,203', color: 'red' },
+                  { date: 'Apr 14, 2024', name: 'Grace', amount: '₱500', color: 'green' },
+                  { date: 'Apr 14, 2024', name: 'Grace', amount: '₱500', color: 'green' },
+                  { date: 'Apr 13, 2024', name: 'Emman', amount: '₱1,203', color: 'red' },
+                  { date: 'Apr 14, 2024', name: 'Grace', amount: '₱500', color: 'green' },
+                  { date: 'Apr 13, 2024', name: 'Emman', amount: '₱1,203', color: 'red' },
+                  { date: 'Apr 14, 2024', name: 'Grace', amount: '₱500', color: 'green' },
+                  { date: 'Apr 13, 2024', name: 'Emman', amount: '₱1,203', color: 'red' },
+                  { date: 'Apr 14, 2024', name: 'Grace', amount: '₱500', color: 'green' },
+                  { date: 'Apr 14, 2024', name: 'Grace', amount: '₱500', color: 'green' },
+                  { date: 'Apr 14, 2024', name: 'Grace', amount: '₱500', color: 'green' },
                 ].map((item, index) => (
                   <tr key={index}>
                     <td className="py-1">
                       <div className="flex items-center gap-2">
-                        <span className={`w-2 h-2 rounded-full bg-${item.color}-500`}></span>
+                        <span
+                          className="w-2 h-2 rounded-full"
+                          style={{ backgroundColor: item.color === 'green' ? '#4caf50' : '#ff4d4f' }}
+                        ></span>
                         {item.date}
                       </div>
                     </td>

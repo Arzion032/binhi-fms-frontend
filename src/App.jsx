@@ -3,6 +3,7 @@ import Tabs from "./components/Tabs";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Layout from "./components/Layout/Layout";
 import Financial from "./components/FinancialTracker/financial";
+import TransactionHistory from "./components/FinancialTracker/TransactionHistory";
 
 function App() {
 
@@ -13,6 +14,7 @@ function App() {
       <Routes>
         <Route path="/membership" element={<Layout><Tabs/></Layout>} />
         <Route path="/financial" element={<Layout><Financial/></Layout>} />
+        <Route path="/transaction-history" element={<Layout><TransactionHistory/></Layout>} />
       </Routes>
     </Router>
     </div>
