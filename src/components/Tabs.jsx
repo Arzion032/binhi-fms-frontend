@@ -14,6 +14,9 @@ import DOB from '../assets/DOB.png';
 import Barangay from '../assets/Barangay.png';
 import Docs from '../assets/Docs.png';
 import Juan from '../assets/Juan.png';
+import Disregard from '../assets/Disregard.png';
+import Success from '../assets/Success.png';
+import Alert from '../assets/Alert.png';
 
 const currentMembersInitial = [
   {
@@ -81,7 +84,9 @@ const rejectedMembersInitial = [
   },
 ];
 
+
 export default function MemberTabs() {
+  
   // Tabs: current, pending, rejected
   const [activeTab, setActiveTab] = useState("current");
   const [underlineStyle, setUnderlineStyle] = useState({ left: 0, width: 0 });
@@ -89,6 +94,8 @@ export default function MemberTabs() {
   
   // Members state for current tab
   const [members, setMembers] = useState(currentMembersInitial);
+
+  const [showRejectModal, setShowRejectModal] = useState(false);
   
   // Search states
   const [searchCurrent, setSearchCurrent] = useState("");
@@ -125,10 +132,26 @@ export default function MemberTabs() {
     purok: '',
     street: '',
   });
+
+  const [showConfirmationModal, setShowConfirmationModal] = useState(false);
+  const [showSuccessMessage, setShowSuccessMessage] = useState(false);
+
+  const handleDisregard = () => {
+    setShowRejectModal(false); // Close the first modal
+    setShowConfirmationModal(true); // Show the confirmation modal
+  };
+
+  const handleConfirmDisregard = () => {
+    setShowConfirmationModal(false); // Close the confirmation modal
+    setShowSuccessMessage(true); // Show the success message
+  };
   
   // Success and confirm modals
   const [successModalOpen, setSuccessModalOpen] = useState(false);
   const [confirmAction, setConfirmAction] = useState(null); // eg {type:'deleteMember',id:1}
+  const [showApproveMessage, setShowApproveMessage] = useState(false);
+  const [showAcceptedMessage, setShowAcceptedMessage] = useState(false);
+
 
   // Filter functions
   const filterMembersBySearch = (list, search) => {
@@ -519,228 +542,447 @@ export default function MemberTabs() {
 
       {/* Pending Members Tab */}
       {activeTab === "pending" && (
-        <>
-      <div className="flex items-center justify-between w-full mb-4">
-  {/* Left Side */}
-  <div className="flex items-center">
-    <img
-      src={loop}
-      alt="loop"
-      className="ml-5 mr-5 w-[20px] max-w-full object-contain"
-    />
-    <span className="text-[15.5px] text-lg font-semibold mr-2">
-      Pending Members
-    </span>
-  </div>
+  <>
+    <div className="flex items-center justify-between w-full mb-4">
+      {/* Left Side */}
+      <div className="flex items-center">
+        <img
+          src={loop}
+          alt="loop"
+          className="ml-5 mr-5 w-[20px] max-w-full object-contain"
+        />
+        <span className="text-[15.5px] text-lg font-semibold mr-2">
+          Pending Members
+        </span>
+      </div>
 
-  {/* Right Side */}
-  <div className="flex items-center space-x-4">
-    {/* Search Bar */}
-    <div className="relative w-[279px]">
-      <input
-        type="text"
-        placeholder="Search Members..."
-        className="w-full h-[41px] pl-10 pr-3 border rounded-full p-2"
-        value={searchCurrent}
-        onChange={(e) => setSearchCurrent(e.target.value)}
-      />
-      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 w-5 h-5" />
-    </div>
-
-    {/* Add Member Button */}
-    <button
-      onClick={() => {
-        setIsAddMemberModalOpen(true);
-        setAddMemberForm({
-          step: 1,
-          emailOrPhone: '',
-          password: '',
-          confirmPassword: '',
-          firstName: '',
-          lastName: '',
-          address: '',
-          barangay: '',
-          purok: '',
-          street: ''
-        });
-      }}
-      className="flex items-center justify-center gap-2 bg-app-primary hover:bg-app-primary/90 text-white rounded-full px-6 py-2"
-    >
-      <FaPlus className="w-5 h-5" />
-      <span className="font-semibold text-[16px]">Add Member</span>
-    </button>
-  </div>
-</div>
-
-{/* Main Content */}
-<div
-  className="p-0 rounded-lg bg-gray-50 dark:bg-gray-800"
-  role="tabpanel"
-  tabIndex={0}
->
-  <div className="flex h-[691px] w-[px] p-4 bg-gray-100">
-    {/* Sidebar */}
-<div className="w-1/5 bg-white rounded-xl shadow-md p-4">
-  {/* Fixed Header */}
-  <div className="w-full bg-[#D9D9D9] px-4 py-2">
-  <div className="flex justify-between items-center">
-    <span className="font-bold text-sm">Sort:</span>
-    <span className="text-sm font-bold text-gray-600">Date Added</span>
-  </div>
-  </div>
-
-  {/* Scrollable User List */}
-  <div className="space-y-2 overflow-y-auto" style={{ maxHeight: '620px' }}>
-    {/* Example list items */}
-    {[
-      'Juan Dela Cruz',
-      'Miles Padilla Ocampo',
-      'Jayson Labrador Padilla',
-      'Ryuu Tenn de Mesa',
-      'Yuji Silva Fortunado',
-      'Juan Dela Cruz',
-      'Miles Padilla Ocampo',
-      'Jayson Labrador Padilla',
-      'Ryuu Tenn de Mesa',
-      'Yuji Silva Fortunado',
-    ].map((name, idx) => {
-      const role = Math.random() > 0.5 ? 'Farmer' : 'Member';
-      const avatarId = 10 + idx; // ensures different avatars
-      return (
-        <div
-          key={idx}
-          className="flex items-start gap-3 p-2 rounded-xl cursor-pointer"
-          style={{ backgroundColor: '#FFFFFF' }}
-          onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#D9D9D9')}
-          onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#FFFFFF')}
-        >
-          <img
-            src={`https://i.pravatar.cc/40?img=${avatarId}`}
-            alt="user"
-            className="rounded-full w-10 h-10"
-            onError={(e) => {
-              e.target.onerror = null;
-              e.target.src = 'path/to/local/image.png';
-            }}
+      {/* Right Side */}
+      <div className="flex items-center space-x-4">
+        {/* Search Bar */}
+        <div className="relative w-[279px]">
+          <input
+            type="text"
+            placeholder="Search Members..."
+            className="w-full h-[41px] pl-10 pr-3 border rounded-full p-2"
+            value={searchCurrent}
+            onChange={(e) => setSearchCurrent(e.target.value)}
           />
-          <div className="flex flex-col">
-            <span className="font-medium text-sm">{name}</span>
-            <span
-              className="text-center font-bold"
-              style={{
-                color: '#0038A8',
-                borderRadius: '200px',
-                border: '0.75px solid #0038A8',
-                opacity: 0.75,
-                background: '#C0D5FF',
-                padding: '0px 8px',
-                fontSize: '10px',
-                display: 'inline-block',
-                height: '16px',
-                width: '60px',
-              }}
-            >
-              {role}
-            </span>
-            <span className="text-xs text-gray-400">Apr 9, 2025, 11:34 AM</span>
-          </div>
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 w-5 h-5" />
         </div>
-      );
-    })}
-  </div>
-</div>
 
-
-    {/* Details Panel */}
-    <div className="flex-1 bg-white rounded-xl shadow-md ml-4 p-6">
-  <div className="flex justify-between items-start mb-6">
-    <div className="flex items-center gap-4">
-      <img
-        src="https://i.pravatar.cc/40"
-        alt="user"
-        className="rounded-full w-12 h-12"
-      />
-      <div>
-        <h2 className="text-lg font-semibold">Juan Dela Cruz</h2>
-        <p className="text-sm text-gray-500">juandelacruz@gmail.com</p>
+        {/* Add Member Button */}
+        <button
+          onClick={() => {
+            setIsAddMemberModalOpen(true);
+            setAddMemberForm({
+              step: 1,
+              emailOrPhone: '',
+              password: '',
+              confirmPassword: '',
+              firstName: '',
+              lastName: '',
+              address: '',
+              barangay: '',
+              purok: '',
+              street: ''
+            });
+          }}
+          className="flex items-center justify-center gap-2 bg-app-primary hover:bg-app-primary/90 text-white rounded-full px-6 py-2"
+        >
+          <FaPlus className="w-5 h-5" />
+          <span className="font-semibold text-[16px]">Add Member</span>
+        </button>
       </div>
     </div>
-    <div className="text-gray-400 text-2xl cursor-pointer">•••</div>
-  </div>
 
-  <div className="border-b border-gray-300 my-4"></div>
+    {/* Main Content */}
+    <div className="p-0 rounded-lg bg-gray-50 dark:bg-gray-800" role="tabpanel" tabIndex={0}>
+      <div className="flex h-[691px] w-full p-4 bg-gray-100">
+        {/* Sidebar */}
+        <div className="w-1/5 bg-white rounded-xl shadow-md p-4">
+          {/* Fixed Header */}
+          <div className="w-full bg-[#D9D9D9] px-4 py-2">
+            <div className="flex justify-between items-center">
+              <span className="font-bold text-sm">Sort:</span>
+              <span className="text-sm font-bold text-gray-600">Date Added</span>
+            </div>
+          </div>
 
-  <div className="space-y-4 text-sm text-gray-700">
-    <div>
-      <p className="font-semibold">Applied as</p>
-      <span
-              className="text-center font-bold"
-              style={{
-                color: '#0038A8',
-                borderRadius: '200px',
-                border: '0.75px solid #0038A8',
-                opacity: 0.75,
-                background: '#C0D5FF',
-                padding: '0px 8px',
-                fontSize: '10px',
-                display: 'inline-block',
-                height: '18px',
-                width: '60px',
-              }}
+          {/* Scrollable User List */}
+          <div className="space-y-2 overflow-y-auto" style={{ maxHeight: '620px' }}>
+            {/* Example list items */}
+            {[
+              'Juan Dela Cruz',
+              'Miles Padilla Ocampo',
+              'Jayson Labrador Padilla',
+              'Ryuu Tenn de Mesa',
+              'Yuji Silva Fortunado',
+              'Juan Dela Cruz',
+              'Miles Padilla Ocampo',
+              'Jayson Labrador Padilla',
+              'Ryuu Tenn de Mesa',
+              'Yuji Silva Fortunado',
+            ].map((name, idx) => {
+              const role = Math.random() > 0.5 ? 'Farmer' : 'Member';
+              const avatarId = 10 + idx; // ensures different avatars
+              return (
+                <div
+                  key={idx}
+                  className="flex items-start gap-3 p-2 rounded-xl cursor-pointer"
+                  style={{ backgroundColor: '#FFFFFF' }}
+                  onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#D9D9D9')}
+                  onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#FFFFFF')}
+                >
+                  <img
+                    src={`https://i.pravatar.cc/40?img=${avatarId}`}
+                    alt="user"
+                    className="rounded-full w-10 h-10"
+                    onError={(e) => {
+                      e.target.onerror = null;
+                      e.target.src = 'path/to/local/image.png';
+                    }}
+                  />
+                  <div className="flex flex-col">
+                    <span className="font-medium text-sm">{name}</span>
+                    <span
+                      className="text-center font-bold"
+                      style={{
+                        color: '#0038A8',
+                        borderRadius: '200px',
+                        border: '0.75px solid #0038A8',
+                        opacity: 0.75,
+                        background: '#C0D5FF',
+                        padding: '0px 8px',
+                        fontSize: '10px',
+                        display: 'inline-block',
+                        height: '16px',
+                        width: '60px',
+                      }}
+                    >
+                      {role}
+                    </span>
+                    <span className="text-xs text-gray-400">Apr 9, 2025, 11:34 AM</span>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Details Panel */}
+        <div className="flex-1 bg-white rounded-xl shadow-md ml-4 p-6">
+          <div className="flex justify-between items-start mb-6">
+            <div className="flex items-center gap-4">
+              <img
+                src="https://i.pravatar.cc/40"
+                alt="user"
+                className="rounded-full w-12 h-12"
+              />
+              <div>
+                <h2 className="text-lg font-semibold">Juan Dela Cruz</h2>
+                <p className="text-sm text-gray-500">juandelacruz@gmail.com</p>
+              </div>
+            </div>
+            <div className="text-gray-400 text-2xl cursor-pointer">•••</div>
+          </div>
+
+          <div className="border-b border-gray-300 my-4"></div>
+
+          <div className="space-y-4 text-sm text-gray-700">
+            <div>
+              <p className="font-semibold">Applied as</p>
+              <span
+                className="text-center font-bold"
+                style={{
+                  color: '#0038A8',
+                  borderRadius: '200px',
+                  border: '0.75px solid #0038A8',
+                  opacity: 0.75,
+                  background: '#C0D5FF',
+                  padding: '0px 8px',
+                  fontSize: '10px',
+                  display: 'inline-block',
+                  height: '18px',
+                  width: '60px',
+                }}
+              >
+                Member
+              </span>
+            </div>
+
+            <div>
+              <p className="font-semibold">Uploaded Document</p>
+              <p className="text-xs text-gray-500">National ID</p>
+              <a href="#" className="text-blue-600 underline">
+                nat_id_juande.pdf
+              </a>
+              <p className="text-xs text-gray-400">Click to view</p>
+            </div>
+
+            <div>
+              <p className="font-semibold">Date of Birth</p>
+              <p>July 17, 1997</p>
+            </div>
+
+            <div>
+              <p className="font-semibold">Address</p>
+              <p>Matthew St., Macamot, Bulacan</p>
+            </div>
+
+            <div>
+              <p className="font-semibold">Submitted on</p>
+              <p>March 12, 2025, 11:34 AM</p>
+            </div>
+          </div>
+
+          <div className="border-b border-gray-300 my-4"></div>
+
+          <div className="flex justify-end gap-4 mt-20">
+            <button
+              onClick={() => setShowRejectModal(true)}
+              className="px-4 py-2 rounded-3xl bg-[#FF3B4E] font-bold text-white hover:bg-red-600"
+              style={{ width: '156px', height: '39px' }}
             >
-              Member
-            </span>
-    </div>
+              Reject
+            </button>
+            <button
+              onClick={() => setShowApproveMessage(true)}   
+              className="px-4 py-2 rounded-3xl bg-[#4CAE4F] font-bold text-white hover:bg-green-600"
+              style={{ width: '156px', height: '39px' }}
+            >
+              Approve
+            </button>
+          </div>
+        </div>
 
-    <div>
-      <p className="font-semibold">Uploaded Document</p>
-      <p className="text-xs text-gray-500">National ID</p>
-      <a href="#" className="text-blue-600 underline">
-        nat_id_juande.pdf
-      </a>
-      <p className="text-xs text-gray-400">Click to view</p>
-    </div>
+        {/* Reject Modal */}
+        {showRejectModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
+          <div className="bg-white rounded-3xl w-[400px] p-9 shadow-lg relative">
+            <button
+              onClick={() => setShowRejectModal(false)}
+              className="absolute top-4 right-4 text-gray-400 text-xl"
+            >
+              ×
+            </button>
 
-    <div>
-      <p className="font-semibold">Date of Birth</p>
-      <p>July 17, 1997</p>
-    </div>
+            <h2 className="text-xl font-bold mb-2">Are you sure?</h2>
+            <p className="text-sm text-gray-600 mb-4">
+              Please state your reason for rejection.
+            </p>
 
-    <div>
-      <p className="font-semibold">Address</p>
-      <p>Matthew St., Macamot, Bulacan</p>
-    </div>
+            <div className="border-b border-gray-300 my-4"></div>
 
-    <div>
-      <p className="font-semibold">Submitted on</p>
-      <p>March 12, 2025, 11:34 AM</p>
-    </div>
-  </div>
+            <div className="mb-4">
+              <label className="block text-sm font-medium mb-1 ">
+                Reason for Rejection <span className="text-red-500">*</span>
+              </label>
+              <select className="w-full p-2 border rounded text-sm rounded-full">
+                <option value="">Please select the reason</option>
+                <option value="incomplete">Incomplete Requirements</option>
+                <option value="invalid">Invalid Document</option>
+              </select>
+            </div>
 
- 
-  {/* Action Buttons */}
- 
-<div className="border-b border-gray-300 my-4"></div>
-  <div className="flex justify-end gap-4 mt-20">
-    <button
-      className="px-4 py-2 rounded-3xl bg-[#FF3B4E] font-bold text-white hover:bg-red-600"
-      style={{ width: '156px', height: '39px' }}
-    >
-      Reject
-    </button>
-    <button
-      className="px-4 py-2 rounded-3xl bg-[#4CAE4F] font-bold text-white hover:bg-green-600"
-      style={{ width: '156px', height: '39px' }}
-    >
-      Approve
-    </button>
-  </div>
-</div>
-  </div>
-</div>
+            <div>
+              <label className="block text-sm font-medium mb-1 ">
+                Remarks or Notes
+              </label>
+              <textarea
+                className="w-full p-2 border rounded h-20 text-sm rounded-3xl"
+                placeholder="Remarks or Notes"
+              ></textarea>
+            </div>
 
-        </>
+            <div className="flex justify-center gap-1 mt-6">
+              <button
+                onClick={handleDisregard} // Triggers the confirmation modal
+                className="px-4 py-2 rounded-3xl bg-[#FF3B4E] text-white hover:bg-red-600 text-sm"
+                style={{ width: "156px", height: "39px" }}
+              >
+                Disregard
+              </button>
+              <button
+              onClick={() => {
+                setShowRejectModal(false);      // Close reject modal
+                setShowSuccessMessage(true);    // Show success message
+              }}
+                className="px-4 py-2 rounded-3xl bg-[#4CAE4F] text-white hover:bg-green-600 text-sm"
+                style={{ width: "156px", height: "39px" }}
+              >
+                Confirm
+              </button>
+            </div>
+          </div>
+        </div>
       )}
+
+      {/* Confirmation Modal */}
+      {showConfirmationModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
+          <div className="bg-white rounded-3xl w-[400px] p-10 shadow-lg relative">
+            <button
+              onClick={() => setShowConfirmationModal(false)}
+              className="absolute top-4 right-4 text-gray-400 text-xl"
+            >
+              ×
+            </button>
+            <div className="mb-4 flex justify-center items-center">
+                    <img src={Disregard} alt="Disregard.png" className="w-[80px] max-w-full object-contain" />
+                  </div>
+            <h2 className="text-2xl text-center font-bold mb-2">Disregard editing?</h2>
+            <p className="text-sm text-center text-gray-600">
+            This action cannot be undone.
+            </p>
+            <p className="text-sm text-center text-gray-600">
+              The changes will be lost.
+            </p>
+            <div className="flex justify-center gap-3 mt-6">
+              <button
+                onClick={() => setShowConfirmationModal(false)}
+                className="px-4 py-2 rounded-3xl bg-[#FF3B4E] text-white hover:bg-[#E02A3B] text-sm"
+                style={{ width: "130px", height: "39px" }}
+              >
+                Cancel
+              </button>
+              <button
+                
+                className="px-7 py-2 bg-white text-[#E02A3B] border border-[#E02A3B] rounded-full hover:bg-[#E02A3B] hover:text-white text-sm font-medium"
+                style={{ width: "130px", height: "39px" }}
+              >
+                Disregard
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Success Message */}
+      {showSuccessMessage && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
+          <div className="bg-white rounded-3xl w-[430px] h-[320px] p-7 shadow-lg relative">
+          <button
+              onClick={() => setShowConfirmationModal(false)}
+              className="absolute top-4 right-5 text-gray-400 text-2xl"
+            >
+              ×
+            </button>
+          <div className="mb-4 flex justify-center items-center">
+                    <img src={Success} alt="Success.png" className="w-[80px] max-w-full object-contain" />
+                  </div>
+            <h2 className="text-2xl text-center font-bold mb-2">
+              Member Rejected Successfully!
+            </h2>
+            <p className="text-sm text-center text-gray-600">
+            Everything’s set. Feel free to check it!
+            </p>
+            <div className="flex justify-center gap-3 mt-16">
+              <button
+                onClick={() => setShowSuccessMessage(false)}
+                className="px-4 py-2 bg-white text-[#4CAE4F] border border-[#4CAE4F] rounded-full hover:bg-[#4CAE4F] hover:text-white text-sm font-medium"                
+                style={{ width: "130px", height: "39px" }}
+              >
+                Back
+              </button>
+              <button
+                onClick={() => setShowSuccessMessage(false)}
+                
+                className="px-4 py-2 rounded-3xl bg-[#4CAE4F] text-white hover:bg-green-600 text-sm"
+                style={{ width: "130px", height: "39px" }}
+              >
+                Done
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Approve Message */}
+      {showApproveMessage && (
+  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
+    <div className="bg-white rounded-3xl w-[430px] h-[300px] p-7 shadow-lg relative">
+      <button
+        onClick={() => setShowApproveMessage(false)}  // Fixed
+        className="absolute top-4 right-5 text-gray-400 text-2xl"
+      >
+        ×
+      </button>
+      <div className="mb-4 flex justify-center items-center">
+        <img
+          src={Alert}
+          alt="Alert.png"
+          className="w-[80px] max-w-full object-contain"
+        />
+      </div>
+      <h2 className="text-2xl text-center font-bold mb-2">
+        Approve member?
+      </h2>
+      <p className="text-sm text-center text-gray-600">
+        The selected member will be moved
+      </p>
+      <p className="text-sm text-center text-gray-600">
+        to current members.
+      </p>
+      <div className="flex justify-center gap-3 mt-9">
+        <button
+          onClick={() => setShowApproveMessage(false)}  // Fixed
+          className="px-4 py-2 bg-white text-[#4CAE4F] border border-[#4CAE4F] rounded-full hover:bg-[#4CAE4F] hover:text-white text-sm font-medium"
+          style={{ width: "130px", height: "39px" }}
+        >
+          Cancel
+        </button>
+        <button
+          onClick={() => setShowAcceptedMessage(true)}  // Fixed
+          className="px-4 py-2 rounded-3xl bg-[#4CAE4F] text-white hover:bg-green-600 text-sm"
+          style={{ width: "130px", height: "39px" }}
+        >
+          Approve
+        </button>
+      </div>
+    </div>
+  </div>
+)}
+{showAcceptedMessage && (
+  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
+    <div className="bg-white rounded-3xl w-[420px] h-[290px] p-6 shadow-lg text-center">
+      <div className="mb-4 flex justify-center items-center">
+        <img
+          src={Success}
+          alt="Success.png"
+          className="w-[80px] max-w-full object-contain"
+        />
+      </div>
+      <h2 className="text-2xl font-bold mb-2">
+        Member accepted successfully!!
+      </h2>
+      <p className="text-sm text-gray-600 mb-6">
+        Everything’s set. Feel free to check it!
+      </p>
+      <div className="flex justify-center gap-3">
+        <button
+          onClick={() => setShowAcceptedMessage(false)} // Correct state
+          className="px-4 py-2 bg-white text-[#4CAE4F] border border-[#4CAE4F] rounded-full hover:bg-[#4CAE4F] hover:text-white text-sm font-medium"
+          style={{ width: "130px", height: "39px" }}
+        >
+          Back
+        </button>
+        <button
+          onClick={() => setShowAcceptedMessage(false)} // Correct state
+          className="px-4 py-2 rounded-3xl bg-[#4CAE4F] text-white hover:bg-green-600 text-sm"
+          style={{ width: "130px", height: "39px" }}
+        >
+          Done
+        </button>
+      </div>
+    </div>
+  </div>
+)}
+
+    </div>
+    </div>
+  </>
+)}
+
 
       {/* Rejected Members Tab */}
       {activeTab === "rejected" && (
