@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
-import { Trash2 } from "lucide-react";
+import { Trash2, Eye, MoreHorizontal} from "lucide-react";
 import { FaTrash, FaEdit, FaPlus } from "react-icons/fa";	
 import { Search } from "lucide-react";
 import Step1 from '../assets/Step1.png';
@@ -17,6 +17,13 @@ import Juan from '../assets/Juan.png';
 import Disregard from '../assets/Disregard.png';
 import Success from '../assets/Success.png';
 import Alert from '../assets/Alert.png';
+import editIcon from '../assets/Edit.png';
+import ediIcon from '../assets/Pencil.png';
+import edtIcon from '../assets/Trash.png';
+import PDF from '../assets/PDF.png';
+import { TbRuler2 } from "react-icons/tb";
+import { SiTruenas } from "react-icons/si";
+
 
 const currentMembersInitial = [
   {
@@ -83,6 +90,64 @@ const rejectedMembersInitial = [
     rejectedOn: "March 21, 2025",
   },
 ];
+
+const rejectedData = [
+  {
+    name: "Juan Dela Cruz",
+    email: "juandcruz@gmail.com",
+    appliedAs: "Member",
+    reason: "Duplicate Registration",
+    document: "nat_id_juandc.pdf",
+    date: "March 21, 2025",
+    daysAgo: "5 days ago",
+  },
+  {
+    name: "Juan Dela Cruz",
+    email: "juandcruz@gmail.com",
+    appliedAs: "Member",
+    reason: "Invalid Document",
+    document: "nat_id_juandc.pdf",
+    date: "March 21, 2025",
+    daysAgo: "5 days ago",
+  },
+  {
+    name: "Juan Dela Cruz",
+    email: "juandcruz@gmail.com",
+    appliedAs: "Member",
+    reason: "Suspicious Information",
+    document: "nat_id_juandc.pdf",
+    date: "March 21, 2025",
+    daysAgo: "5 days ago",
+  },
+  {
+    name: "Juan Dela Cruz",
+    email: "juandcruz@gmail.com",
+    appliedAs: "Member",
+    reason: "Suspicious Information",
+    document: "nat_id_juandc.pdf",
+    date: "March 21, 2025",
+    daysAgo: "5 days ago",
+  },
+  {
+    name: "Juan Dela Cruz",
+    email: "juandcruz@gmail.com",
+    appliedAs: "Member",
+    reason: "Suspicious Information",
+    document: "nat_id_juandc.pdf",
+    date: "March 21, 2025",
+    daysAgo: "5 days ago",
+  },
+  {
+    name: "Juan Dela Cruz",
+    email: "juandcruz@gmail.com",
+    appliedAs: "Member",
+    reason: "Suspicious Information",
+    document: "nat_id_juandc.pdf",
+    date: "March 21, 2025",
+    daysAgo: "5 days ago",
+  },
+];
+
 
 
 export default function MemberTabs() {
@@ -151,7 +216,13 @@ export default function MemberTabs() {
   const [confirmAction, setConfirmAction] = useState(null); // eg {type:'deleteMember',id:1}
   const [showApproveMessage, setShowApproveMessage] = useState(false);
   const [showAcceptedMessage, setShowAcceptedMessage] = useState(false);
-
+  const [isApplicationDetailsOpen, setIsApplicationDetailsOpen] = useState(false);
+  const [showApproveReject, setShowApproveReject] = useState(false);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const handleApprove = () => {
+    setShowApproveReject(false);
+    setShowSuccessModal(true);
+  };
 
   // Filter functions
   const filterMembersBySearch = (list, search) => {
@@ -445,34 +516,37 @@ export default function MemberTabs() {
           </div>
 
           {/* Bulk Delete Button */}
-          <div className="p-0 rounded-lg bg-gray-50 dark:bg-gray-800" role="tabpanel" tabIndex={0}>
+          <div className="rounded-lg bg-gray-50 dark:bg-gray-800" role="tabpanel" tabIndex={0}>
             <div className="flex justify-between items-center mb-4">
             </div>
 
             {/* Table */}
+            <div className="overflow-x-auto">
             <table className="min-w-full border-spacing-y-2">
               <thead>
                 <tr className="text-left" style={{ backgroundColor: "#F4F4F4" }}>
                   <th className="p-2 rounded-tl-lg rounded-tr-lg">
                     <input
                       type="checkbox"
+                      className="w-4 h-4 accent-blue-500 cursor-pointer"
                       checked={selectedMembers.length === filteredMembers.length && filteredMembers.length > 0}
                       onChange={toggleSelectAll}
                       aria-label="Select all members"
                     />
                   </th>
-                  <th className="p-2">Username</th>
-                  <th className="p-2">Role</th>
-                  <th className="p-2">Address</th>
-                  <th className="p-2">Date of Birth</th>
-                  <th className="p-2">Date Added</th>
-                  <th className="p-2">Actions</th>
+                  <th className="p-4">User Name</th>
+                  <th className="p-4">Role</th>
+                  <th className="p-4">Address</th>
+                  <th className="p-4">Date of Birth</th>
+                  <th className="p-4">Date Added</th>
+                  <th className="p-4">Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {filteredMembers.map((member) => (
-                  <tr key={member.id} className="border-t">
-                    <td className="p-2">
+                  <tr key={member.id} className="border-t font-medium">
+                    
+                    <td className="p-4">
                       <input
                         type="checkbox"
                         checked={selectedMembers.includes(member.id)}
@@ -480,7 +554,7 @@ export default function MemberTabs() {
                         aria-label={`Select member ${member.firstName} ${member.lastName}`}
                       />
                     </td>
-                    <td className="p-2 flex items-center">
+                    <td className="p-4 flex items-center">
                       <img
                         src={Juan}
                         alt={`${member.firstName} ${member.lastName}`}
@@ -491,7 +565,7 @@ export default function MemberTabs() {
                         <div className="text-sm text-gray-600">{member.email}</div>
                       </div>
                     </td>
-                    <td className="p-2">
+                    <td className="p-4">
                       <div
                         className="text-center font-bold"
                         style={{
@@ -508,17 +582,17 @@ export default function MemberTabs() {
                         {member.role}
                       </div>
                     </td>
-                    <td className="p-2">{member.address}</td>
-                    <td className="p-2">{member.dob}</td>
-                    <td className="p-2">{member.dateAdded}</td>
-                    <td className="p-2 flex gap-2">
-                      <button
-                        onClick={() => handleEditClick(member)}
-                        className="text-blue-500 hover:text-blue-700"
-                        aria-label={`Edit member ${member.firstName} ${member.lastName}`}
-                      >
-                        <FaEdit />
-                      </button>
+                    <td className="p-4">{member.address}</td>
+                    <td className="p-4">{member.dob}</td>
+                    <td className="p-4">{member.dateAdded}</td>
+                    <td className="p-4 flex gap-2">
+                    <button
+                      onClick={() => handleEditClick(member)}
+                      className="text-blue-500 hover:text-blue-700"
+                      aria-label={`Edit member ${member.firstName} ${member.lastName}`}
+                    >
+                      <FaEdit className="w-4 h-4" />
+                    </button>
                       <button
                         onClick={() => setConfirmAction({ type: 'deleteMember', id: member.id })}
                         className="text-red-500 hover:text-red-700"
@@ -536,6 +610,7 @@ export default function MemberTabs() {
                 )}
               </tbody>
             </table>
+          </div>
           </div>
         </>
       )}
@@ -987,7 +1062,7 @@ export default function MemberTabs() {
       {/* Rejected Members Tab */}
       {activeTab === "rejected" && (
         <>
-         <div className="flex items-center justify-between w-full mb-4">
+        <div className="flex items-center justify-between w-full mb-4">
             {/* Left Side */}
             <div className="flex items-center">
               <img
@@ -1031,113 +1106,308 @@ export default function MemberTabs() {
             <div className="flex justify-between items-center mb-4">
             </div>
 
-            {/* Table */}
-            <table className="min-w-full border-spacing-y-2">
-  <thead>
-    <tr className="text-left" style={{ backgroundColor: "#F4F4F4" }}>
-      <th className="p-2 rounded-tl-lg rounded-tr-lg">
-        <input
-          type="checkbox"
-          checked={selectedMembers.length === filteredMembers.length && filteredMembers.length > 0}
+          {/* Table */}
+         <div className="overflow-x-auto">
+      <table className="min-w-full border-spacing-y-2">
+        <thead className="bg-gray-50 text-gray-700 font-semibold">
+        <tr className="text-left" style={{ backgroundColor: "#F4F4F4" }}>
+            <th className="p-4 rounded-tl-lg rounded-tr-lg">
+              <input
+               className="w-4 h-4 accent-blue-500 cursor-pointer"
+                type="checkbox"
+                checked={selectedMembers.length === filteredMembers.length && filteredMembers.length > 0}
           onChange={toggleSelectAll}
           aria-label="Select all members"
-        />
-      </th>
-      <th className="p-2">Username</th>
-      <th className="p-2">Applied As</th>
-      <th className="p-2">Reason of Rejection</th>
-      <th className="p-2">Document</th>
-      <th className="p-2">Rejected on</th>
-      <th className="p-2">Actions</th>
-    </tr>
-  </thead>
-  <tbody>
-    {filteredMembers.map((rejectedMembers) => (
-      <tr key={rejectedMembers.id} className="border-t">
-        <td className="p-2">
-          <input
-            type="checkbox"
-            checked={selectedMembers.includes(rejectedMembers.id)}
-            onChange={() => toggleSelectMember(rejectedMembers.id)}
-            aria-label={`Select member ${rejectedMembers.name}`}
-          />
-        </td>
-        <td className="p-2 flex items-center">
-          <img
-            src={Juan}
-            alt={rejectedMembers.name}
-            className="w-10 h-10 rounded-full object-cover mr-3"
-          />
-          <div>
-            <div>{rejectedMembers.name}</div>
-            <div className="text-sm text-gray-600">{rejectedMembers.email}</div>
-          </div>
-        </td>
-        <td className="p-2">
-          <div
-            className="text-center font-bold"
-            style={{
-              color: '#0038A8',
-              borderRadius: '200px',
-              border: '0.75px solid #0038A8',
-              opacity: 0.75,
-              background: '#C0D5FF',
-              padding: '0px 8px',
-              fontSize: '12px',
-              display: 'inline-block',
-            }}
-          >
-            {rejectedMembers.appliedAs}
-          </div>
-        </td>
-        <td className="p-2">
-          <div
-            className="text-center font-bold"
-            style={{
-              color: '#0038A8',
-              borderRadius: '200px',
-              border: '0.75px solid #0038A8',
-              opacity: 0.75,
-              background: '#C0D5FF',
-              padding: '0px 8px',
-              fontSize: '12px',
-              display: 'inline-block',
-            }}
-          >
-            {rejectedMembers.reason}
-          </div>
-        </td>
-        <td className="p-2">{rejectedMembers.document}</td>
-        <td className="p-2">{rejectedMembers.rejectedOn}</td>
-        <td className="p-2 flex gap-2">
-          <button
-            onClick={() => handleEditClick(rejectedMembers)}
-            className="text-blue-500 hover:text-blue-700"
-            aria-label={`Edit member ${rejectedMembers.name}`}
-          >
-            <FaEdit />
-          </button>
-          <button
-            onClick={() => setConfirmAction({ type: 'deleteMember', id: rejectedMembers.id })}
-            className="text-red-500 hover:text-red-700"
-            aria-label={`Delete member ${rejectedMembers.name}`}
-          >
-            <FaTrash />
-          </button>
-        </td>
-      </tr>
-    ))}
-    {filteredMembers.length === 0 && (
-      <tr>
-        <td colSpan={7} className="p-4 text-center text-gray-600">
-          No members found.
-        </td>
-      </tr>
-    )}
-  </tbody>
-</table>
+              />
+            </th>
+            <th className="p-4">User Name</th>
+            <th className="p-4">Applied As</th>
+            <th className="p-4">Reason of Rejection</th>
+            <th className="p-4">Document</th>
+            <th className="p-4">Rejected on</th>
+            <th className="p-4">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          
+          {rejectedData.map((item, idx) => (
+            <tr key={idx} className="border-t">
+              <td className="p-4">
+                <input
+                  type="checkbox"
+                  className="w-4 h-4 accent-blue-500 cursor-pointer"
+                />
+              </td>
+              <td className="p-4 flex items-center">
+                <img
+                src={Juan}
+                alt={rejectedMembers.name}
+                className="w-10 h-10 rounded-full object-cover mr-3"
+                  
+                />
 
+                <div>
+                  <div className="font-medium">{item.name}</div>
+                  <div className="text-sm text-gray-500 font-medium">{item.email}</div>
+                </div>
+              </td>
+              <td className="p-4">
+                <span className="text-center font-bold"
+                      style={{
+                        color: '#0038A8',
+                        borderRadius: '200px',
+                        border: '0.75px solid #0038A8',
+                        opacity: 0.75,
+                        background: '#C0D5FF',
+                        padding: '0px 8px',
+                        fontSize: '12px',
+                        display: 'inline-block',
+                      }}
+                    >
+                  {item.appliedAs}
+                </span>
+              </td>
+              <td className="p-4">
+                <span className="text-center font-bold"
+                      style={{
+                        color: '#A51B29',
+                        borderRadius: '200px',
+                        border: '0.75px solid #A51B29',
+                        opacity: 0.75,
+                        background: '#FFDBDE',
+                        padding: '0px 8px',
+                        fontSize: '12px',
+                        display: 'inline-block',
+                      }}
+                    >
+                  {item.reason}
+                </span>
+              </td>
+              <td className="p-4">
+              <a href="/path/to/nat_id_juandc.pdf" className="text-[#0038A8] text-sm font-medium underline" target="_blank" rel="noopener noreferrer">
+                          <img src={PDF} alt="PDF" className="inline-block mr-2" width="20" height="20" />
+                  {item.document}
+                </a>
+                <div className="text-xs text-gray-400">Click to view</div>
+              </td>
+              <td className="p-4">
+                <div className="text-sm font-bold">{item.date}</div>
+                <div className="text-xs text-gray-400">{item.daysAgo}</div>
+              </td>
+              <td className="p-4 flex items-center gap-3">
+              <span
+                      className="w-4 h-4 cursor-pointer hover:brightness-110 inline-block"
+                      onClick={() => setIsApplicationDetailsOpen(true)}
+                    >
+                      <img src={editIcon} alt="Edit" className="w-4 h-4" />
+                    </span>
+                <span className="w-4 h-4 cursor-pointer hover:brightness-110 inline-block">
+                    <img src={edtIcon} alt="Trash" className="w-4 h-4" />
+                </span>
+              </td>
+            </tr>
+          ))}
+
+                  {isApplicationDetailsOpen && (
+                    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+                      <div className="bg-white rounded-3xl p-6 w-[400px] shadow-lg relative border border-black">
+                        <button
+                          className="absolute top-3 right-3 text-gray-500 text-3xl"
+                          onClick={() => setIsApplicationDetailsOpen(false)}
+                        >
+                          ×
+                        </button>
+                        <h2 className="text-2xl font-bold mb-1">Application Details</h2>
+                        <p className="text-base text-gray-500 mb-4">Here is the details of the application.</p>
+                        <div className="border-b border-gray-300 my-4"></div>
+                        <div className="space-y-1 text-base">
+                          <p><strong>Name</strong></p>
+                          </div>
+                          <div className="space-y-4 text-base">
+                          <p>Juan Dela Cruz</p>
+                          <p><strong>Applied as</strong></p>
+                          </div>
+                          <div className="space-y-4 text-base">
+                          <p>Member</p>
+                          <p><strong>Reason of Rejection</strong></p>
+                          </div>
+                          <div className="space-y-4 text-base">
+                          <p>Duplicate Rejection</p>
+                          <p><strong>Document</strong></p>
+                          </div>
+                          <div className="space-y-4 text-base">
+                          <p>National ID</p>
+                          <a href="/path/to/nat_id_juandc.pdf" className="text-[#0038A8] underline" target="_blank" rel="noopener noreferrer">
+                          <img src={PDF} alt="PDF" className="inline-block mr-2" width="20" height="20" />
+                          nat_id_juandc.pdf
+                         </a>
+                          <p><strong>Applied on</strong></p>
+                          </div>
+                          <div className="space-y-4 text-base">
+                          <p>March 15, 2025</p>
+                          <p><strong>Rejected on</strong> </p>
+                          </div>
+                          <div className="space-y-4 text-base">
+                          <p>March 21, 2025</p>
+                        </div>
+                        <div className="flex justify-center gap-2 mt-4">
+                          <button
+                            className="px-4 py-2 rounded-3xl bg-[#FF3B4E] font-medium text-white hover:bg-red-600"
+                            style={{ width: '156px', height: '39px' }}
+                            onClick={() => setShowConfirmationModal(true)}
+                          >
+                            Back
+                          </button>
+                          <button
+                            className="px-4 py-2 rounded-3xl bg-[#4CAE4F] font-medium text-white hover:bg-green-600 text-sm"
+                            style={{ width: "156px", height: "39px" }}
+                            onClick={() => setShowApproveReject(true)}
+                          >
+                            Approve
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+{showApproveReject && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-30 z-50">
+          <div className="bg-white p-8 rounded-3xl w-[450px] shadow-md w-96 text-center relative border border-black">
+            <button
+              className="absolute top-4 right-4 text-gray-400 hover:text-black"
+              onClick={() => setShowApproveReject(false)}
+            >
+              &times;
+            </button>
+            <div className="mb-4 flex justify-center items-center">
+                    <img src={Disregard} alt="Disregard.png" className="w-[80px] max-w-full object-contain" />
+                  </div>
+            <h2 className="text-2xl font-bold mb-2">Approve member?</h2>
+            <p className="text-sm text-gray-600 mb-6">
+              The selected member will be moved to current members.
+            </p>
+            <div className="flex justify-center gap-4">
+              <button
+                className="px-11 py-2 bg-white text-[#E02A3B] border border-[#E02A3B] rounded-full hover:bg-[#E02A3B] hover:text-white font-bold"
+                onClick={() => setShowApproveReject(false)}
+              >
+                Cancel
+              </button>
+              <button
+                className="px-10 py-2 bg-[#FF3B4E] text-white rounded-full hover:bg-[#E02A3B] font-bold"
+                onClick={handleApprove}
+              >
+                Approve
+              </button>
+            </div>
           </div>
+        </div>
+      )}
+
+       {/* Success Modal */}
+       {showSuccessModal && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-30 z-50">
+          <div className="bg-white p-8 w-[500px] h-[300px] rounded-2xl shadow-md w-96 text-center relative border border-black">
+            <button
+              className="absolute top-4 right-4 text-gray-400 hover:text-black"
+              onClick={() => setShowSuccessModal(false)}
+            >
+              &times;
+            </button>
+            <div className="mb-4 flex justify-center items-center">
+              <img
+                src={Success}
+                alt="Success.png"
+                className="w-[80px] max-w-full object-contain"
+              />
+            </div>
+            <h2 className="text-3xl font-bold mb-2">Member added successfully!</h2>
+            <p className="text-sm text-gray-600 mb-6">
+              Everything’s set. Feel free to check the member!
+            </p>
+            <div className="flex justify-center gap-4 p-6">
+              <button
+                className="px-4 py-2 bg-white text-[#4CAE4F] border border-[#4CAE4F] rounded-full hover:bg-[#4CAE4F] hover:text-white text-sm font-medium"
+                style={{ width: "130px", height: "39px" }}
+                onClick={() => setShowSuccessModal(false)}
+              >
+                Back
+              </button>
+              <button
+                className="px-4 py-2 rounded-3xl bg-[#4CAE4F] text-white hover:bg-green-600 text-sm"
+                style={{ width: "130px", height: "39px" }}
+                onClick={() => setShowSuccessModal(false)}
+              >
+                Done
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Confirmation Modal */}
+      {showConfirmationModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
+          <div className="bg-white rounded-3xl w-[400px] p-10 shadow-lg relative border border-black">
+            <button
+              onClick={() => setShowConfirmationModal(false)}
+              className="absolute top-4 right-4 text-gray-400 text-xl"
+            >
+              ×
+            </button>
+            <div className="mb-4 flex justify-center items-center">
+                    <img src={Disregard} alt="Disregard.png" className="w-[80px] max-w-full object-contain" />
+                  </div>
+            <h2 className="text-2xl text-center font-bold mb-2">Disregard editing?</h2>
+            <p className="text-sm text-center text-gray-600">
+            This action cannot be undone.
+            </p>
+            <p className="text-sm text-center text-gray-600">
+              The changes will be lost.
+            </p>
+            <div className="flex justify-center gap-3 mt-6">
+              <button
+                onClick={() => setShowConfirmationModal(false)}
+                className="px-4 py-2 rounded-3xl bg-[#FF3B4E] text-white hover:bg-[#E02A3B] text-sm"
+                style={{ width: "130px", height: "39px" }}
+              >
+                Cancel
+              </button>
+              <button
+                
+                className="px-7 py-2 bg-white text-[#E02A3B] border border-[#E02A3B] rounded-full hover:bg-[#E02A3B] hover:text-white text-sm font-medium"
+                style={{ width: "130px", height: "39px" }}
+              >
+                Disregard
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+        </tbody>
+      </table>
+
+      {/* Pagination */}
+      <div className="mt-4 flex justify-center">
+        <nav className="flex gap-1">
+          {[1, 2, 3, 4, 5].map((page) => (
+            <button
+              key={page}
+              className={`w-8 h-8 rounded ${
+                page === 1
+                  ? "bg-gray-800 text-white"
+                  : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+              }`}
+            >
+              {page}
+            </button>
+          ))}
+          <span className="w-8 h-8 flex items-center justify-center">…</span>
+        </nav>
+      </div>
+    </div>
+    </div>
         </>
       )}
 
