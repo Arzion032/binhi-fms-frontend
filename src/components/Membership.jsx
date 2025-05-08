@@ -1,6 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
-import { Trash2, Eye, MoreHorizontal} from "lucide-react";
-import { FaTrash, FaEdit, FaPlus } from "react-icons/fa";	
+import { FaPlus } from "react-icons/fa";	
 import { Search } from "lucide-react";
 import Step1 from '../assets/Step1.png';
 import Step2 from '../assets/Step2.png';
@@ -18,11 +17,9 @@ import Disregard from '../assets/Disregard.png';
 import Success from '../assets/Success.png';
 import Alert from '../assets/Alert.png';
 import editIcon from '../assets/Edit.png';
-import ediIcon from '../assets/Pencil.png';
 import edtIcon from '../assets/Trash.png';
+import Pencil from '../assets/Pencil.png';
 import PDF from '../assets/PDF.png';
-import { TbRuler2 } from "react-icons/tb";
-import { SiTruenas } from "react-icons/si";
 
 
 const currentMembersInitial = [
@@ -525,7 +522,7 @@ export default function MemberTabs() {
             <table className="min-w-full border-spacing-y-2">
               <thead>
                 <tr className="text-left" style={{ backgroundColor: "#F4F4F4" }}>
-                  <th className="p-2 rounded-tl-lg rounded-tr-lg">
+                  <th className="p-3 rounded-tl-lg rounded-tr-lg">
                     <input
                       type="checkbox"
                       className="w-4 h-4 accent-blue-500 cursor-pointer"
@@ -586,20 +583,19 @@ export default function MemberTabs() {
                     <td className="p-4">{member.dob}</td>
                     <td className="p-4">{member.dateAdded}</td>
                     <td className="p-4 flex gap-2">
-                    <button
+
+                    <span
                       onClick={() => handleEditClick(member)}
-                      className="text-blue-500 hover:text-blue-700"
+                      className="w-4 h-4 cursor-pointer hover:brightness-110 inline-block"
                       aria-label={`Edit member ${member.firstName} ${member.lastName}`}
                     >
-                      <FaEdit className="w-4 h-4" />
-                    </button>
-                      <button
-                        onClick={() => setConfirmAction({ type: 'deleteMember', id: member.id })}
-                        className="text-red-500 hover:text-red-700"
-                        aria-label={`Delete member ${member.firstName} ${member.lastName}`}
-                      >
-                        <FaTrash />
-                      </button>
+                      <img src={Pencil} alt="Pencil" className="w-4 h-4" />
+                    </span>
+
+
+                    <span className="w-4 h-4 cursor-pointer hover:brightness-110 inline-block">
+                        <img src={edtIcon} alt="Trash" className="w-4 h-4" />
+                    </span>
                     </td>
                   </tr>
                 ))}
@@ -608,8 +604,20 @@ export default function MemberTabs() {
                     <td colSpan={7} className="p-4 text-center text-gray-600">No members found.</td>
                   </tr>
                 )}
+                
               </tbody>
             </table>
+
+            <div className="flex justify-center mt-10 mb-4">
+<div className="join space-x-10">
+  <button className="join-item btn bg-[#F8FCF8] text-[#909090] hover:bg-[#409943]">1</button>
+  <button className="join-item btn bg-[#F8FCF8] text-[#909090] hover:bg-[#409943]">2</button>
+  <button className="join-item btn bg-[#F8FCF8] text-[#909090] hover:bg-[#409943]">3</button>
+  <button className="join-item btn bg-[#F8FCF8] text-[#909090] hover:bg-[#409943]">4</button>
+  <button className="join-item btn bg-[#F8FCF8] text-[#909090] hover:bg-[#409943]">5</button>
+  <button className="join-item btn bg-[#F8FCF8] text-[#909090] hover:bg-[#409943]">...</button>
+</div>
+</div>
           </div>
           </div>
         </>
@@ -671,10 +679,10 @@ export default function MemberTabs() {
     </div>
 
     {/* Main Content */}
-    <div className="p-0 rounded-lg bg-gray-50 dark:bg-gray-800" role="tabpanel" tabIndex={0}>
+    <div className="p-0 rounded-lg bg-gray-50 dark:bg-gray-800" role="tabpanel " tabIndex={0}>
       <div className="flex h-[691px] w-full p-4 bg-gray-100">
         {/* Sidebar */}
-        <div className="w-1/5 bg-white rounded-xl shadow-md p-4">
+        <div className="w-1/5 bg-white rounded-xl shadow-md p-4 border border-black">
           {/* Fixed Header */}
           <div className="w-full bg-[#D9D9D9] px-4 py-2">
             <div className="flex justify-between items-center">
@@ -745,8 +753,8 @@ export default function MemberTabs() {
         </div>
 
         {/* Details Panel */}
-        <div className="flex-1 bg-white rounded-xl shadow-md ml-4 p-6">
-          <div className="flex justify-between items-start mb-6">
+        <div className="flex-1 bg-white rounded-xl shadow-md ml-4 p-6 border border-black">
+          <div className="flex justify-between items-start mb-6 ">
             <div className="flex items-center gap-4">
               <img
                 src="https://i.pravatar.cc/40"
@@ -833,7 +841,7 @@ export default function MemberTabs() {
         {/* Reject Modal */}
         {showRejectModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
-          <div className="bg-white rounded-3xl w-[400px] p-9 shadow-lg relative">
+          <div className="bg-white rounded-3xl w-[400px] p-9 shadow-lg relative border border-black">
             <button
               onClick={() => setShowRejectModal(false)}
               className="absolute top-4 right-4 text-gray-400 text-xl"
@@ -895,7 +903,7 @@ export default function MemberTabs() {
       {/* Confirmation Modal */}
       {showConfirmationModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
-          <div className="bg-white rounded-3xl w-[400px] p-10 shadow-lg relative">
+          <div className="bg-white rounded-3xl w-[400px] p-10 shadow-lg relative border border-black">
             <button
               onClick={() => setShowConfirmationModal(false)}
               className="absolute top-4 right-4 text-gray-400 text-xl"
@@ -935,7 +943,7 @@ export default function MemberTabs() {
       {/* Success Message */}
       {showSuccessMessage && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
-          <div className="bg-white rounded-3xl w-[430px] h-[320px] p-7 shadow-lg relative">
+          <div className="bg-white rounded-3xl w-[430px] h-[320px] p-7 shadow-lg relative border border-black">
           <button
               onClick={() => setShowConfirmationModal(false)}
               className="absolute top-4 right-5 text-gray-400 text-2xl"
@@ -975,7 +983,7 @@ export default function MemberTabs() {
       {/* Approve Message */}
       {showApproveMessage && (
   <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
-    <div className="bg-white rounded-3xl w-[430px] h-[300px] p-7 shadow-lg relative">
+    <div className="bg-white rounded-3xl w-[430px] h-[300px] p-7 shadow-lg relative border border-black">
       <button
         onClick={() => setShowApproveMessage(false)}  // Fixed
         className="absolute top-4 right-5 text-gray-400 text-2xl"
@@ -1019,7 +1027,7 @@ export default function MemberTabs() {
 )}
 {showAcceptedMessage && (
   <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
-    <div className="bg-white rounded-3xl w-[420px] h-[290px] p-6 shadow-lg text-center">
+    <div className="bg-white rounded-3xl w-[420px] h-[290px] p-6 shadow-lg text-center border border-black">
       <div className="mb-4 flex justify-center items-center">
         <img
           src={Success}
@@ -1389,23 +1397,16 @@ export default function MemberTabs() {
       </table>
 
       {/* Pagination */}
-      <div className="mt-4 flex justify-center">
-        <nav className="flex gap-1">
-          {[1, 2, 3, 4, 5].map((page) => (
-            <button
-              key={page}
-              className={`w-8 h-8 rounded ${
-                page === 1
-                  ? "bg-gray-800 text-white"
-                  : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-              }`}
-            >
-              {page}
-            </button>
-          ))}
-          <span className="w-8 h-8 flex items-center justify-center">…</span>
-        </nav>
-      </div>
+      <div className="flex justify-center mt-10 mb-4">
+<div className="join space-x-10">
+  <button className="join-item btn bg-[#F8FCF8] text-[#909090] hover:bg-[#409943]">1</button>
+  <button className="join-item btn bg-[#F8FCF8] text-[#909090] hover:bg-[#409943]">2</button>
+  <button className="join-item btn bg-[#F8FCF8] text-[#909090] hover:bg-[#409943]">3</button>
+  <button className="join-item btn bg-[#F8FCF8] text-[#909090] hover:bg-[#409943]">4</button>
+  <button className="join-item btn bg-[#F8FCF8] text-[#909090] hover:bg-[#409943]">5</button>
+  <button className="join-item btn bg-[#F8FCF8] text-[#909090] hover:bg-[#409943]">...</button>
+</div>
+</div>
     </div>
     </div>
         </>
@@ -1413,9 +1414,9 @@ export default function MemberTabs() {
 
       {/* Add Member Modal */}
       {isAddMemberModalOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50 ">
           <div
-            className={`bg-[#F8FCF8] dark:bg-gray-700 p-6 rounded-3xl relative w-[523px] ${
+            className={`bg-[#F8FCF8] dark:bg-gray-700 p-6 rounded-3xl relative w-[523px] border border-black ${
               addMemberForm.step === 1 ? 'h-[775px]' : 'h-auto'
             }`}
           >
@@ -1553,7 +1554,7 @@ export default function MemberTabs() {
       {successModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
           <div
-            className="bg-white dark:bg-gray-800 p-6 w-[90%] max-w-sm relative rounded-[25px]"
+            className="bg-white dark:bg-gray-800 p-6 w-[90%] max-w-sm relative rounded-[25px] border border-black"
           >
             <button
               onClick={() => setConfirmAction('discardChanges')}
@@ -1567,7 +1568,7 @@ export default function MemberTabs() {
               <div className="mb-4">
                 <img src={Member} alt="Member" />
               </div>
-              <p className="mb-6 text-lg font-semibold">Member added successfully!</p>
+              
             </div>
 
             <div className="flex justify-center gap-4">
@@ -1638,10 +1639,11 @@ export default function MemberTabs() {
             <hr className="mb-4" />
 
             {/* Edit Form Fields */}
-            <div className="space-y-1">
+            <div className="space-y-1 ">
+              
               {['firstName', 'lastName', 'role', 'number', 'DateofBirth', 'barangay', 'purok', 'street'].map((field) => (
-                <div key={field} className="flex items-center gap-4">
-                  <div className="w-32 flex items-center gap-2">
+                <div key={field} className="flex items-center gap-4 ">
+                  <div className="w-32 flex items-center gap-2 ">
                     {fieldIcons[field] ? (
                       <img src={fieldIcons[field]} alt={field} className="w-5 h-5" />
                     ) : (
@@ -1658,7 +1660,7 @@ export default function MemberTabs() {
                   />
                 </div>
               ))}
-              <div className="flex items-center gap-4">
+              <div className="flex items-center gap-4 ">
                 <div className="w-32 flex items-center gap-2">
                   <img src={fieldIcons.document} alt="document" className="w-5 h-5" />
                   <label className="capitalize">Document</label>
@@ -1674,7 +1676,7 @@ export default function MemberTabs() {
 
             <div className="mt-6 flex justify-center items-center gap-4">
               <button
-                onClick={handleCancelEdit}
+                onClick={() => setShowConfirmationModal(true)}
                 className="px-12 py-2 bg-[#E02A3B] text-white border border-[#E02A3B] rounded-full hover:bg-[#E02A3B] hover:text-white"
               >
                 Disregard
@@ -1693,31 +1695,71 @@ export default function MemberTabs() {
       {/* Confirmation Modal */}
       {confirmAction && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-          <div className="bg-white dark:bg-gray-800 p-6 rounded-[25px] w-[380px] h-[300px] text-center">
-            {(confirmAction === 'discardChanges' || confirmAction === 'cancelEdit') ? (
-              <div className="mb-4">
-                <div className="mb-6 text-center">
-                  <div className="mb-4 flex justify-center items-center">
-                    <img src={Dis} alt="Dis" className="w-[260px] max-w-full object-contain" />
-                  </div>
-                </div>
-              </div>
-            ) : (
-              <p className="mb-6 text-lg font-semibold">
-                Are you sure you want to confirm changes?
-              </p>
-            )}
-
-            <div className="flex justify-center gap-4">
+          <div className="bg-white dark:bg-gray-800 p-6 rounded-[25px] w-[480px] h-[310px] text-center border border-black">
+            
+              <div className="mb-4 flex justify-center items-center">
+              <img
+                src={Success}
+                alt="Success.png"
+                className="w-[80px] max-w-full object-contain"
+              />
+            </div>
+            <h2 className="text-3xl font-bold mb-2">Details updated successfully!</h2>
+            <p className="text-sm text-gray-600 mb-6">
+              Everything’s set. Feel free to check it!
+            </p>
+            <div className="flex justify-center gap-4 p-9">
               <button
+                className="px-4 py-2 bg-white text-[#4CAE4F] border border-[#4CAE4F] rounded-full hover:bg-[#4CAE4F] hover:text-white text-sm font-medium"
+                style={{ width: "130px", height: "39px" }}
                 onClick={cancelAction}
-                className="px-10 py-2 bg-[#FF3B4E] text-white rounded-full hover:bg-[#E02A3B] font-bold"
+              >
+                Back
+              </button>
+              <button
+                className="px-4 py-2 rounded-3xl bg-[#4CAE4F] text-white hover:bg-green-600 text-sm"
+                style={{ width: "130px", height: "39px" }}
+                onClick={proceedAction}
+              >
+                Done
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Disregard Modal */}
+      {showConfirmationModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
+          <div className="bg-white rounded-3xl w-[400px] p-10 shadow-lg relative border border-black">
+            <button
+              onClick={() => setShowConfirmationModal(false)}
+              className="absolute top-4 right-4 text-gray-400 text-xl"
+            >
+              ×
+            </button>
+            <div className="mb-4 flex justify-center items-center">
+                    <img src={Disregard} alt="Disregard.png" className="w-[80px] max-w-full object-contain" />
+                  </div>
+            <h2 className="text-2xl text-center font-bold mb-2">Disregard editing?</h2>
+            <p className="text-sm text-center text-gray-600">
+            This action cannot be undone.
+            </p>
+            <p className="text-sm text-center text-gray-600">
+              The changes will be lost.
+            </p>
+            <div className="flex justify-center gap-3 mt-6">
+              <button
+                onClick={() => setShowConfirmationModal(false)}
+                className="px-4 py-2 rounded-3xl bg-[#FF3B4E] text-white hover:bg-[#E02A3B] text-sm"
+                style={{ width: "130px", height: "39px" }}
               >
                 Cancel
               </button>
               <button
-                onClick={proceedAction}
-                className="px-7 py-2 bg-white text-[#E02A3B] border border-[#E02A3B] rounded-full hover:bg-[#E02A3B] hover:text-white font-bold"
+                
+                className="px-7 py-2 bg-white text-[#E02A3B] border border-[#E02A3B] rounded-full hover:bg-[#E02A3B] hover:text-white text-sm font-medium"
+                style={{ width: "130px", height: "39px" }}
               >
                 Disregard
               </button>
