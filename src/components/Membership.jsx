@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import { FaPlus } from "react-icons/fa";	
-import { Search } from "lucide-react";
+import { Search, SlidersHorizontal, X } from "lucide-react";
 import Step1 from '../assets/Step1.png';
 import Step2 from '../assets/Step2.png';
 import loop from '../assets/loop.png';
@@ -201,6 +201,13 @@ export default function MemberTabs() {
   const handleDisregard = () => {
     setShowRejectModal(false); // Close the first modal
     setShowConfirmationModal(true); // Show the confirmation modal
+  };
+
+  const [showFilters, setShowFilters] = useState(false);
+  const [selectedRole, setSelectedRole] = useState("");
+
+  const clearFilters = () => {
+    setSelectedRole("");
   };
 
   const handleConfirmDisregard = () => {
@@ -483,19 +490,51 @@ export default function MemberTabs() {
               />
               <span className="text-[15.5px] text-lg font-semibold mr-2">All Members</span>
             </div>
+            
             {/* Right Side */}
             <div className="flex items-center space-x-4">
               {/* Search Bar */}
-              <div className="relative w-[279px]">
-                <input
-                  type="text"
-                  placeholder="Search Members..."
-                  className="w-full h-[41px] pl-10 pr-3 border rounded-full p-2"
-                  value={searchCurrent}
-                  onChange={(e) => setSearchCurrent(e.target.value)}
-                />
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 w-5 h-5" />
-              </div>
+      <div className="relative w-[280px] flex items-center border rounded-full px-3 py-1 bg-white">
+        <Search className="text-gray-500 w-5 h-5 mr-2 " />
+        <input
+          type="text"
+          placeholder="Search Member"
+          className="flex-1 outline-none bg-white"
+          value={searchCurrent}
+          onChange={(e) => setSearchCurrent(e.target.value)}
+        />
+        <button onClick={() => setShowFilters(!showFilters)}>
+          <SlidersHorizontal className="text-gray-600 w-5 h-5" />
+        </button>
+      </div>
+
+       {/* Filter Panel */}
+       {showFilters && (
+        <div className="flex items-center space-x-1 p-2 rounded-lg w-fit">
+        <div className="flex items-center space-x-1 border rounded-l-3xl px-3 py-1 cursor-pointer bg-white border border-[#858585] h-[35px]">
+          <SlidersHorizontal className="text-blue w-4 h-4" />
+          <span className="mr-2 p-2 text-sm text-blue font-medium">Active Filters</span>
+        </div>
+
+          <select
+            value={selectedRole}
+            onChange={(e) => setSelectedRole(e.target.value)}
+            className="border border-[#858585] h-[35px] w-[60px] text-center text-sm bg-white text-[#858585]"
+          >
+            <option value="">Role</option>
+            <option value="admin">Farmer</option>
+            <option value="member">Member</option>
+          </select>
+
+          <button
+            onClick={clearFilters}
+            className="flex items-center space-x-1 border rounded-r-3xl px-3 py-1 text-sm border border-[#858585] h-[35px] bg-white text-[#858585]"
+          >
+            <X className="w-4 h-4 text-[#858585]" />
+            <span>Clear</span>
+          </button>
+        </div>
+      )}
 
               {/* Add Member Button */}
               <button
@@ -514,11 +553,11 @@ export default function MemberTabs() {
 
           {/* Bulk Delete Button */}
           <div className="rounded-lg bg-gray-50 dark:bg-gray-800" role="tabpanel" tabIndex={0}>
-            <div className="flex justify-between items-center mb-4">
+            <div className="flex justify-between items-center">
             </div>
 
             {/* Table */}
-            <div className="overflow-x-auto">
+            <div className="overflow-x-auto py-0">
             <table className="min-w-full border-spacing-y-2">
               <thead>
                 <tr className="text-left" style={{ backgroundColor: "#F4F4F4" }}>
@@ -641,17 +680,60 @@ export default function MemberTabs() {
 
       {/* Right Side */}
       <div className="flex items-center space-x-4">
-        {/* Search Bar */}
-        <div className="relative w-[279px]">
-          <input
-            type="text"
-            placeholder="Search Members..."
-            className="w-full h-[41px] pl-10 pr-3 border rounded-full p-2"
-            value={searchCurrent}
-            onChange={(e) => setSearchCurrent(e.target.value)}
-          />
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 w-5 h-5" />
+
+              {/* Search Bar */}
+      <div className="relative w-[250px] flex items-center border rounded-full px-3 py-1 bg-white">
+        <Search className="text-gray-500 w-5 h-5 mr-2 " />
+        <input
+          type="text"
+          placeholder="Search Member"
+          className="flex-1 outline-none bg-white"
+          value={searchCurrent}
+          onChange={(e) => setSearchCurrent(e.target.value)}
+        />
+        <button onClick={() => setShowFilters(!showFilters)}>
+          <SlidersHorizontal className="text-gray-600 w-5 h-5" />
+        </button>
+      </div>
+
+       {/* Filter Panel */}
+       {showFilters && (
+        <div className="flex items-center space-x-1 p-2 rounded-lg w-fit">
+        <div className="flex items-center space-x-1 border rounded-l-3xl px-3 py-1 cursor-pointer bg-white border border-[#858585] h-[35px]">
+          <SlidersHorizontal className="text-blue w-4 h-4" />
+          <span className="mr-2 p-2 text-sm text-blue font-medium">Active Filters</span>
         </div>
+
+          <select
+            value={selectedRole}
+            onChange={(e) => setSelectedRole(e.target.value)}
+            className="border border-[#858585] h-[35px] w-[60px] text-center text-sm bg-white text-[#858585]"
+          >
+            <option value="">Role</option>
+            <option value="admin">Farmer</option>
+            <option value="member">Member</option>
+          </select>
+
+          <select
+            value={selectedRole}
+            onChange={(e) => setSelectedRole(e.target.value)}
+            className="border border-[#858585] h-[35px] text-sm bg-white text-[#858585]"
+          >
+            <option value="">Document</option>
+            <option value="admin"></option>
+            <option value="member"></option>
+          </select>
+
+          <button
+            onClick={clearFilters}
+            className="flex items-center space-x-1 border rounded-r-3xl px-3 py-1 text-sm border border-[#858585] h-[35px] bg-white text-[#858585]"
+          >
+            <X className="w-4 h-4 text-[#858585]" />
+            <span>Clear</span>
+          </button>
+        </div>
+      )}
+
 
         {/* Add Member Button */}
         <button
@@ -672,8 +754,8 @@ export default function MemberTabs() {
           }}
           className="flex items-center justify-center gap-2 bg-app-primary hover:bg-app-primary/90 text-white rounded-full px-6 py-2"
         >
-          <FaPlus className="w-5 h-5" />
-          <span className="font-semibold text-[16px]">Add Member</span>
+          <FaPlus className="w-5 h-[15px]" />
+          <span className="font-semibold text-[15px]">Add Member</span>
         </button>
       </div>
     </div>
@@ -1081,18 +1163,60 @@ export default function MemberTabs() {
               <span className="text-[15.5px] text-lg font-semibold mr-2">Rejected Members</span>
             </div>
             {/* Right Side */}
-            <div className="flex items-center space-x-4">
+      <div className="flex items-center space-x-4">
               {/* Search Bar */}
-              <div className="relative w-[279px]">
-                <input
-                  type="text"
-                  placeholder="Search Members..."
-                  className="w-full h-[41px] pl-10 pr-3 border rounded-full p-2"
-                  value={searchCurrent}
-                  onChange={(e) => setSearchCurrent(e.target.value)}
-                />
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 w-5 h-5" />
-              </div>
+      <div className="relative w-[250px] flex items-center border rounded-full px-3 py-1 bg-white">
+        <Search className="text-gray-500 w-5 h-5 mr-2 " />
+        <input
+          type="text"
+          placeholder="Search Member"
+          className="flex-1 outline-none bg-white"
+          value={searchCurrent}
+          onChange={(e) => setSearchCurrent(e.target.value)}
+        />
+        <button onClick={() => setShowFilters(!showFilters)}>
+          <SlidersHorizontal className="text-gray-600 w-5 h-5" />
+        </button>
+      </div>
+
+       {/* Filter Panel */}
+       {showFilters && (
+        <div className="flex items-center space-x-1 p-2 rounded-lg w-fit">
+        <div className="flex items-center space-x-1 border rounded-l-3xl px-3 py-1 cursor-pointer bg-white border border-[#858585] h-[35px]">
+          <SlidersHorizontal className="text-blue w-4 h-4" />
+          <span className="mr-2 p-2 text-sm text-blue font-medium">Active Filters</span>
+        </div>
+
+          <select
+            value={selectedRole}
+            onChange={(e) => setSelectedRole(e.target.value)}
+            className="border border-[#858585] h-[35px] w-[60px] text-center text-sm bg-white text-[#858585]"
+          >
+            <option value="">Role</option>
+            <option value="admin">Farmer</option>
+            <option value="member">Member</option>
+          </select>
+
+          <select
+            value={selectedRole}
+            onChange={(e) => setSelectedRole(e.target.value)}
+            className="border border-[#858585] h-[35px] w-[150px] text-sm bg-white text-[#858585]"
+          >
+            <option value="">Reason of Rejection</option>
+            <option value="admin">Duplicate Registration</option>
+            <option value="member">Invalid Document</option>
+            <option value="admin">Suspicious Information</option>
+          </select>
+
+          <button
+            onClick={clearFilters}
+            className="flex items-center space-x-1 border rounded-r-3xl px-3 py-1 text-sm border border-[#858585] h-[35px] bg-white text-[#858585]"
+          >
+            <X className="w-4 h-4 text-[#858585]" />
+            <span>Clear</span>
+          </button>
+        </div>
+      )}
 
               {/* Add Member Button */}
               <button
@@ -1103,15 +1227,15 @@ export default function MemberTabs() {
                 className="flex items-center justify-center gap-2 bg-app-primary hover:bg-app-primary/90 text-white rounded-full px-6 py-2"
                 data-model-id="1391:4664"
               >
-                <FaPlus className="w-5 h-5" />
-                <span className="font-semibold text-[16px]">Add Member</span>
+                <FaPlus className="w-5 h-[15px]" />
+                <span className="font-semibold text-[15px]">Add Member</span>
               </button>
             </div>
           </div>
 
-          {/* Bulk Delete Button */}
-          <div className="p-0 rounded-lg bg-gray-50 dark:bg-gray-800" role="tabpanel" tabIndex={0}>
-            <div className="flex justify-between items-center mb-4">
+           {/* Bulk Delete Button */}
+           <div className="rounded-lg bg-gray-50 dark:bg-gray-800" role="tabpanel" tabIndex={0}>
+            <div className="flex justify-between items-center">
             </div>
 
           {/* Table */}
