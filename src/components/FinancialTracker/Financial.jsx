@@ -1,16 +1,25 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState } from 'react';
 import { FaFilePdf, FaFileExcel } from 'react-icons/fa6';
 import StatisticsChart from './StatisticsChart';
+import IncomeModal from './IncomeModal';
+import ExpensesModal from './ExpensesModal';
 
 const Financial = () => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [downloadDropdownOpen, setDownloadDropdownOpen] = useState(false);
-  const dropdownRef = useRef();
-  const dropdownDownloadRef = useRef();
+  const [incomeModalOpen, setIncomeModalOpen] = useState(false);
+  const [expenseModalOpen, setExpenseModalOpen] = useState(false);
+  const dropdownRef = React.useRef();
+  const dropdownDownloadRef = React.useRef();
 
   const handleAddTransaction = (type) => {
     console.log(`Adding a new ${type} transaction`);
     setDropdownOpen(false);
+    if (type === 'income') {
+      setIncomeModalOpen(true);
+    } else if (type === 'expense'){
+      setExpenseModalOpen(true);
+    }
   };
 
   const handleDownload = (type) => {
@@ -18,7 +27,7 @@ const Financial = () => {
     setDownloadDropdownOpen(false);
   };
 
-  useEffect(() => {
+  React.useEffect(() => {
     function handleClickOutside(event) {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
         setDropdownOpen(false);
@@ -33,12 +42,18 @@ const Financial = () => {
 
   return (
     <div className="p-8 bg-[#f9fbf8] min-h-screen text-sm">
+      {/* Income Modal */}
+      <IncomeModal isOpen={incomeModalOpen} onClose={() => setIncomeModalOpen(false)} />
+      
+      {/* Expenses Modal */}
+      <ExpensesModal isOpen={expenseModalOpen} onClose={() => setExpenseModalOpen(false)} />
+      
       {/* Only this part will be sticky */}
       <div className="sticky top-0 z-30 bg-[#f9fbf8] pt-4 pb-3">
         <div className="text-sm breadcrumbs font-inter text-base mb-2">
           <ul className="flex gap-1">
-            <li><a className="text-binhigreen underline">Dashboard</a></li>
-            <li><a className="text-binhigreen underline">Financial Tracker</a></li>
+            <li><a className="text-green-600 underline">Dashboard</a></li>
+            <li><a className="text-green-600 underline">Financial Tracker</a></li>
             <li className="text-gray-400">Financial Overview</li>
           </ul>
         </div>
@@ -47,18 +62,17 @@ const Financial = () => {
           <button className="text-green-600 font-semibold border-b-4 border-green-500 pb-1 px-2 bg-transparent">
             Financial Overview
           </button>
-          <a href="/transaction-history" className="text-gray-400 font-semibold pb-1 px-2 bg-transparent hover:bg-[#e6f0ea] rounded transition-colors">
+          <a href="/transaction-history" className="text-gray-400 font-semibold pb-1 px-2 bg-transparent hover:bg-green-50 rounded transition-colors">
             Transaction History
           </a>
         </div>
       </div>
-
       {/* NON-STICKY CONTENT STARTS HERE */}
       
       {/* Balance */}
       <div className="flex flex-wrap items-center justify-between my-4 gap-2">
         <div className="flex items-center gap-2 text-base font-medium">
-          <span style={{ color: '#4da6ff' }} className="text-lg">🔄 Current Federation Balance:</span>
+          <span className="text-blue-500 text-lg">🔄 Current Federation Balance:</span>
           <span className="text-blue-700 font-bold text-lg">₱52,438</span>
           <span className="text-gray-400 text-lg ml-2 opacity-60">Last Updated Apr 30</span>
         </div>
@@ -92,7 +106,6 @@ const Financial = () => {
               </ul>
             )}
           </div>
-
           {/* Download Dropdown */}
           <div className="relative z-20" ref={dropdownDownloadRef}>
             <button
@@ -136,7 +149,6 @@ const Financial = () => {
           </div>
         </div>
       </div>
-
       <div className="flex flex-col lg:flex-row gap-4 items-stretch mt-2">
         <div className="flex-1 flex flex-col gap-4">
           {/* Income & Expense Cards */}
@@ -145,7 +157,10 @@ const Financial = () => {
             <div className="relative flex-1 bg-white rounded-2xl border border-gray-300 flex flex-col justify-between h-[170px] shadow-sm group">
               <div className="absolute left-0 top-0 h-full w-3 rounded-tl-2xl rounded-bl-2xl bg-[#4caf50]" />
               <div className="absolute top-4 right-4 z-20 group">
-                <button className="flex items-center gap-2 px-3 py-1 text-green-600 border border-green-600 rounded-full transition-all duration-200 group-hover:px-4 hover:bg-green-600 hover:text-white">
+                <button 
+                  onClick={() => setIncomeModalOpen(true)}
+                  className="flex items-center gap-2 px-3 py-1 text-green-600 border border-green-600 rounded-full transition-all duration-200 group-hover:px-4 hover:bg-green-600 hover:text-white"
+                >
                   <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" width="18" height="18">
                     <circle cx="12" cy="12" r="10" />
                     <line x1="12" y1="8" x2="12" y2="16" />
@@ -175,12 +190,14 @@ const Financial = () => {
                 </div>
               </div>
             </div>
-
             {/* Expense Card */}
             <div className="relative flex-1 bg-white rounded-2xl border border-gray-300 flex flex-col justify-between h-[170px] shadow-sm group">
               <div className="absolute left-0 top-0 h-full w-3 rounded-tl-2xl rounded-bl-2xl bg-[#ff4d4f]" />
               <div className="absolute top-4 right-4 z-20 group">
-                <button className="flex items-center gap-2 px-3 py-1 text-[#ff4d4f] border border-[#ff4d4f] rounded-full transition-all duration-200 group-hover:px-4 hover:bg-[#ff4d4f] hover:text-white">
+                <button 
+                  onClick={() => setExpenseModalOpen(true)}
+                  className="flex items-center gap-2 px-3 py-1 text-[#ff4d4f] border border-[#ff4d4f] rounded-full transition-all duration-200 group-hover:px-4 hover:bg-[#ff4d4f] hover:text-white"
+                >
                   <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" width="18" height="18">
                     <circle cx="12" cy="12" r="10" />
                     <line x1="12" y1="8" x2="12" y2="16" />
@@ -211,13 +228,11 @@ const Financial = () => {
               </div>
             </div>
           </div>
-
           {/* Statistics Chart */}
           <div className="flex-1 bg-white rounded-2xl border border-gray-300 p-6 shadow-sm w-full h-full min-h-[550px] overflow-visible relative">
             <StatisticsChart />
           </div>
         </div>
-
         {/* History */}
         <div className="w-full lg:max-w-[340px] min-w-[300px] bg-white rounded-2xl border border-gray-300 p-6 shadow-sm flex flex-col h-full min-h-[750px]">
           <div className="flex justify-between items-center mb-2">
@@ -254,10 +269,6 @@ const Financial = () => {
                   { date: 'Apr 13, 2024', name: 'Emman', amount: '₱1,203', color: 'red' },
                   { date: 'Apr 14, 2024', name: 'Grace', amount: '₱500', color: 'green' },
                   { date: 'Apr 13, 2024', name: 'Emman', amount: '₱1,203', color: 'red' },
-                  { date: 'Apr 14, 2024', name: 'Grace', amount: '₱500', color: 'green' },
-                  { date: 'Apr 13, 2024', name: 'Emman', amount: '₱1,203', color: 'red' },
-                  { date: 'Apr 14, 2024', name: 'Grace', amount: '₱500', color: 'green' },
-                  { date: 'Apr 14, 2024', name: 'Grace', amount: '₱500', color: 'green' },
                   { date: 'Apr 14, 2024', name: 'Grace', amount: '₱500', color: 'green' },
                 ].map((item, index) => (
                   <tr key={index}>
