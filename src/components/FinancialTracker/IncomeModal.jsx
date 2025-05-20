@@ -76,7 +76,7 @@ if (isCancelConfirmOpen) {
                 </svg>
             </div>
             {/* Title */}
-            <h2 className="text-2xl font-bold text-black mb-2">Disregard added expense?</h2>
+            <h2 className="text-2xl font-bold text-black mb-2">Disregard added income?</h2>
   
             {/* Description */}
             <p className="text-center text-gray-600 mb-8">
