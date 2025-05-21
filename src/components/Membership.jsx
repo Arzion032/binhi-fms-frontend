@@ -682,7 +682,7 @@ export default function MemberTabs() {
       <div className="flex items-center space-x-4">
 
               {/* Search Bar */}
-      <div className="relative w-[250px] flex items-center border rounded-full px-3 py-1 bg-white">
+              <div className="relative w-[280px] flex items-center border rounded-full px-3 py-1 bg-white">
         <Search className="text-gray-500 w-5 h-5 mr-2 " />
         <input
           type="text"
@@ -695,6 +695,7 @@ export default function MemberTabs() {
           <SlidersHorizontal className="text-gray-600 w-5 h-5" />
         </button>
       </div>
+
 
        {/* Filter Panel */}
        {showFilters && (
@@ -1165,7 +1166,7 @@ export default function MemberTabs() {
             {/* Right Side */}
       <div className="flex items-center space-x-4">
               {/* Search Bar */}
-      <div className="relative w-[250px] flex items-center border rounded-full px-3 py-1 bg-white">
+              <div className="relative w-[280px] flex items-center border rounded-full px-3 py-1 bg-white">
         <Search className="text-gray-500 w-5 h-5 mr-2 " />
         <input
           type="text"
@@ -1178,6 +1179,7 @@ export default function MemberTabs() {
           <SlidersHorizontal className="text-gray-600 w-5 h-5" />
         </button>
       </div>
+
 
        {/* Filter Panel */}
        {showFilters && (
