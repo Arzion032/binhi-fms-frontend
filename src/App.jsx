@@ -2,7 +2,7 @@ import React from "react";
 import Membership from './components/Membership';
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Layout from "./components/Layout/Layout";
-import Financial from "./components/FinancialTracker/financial";
+import Financial from "./components/FinancialTracker/Financial";
 
 
 function App() {
