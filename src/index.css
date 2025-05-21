@@ -1,3 +1,100 @@
+/* Tailwind directives */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Your custom components */
+@layer components {
+  .all-\[unset\] {
+    all: unset;
+  }
+}
+
+/* Base styles */
+@layer base {
+  :root {
+    --app-accent: rgba(209, 161, 87, 1);
+    --app-background: rgba(248, 252, 248, 1);
+    --app-primary: rgba(76, 174, 79, 1);
+    --app-secondary: rgba(139, 195, 74, 1);
+    --blue: rgba(0, 56, 168, 1);
+    --body-font-family: "Inter", Helvetica;
+    --body-font-size: 16px;
+    --body-font-style: normal;
+    --body-font-weight: 400;
+    --body-heavy-font-family: "Inter", Helvetica;
+    --body-heavy-font-size: 16px;
+    --body-heavy-font-style: normal;
+    --body-heavy-font-weight: 600;
+    --body-heavy-letter-spacing: 0px;
+    --body-heavy-line-height: 22px;
+    --body-letter-spacing: 0px;
+    --body-line-height: 22px;
+    --dark-gray: rgba(133, 133, 133, 1);
+    --gray: rgba(217, 217, 217, 1);
+    --heading-1-font-family: "Inter", Helvetica;
+    --heading-1-font-size: 32px;
+    --heading-1-font-weight: 700;
+    --heading-2-font-family: "Inter", Helvetica;
+    --heading-2-font-size: 28px;
+    --heading-2-font-weight: 700;
+    --heading-3-font-family: "Inter", Helvetica;
+    --heading-3-font-size: 24px;
+    --heading-3-font-weight: 700;
+    --red: rgba(255, 59, 78, 1);
+    --text: rgba(13, 22, 13, 1);
+    --white: rgba(255, 255, 255, 1);
+  }
+
+  /* Dark mode overrides */
+  .dark {
+    --background: 224 71% 4%;
+    --foreground: 213 31% 91%;
+    --muted: 223 47% 11%;
+    --muted-foreground: 215.4 16.3% 56.9%;
+    --accent: 216 34% 17%;
+    --accent-foreground: 210 40% 98%;
+    --popover: 224 71% 4%;
+    --popover-foreground: 215 20.2% 65.1%;
+    --border: 216 34% 17%;
+    --input: 216 34% 17%;
+    --card: transparent;
+    --card-foreground: 213 31% 91%;
+    --primary: 210 40% 98%;
+    --primary-foreground: 222.2 47.4% 1.2%;
+    --secondary: 222.2 47.4% 11.2%;
+    --secondary-foreground: 210 40% 98%;
+    --destructive: 0 63% 31%;
+    --destructive-foreground: 210 40% 98%;
+    --ring: 216 34% 17%;
+    --radius: 0.5rem;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+}
+
+/* Add this to your CSS */
+@keyframes flash {
+  0% {
+    background-color: transparent;
+  }
+  50% {
+    background-color: yellow; /* Flash color */
+  }
+  100% {
+    background-color: transparent;
+  }
+}
+
+.flash {
+  animation: flash 1s ease-out;
+}
