@@ -6,6 +6,8 @@ import StatisticsChart from './StatisticsChart';
 import IncomeModal from './IncomeModal';
 import ExpensesModal from './ExpensesModal';
 
+{/* is it anything that makes the world and everyone around the earth is happy */}
+
 export default function Financial() {
   // ─── TAB STATE & INDICATOR ───────────────────────────────────────────────────
   const [activeTab, setActiveTab] = useState('overview');
