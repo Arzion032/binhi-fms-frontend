@@ -1,7 +1,7 @@
 // Financial.jsx
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { FaFilePdf, FaFileExcel } from 'react-icons/fa6';
-import { Search, SlidersHorizontal, X } from 'lucide-react';
+import { Search, SlidersHorizontal, X, RefreshCw } from 'lucide-react';
 import StatisticsChart from './StatisticsChart';
 import IncomeModal from './IncomeModal';
 import ExpensesModal from './ExpensesModal';
@@ -52,12 +52,12 @@ export default function Financial() {
 
   // ─── HISTORY DATA & HANDLERS ────────────────────────────────────────────────
   const [transactions, setTransactions] = useState([
-    { name: 'Kaye Lagablab', email: 'juandcruz@gmail.com', avatar: '/Screenshot_195.png', type: 'Income',  source: 'Marketplace', category: '-', amount: '12,999', date: 'Apr 17, 2025', relativeDate: '5 days ago' },
+    { name: 'Kaye Lagablab', email: 'juandcruz@gmail.com', avatar: '/Screenshot_195.png', type: 'Income', source: 'Marketplace', category: '-', amount: '12,999', date: 'Apr 17, 2025', relativeDate: '5 days ago' },
     { name: 'Carlo Imnida',   email: 'juandcruz@gmail.com', avatar: '/Screenshot_195.png', type: 'Expense', source: '-', category: 'Farm Supply', amount: '5,400', date: 'Apr 16, 2025', relativeDate: '6 days ago' },
     { name: 'Yna Boomboom',   email: 'juandcruz@gmail.com', avatar: '/Screenshot_195.png', type: 'Expense', source: '-', category: 'Farm Supply', amount: '7,000', date: 'Apr 15, 2025', relativeDate: '7 days ago' },
     { name: 'Fred Ko Pal',    email: 'juandcruz@gmail.com', avatar: '/Screenshot_195.png', type: 'Expense', source: '-', category: 'Farm Supply', amount: '1,500', date: 'Apr 14, 2025', relativeDate: '8 days ago' },
-    { name: 'Ry Ban Tot',     email: 'juandcruz@gmail.com', avatar: '/Screenshot_195.png', type: 'Income',  source: 'Marketplace', category: '-', amount: '2,500', date: 'Apr 13, 2025', relativeDate: '9 days ago' },
-    { name: 'Nisi B. Ding',   email: 'juandcruz@gmail.com', avatar: '/Screenshot_195.png', type: 'Income',  source: 'Marketplace', category: '-', amount: '999',   date: 'Apr 12, 2025', relativeDate: '10 days ago' }
+    { name: 'Ry Ban Tot',     email: 'juandcruz@gmail.com', avatar: '/Screenshot_195.png', type: 'Income', source: 'Marketplace', category: '-', amount: '2,500', date: 'Apr 13, 2025', relativeDate: '9 days ago' },
+    { name: 'Nisi B. Ding',   email: 'juandcruz@gmail.com', avatar: '/Screenshot_195.png', type: 'Income', source: 'Marketplace', category: '-', amount: '999',   date: 'Apr 12, 2025', relativeDate: '10 days ago' }
   ]);
   const itemsPerPage = 5;
   const totalPages = Math.ceil(transactions.length / itemsPerPage);
@@ -139,7 +139,9 @@ export default function Financial() {
             <ul className="flex gap-1">
               <li><a className="text-green-600 underline">Dashboard</a></li>
               <li><a className="text-green-600 underline">Financial Tracker</a></li>
-              <li className="text-gray-400">{activeTab === 'overview' ? 'Financial Overview' : 'Transaction History'}</li>
+              <li className="text-gray-400">
+                {activeTab === 'overview' ? 'Financial Overview' : 'Transaction History'}
+              </li>
             </ul>
           </div>
           <button className="btn btn-square btn-binhi ml-4">
@@ -164,7 +166,7 @@ export default function Financial() {
                 ref={overviewRef}
                 className={`inline-block p-4 ${activeTab === 'overview' ? 'text-green-600' : 'text-gray-500 hover:text-gray-600'}`}
                 onClick={() => setActiveTab('overview')}
-                role="tab"
+                role="tabpanel"
                 aria-selected={activeTab === 'overview'}
               >
                 Financial Overview
@@ -175,7 +177,7 @@ export default function Financial() {
                 ref={historyRef}
                 className={`inline-block p-4 ${activeTab === 'history' ? 'text-green-600' : 'text-gray-500 hover:text-gray-600'}`}
                 onClick={() => setActiveTab('history')}
-                role="tab"
+                role="tabpanel"
                 aria-selected={activeTab === 'history'}
               >
                 Transaction History
@@ -195,18 +197,18 @@ export default function Financial() {
           {/* Balance & Actions */}
           <div className="flex flex-wrap items-center justify-between my-4 gap-2">
             <div className="flex items-center gap-2 text-base font-medium">
-              <span className="text-lg" style={{ color: '#3b82f6' }}>🔄 Current Federation Balance:</span>
+              <RefreshCw size={20} stroke="#3b82f6" />
+              <span className="font-medium text-lg" style={{ color: '#3b82f6' }}>Current Federation Balance:</span>
               <span className="text-blue-700 font-bold text-lg">₱52,438</span>
               <span className="text-gray-400 text-lg ml-2 opacity-60">Last Updated Apr 30</span>
             </div>
             <div className="flex gap-2">
               <div className="relative z-20" ref={dropdownRef}>
                 <button
-                  onClick={() => setDropdownOpen(!dropdownOpen)}
-                  className="btn bg-green-600 text-white rounded-full px-4 py-2 font-semibold flex items-center gap-1 hover:bg-green-700"
+                  onClick={() => setDropdownOpen(!dropdownOpen)} className="btn bg-green-600 text-white rounded-full px-4 py-2 font-semibold flex items-center gap-1 hover:bg-green-700"
                 >
                   + Add Transaction
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={`w-4 h-4 ml-1 transition-transform duration-200 ${dropdownOpen ? 'rotate-180' : ''}`}>
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={`w-4 h-4 ml-1 ${dropdownOpen ? 'rotate-180' : ''} transition-transform duration-200`}>
                     <polyline points="6 9 12 15 18 9" />
                   </svg>
                 </button>
@@ -219,11 +221,10 @@ export default function Financial() {
               </div>
               <div className="relative z-20" ref={downloadRef}>
                 <button
-                  onClick={() => setDownloadDropdownOpen(!downloadDropdownOpen)}
-                  className="btn bg-white border border-green-600 text-green-600 rounded-full px-6 py-2 font-semibold flex items-center gap-2 hover:bg-green-50"
+                  onClick={() => setDownloadDropdownOpen(!downloadDropdownOpen)} className="btn bg-white border border-green-600 text-green-600 rounded-full px-6 py-2 font-semibold flex items-center gap-2 hover:bg-green-50"
                 >
                   Download
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={`w-4 h-4 transition-transform duration-200 ${downloadDropdownOpen ? 'rotate-180' : ''}`}>
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={`w-4 h-4 ml-1 ${downloadDropdownOpen ? 'rotate-180' : ''} transition-transform duration-200`}>
                     <polyline points="6 9 12 15 18 9" />
                   </svg>
                 </button>
@@ -240,9 +241,7 @@ export default function Financial() {
                       </a>
                     </li>
                     <div className="border-t my-2" />
-                    <li>
-                      <a onClick={() => handleOverviewDownload('Custom Range')}>Custom Date Range</a>
-                    </li>
+                    <li><a onClick={() => handleOverviewDownload('Custom Range')}>Custom Date Range</a></li>
                   </ul>
                 )}
               </div>
@@ -259,10 +258,9 @@ export default function Financial() {
                   <div className="absolute left-0 top-0 h-full w-3 rounded-tl-2xl rounded-bl-2xl bg-[#4caf50]" />
                   <div className="absolute top-4 right-4 z-20 group">
                     <button
-                      onClick={() => setIncomeModalOpen(true)}
-                      className="flex items-center gap-2 px-3 py-1 text-green-600 border border-green-600 rounded-full transition-all duration-200 group-hover:px-4 hover:bg-green-600 hover:text-white"
+                      onClick={() => setIncomeModalOpen(true)} className="flex items-center gap-2 px-3 py-1 text-green-600 border border-green-600 rounded-full transition-all duration-200 group-hover:px-4 hover:bg-green-600 hover:text-white"
                     >
-                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" width="18" height="18">
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" className="w-5 h-5">
                         <circle cx="12" cy="12" r="10" />
                         <line x1="12" y1="8" x2="12" y2="16" />
                         <line x1="8" y1="12" x2="16" y2="12" />
@@ -283,7 +281,7 @@ export default function Financial() {
                         from last week <span className="text-xs">▼</span>
                       </div>
                       <div className="flex flex-col items-end">
-                        <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20" className="w-5 h-5 text-green-500">
                           <path d="M2 17h16M6 13l4-4 4 4M6 9l4-4 4 4" />
                         </svg>
                         <span className="text-green-600 text-base font-semibold">↑ 8.69%</span>
@@ -292,14 +290,13 @@ export default function Financial() {
                   </div>
                 </div>
                 {/* Expense Card */}
-                <div className="relative flex-1 bg-white rounded-2xl	border border-gray-300 flex flex-col justify-between h-[170px] shadow-sm group">
+                <div className="relative flex-1 bg-white rounded-2xl border border-gray-300 flex flex-col justify-between h-[170px] shadow-sm group">
                   <div className="absolute left-0 top-0 h-full w-3 rounded-tl-2xl rounded-bl-2xl bg-[#ff4d4f]" />
                   <div className="absolute top-4 right-4 z-20 group">
                     <button
-                      onClick={() => setExpenseModalOpen(true)}
-                      className="flex items-center gap-2 px-3 py-1 text-[#ff4d4f] border border-[#ff4d4f] rounded-full transition-all duration-200 group-hover:px-4 hover:bg-[#ff4d4f] hover:text-white"
+                      onClick={() => setExpenseModalOpen(true)} className="flex items-center gap-2 px-3 py-1 text-[#ff4d4f] border border-[#ff4d4f] rounded-full transition-all duration-200 group-hover:px-4 hover:bg-[#ff4d4f] hover:text-white"
                     >
-                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" width="18" height="18">
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" className="w-5 h-5">
                         <circle cx="12" cy="12" r="10" />
                         <line x1="12" y1="8" x2="12" y2="16" />
                         <line x1="8" y1="12" x2="16" y2="12" />
@@ -320,7 +317,7 @@ export default function Financial() {
                         from last week <span className="text-xs">▼</span>
                       </div>
                       <div className="flex flex-col items-end">
-                        <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" style={{ color: '#ff4d4f' }} fill="currentColor" viewBox="0 0 20 20">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20" className="w-5 h-5" style={{ color: '#ff4d4f' }}>
                           <path d="M10 3c-3.866 0-7 1.343-7 3s3.134 3 7 3 7-1.343 7-3-3.134-3-7-3z" />
                         </svg>
                         <span className="text-base font-semibold" style={{ color: '#ff4d4f' }}>↑ 8.69%</span>
@@ -359,10 +356,7 @@ export default function Financial() {
                       <tr key={i}>
                         <td className="py-1">
                           <div className="flex items-center gap-2">
-                            <span
-                              className="w-2 h-2 rounded-full"
-                              style={{ backgroundColor: item.color === 'green' ? '#4caf50' : '#ff4d4f' }}
-                            />
+                            <span className="w-2 h-2 rounded-full" style={{ backgroundColor: item.color === 'green' ? '#4caf50' : '#ff4d4f' }} />
                             {item.date}
                           </div>
                         </td>
@@ -378,15 +372,12 @@ export default function Financial() {
         </>
       ) : (
         <>
-          {/* History Controls */}
+          {/* Transaction History Tab Controls and Table */}
           <div className="flex flex-wrap items-center justify-between mb-2 gap-2 pt-4">
             <div className="flex flex-col">
               {selectedRows.length > 0 ? (
                 <div className="flex gap-2">
-                  <button
-                    onClick={handleDelete}
-                    className="flex items-center gap-2 border border-gray-200 rounded-2xl px-4 py-2 hover:bg-red-50 transition"
-                  >
+                  <button onClick={handleDelete} className="flex items-center gap-2 border border-gray-200 rounded-2xl px-4 py-2 hover:bg-red-50 transition">
                     <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="#dc2626" viewBox="0 0 24 24">
                       <path d="M6 7h12l-1 14H7L6 7zm3-3h6l1 1H8l1-1zm1 4v10h2V8h-2zm4 0v10h2V8h-2z" />
                     </svg>
@@ -395,10 +386,7 @@ export default function Financial() {
                       {selectedRows.length} Transaction{selectedRows.length > 1 && 's'} Selected
                     </span>
                   </button>
-                  <button
-                    onClick={() => setSelectedRows([])}
-                    className="flex items-center gap-1 border border-gray-200 rounded-2xl px-4 py-2 hover:bg-gray-100 transition"
-                  >
+                  <button onClick={() => setSelectedRows([])} className="flex items-center gap-1 border border-gray-200 rounded-2xl px-4 py-2 hover:bg-gray-100 transition">
                     ✕ Clear
                   </button>
                 </div>
@@ -408,44 +396,30 @@ export default function Financial() {
                     <SlidersHorizontal className="w-4 h-4 text-[#3b82f6]" />
                     <span className="mr-2 p-2 text-sm text-[#3b82f6] font-medium">Active Filters</span>
                   </div>
-                  <select
-                    value={selectedRole}
-                    onChange={e => setSelectedRole(e.target.value)}
-                    className="border border-[#858585] h-[35px] text-sm bg-white text-[#858585] pl-2 pr-6"
-                  >
+                  <select value={selectedRole} onChange={e => setSelectedRole(e.target.value)} className="border border-[#858585] h-[35px] text-sm bg-white text-[#858585] pl-2 pr-6">
                     <option value="">Role</option>
                     <option value="Income">Income</option>
                     <option value="Expense">Expense</option>
                   </select>
-                  <select
-                    value={selectedType}
-                    onChange={e => setSelectedType(e.target.value)}
-                    className="border border-[#858585] h-[35px] text-sm bg-white text-[#858585] pl-2 pr-6"
-                  >
+                  <select value={selectedType} onChange={e => setSelectedType(e.target.value)} className="border border-[#858585] h-[35px] text-sm bg-white text-[#858585] pl-2 pr-6">
                     <option value="">Type</option>
                     <option value="Marketplace">Marketplace</option>
                     <option value="Farm Supply">Farm Supply</option>
                   </select>
-                  <select
-                    value={selectedSource}
-                    onChange={e => setSelectedSource(e.target.value)}
-                    className="border border-[#858585] h-[35px] text-sm bg-white text-[#858585] pl-2 pr-6"
-                  >
+                  <select value={selectedSource} onChange={e => setSelectedSource(e.target.value)} className="border border-[#858585] h-[35px] text-sm	bg-white text-[#858585] pl-2 pr-6">
                     <option value="">Source</option>
                     <option value="Marketplace">Marketplace</option>
                     <option value="-">-</option>
                   </select>
-                  <button
-                    onClick={clearFilters}
-                    className="flex items-center space-x-1 border rounded-r-3xl px-3 py-1 text-sm border-[#858585] h-[35px] bg-white text-[#858585]"
-                  >
+                  <button onClick={clearFilters} className="flex items-center space-x-1 border rounded-r-3xl px-3 py-1 text-sm border-[#858585] h-[35px] bg-white text-[#858585]">
                     <X className="w-4 h-4 text-[#858585]" />
                     <span>Clear</span>
                   </button>
                 </div>
               ) : (
                 <div className="flex items-center gap-2 text-base font-medium">
-                  <span className="text-lg" style={{ color: '#3b82f6' }}>🔄 Current Federation Balance:</span>
+                  <RefreshCw size={20} stroke="#3b82f6" />
+                  <span className="font-medium text-lg" style={{ color: '#3b82f6' }}>Current Federation Balance:</span>
                   <span className="text-blue-700 font-bold text-lg">₱52,438</span>
                 </div>
               )}
@@ -461,11 +435,7 @@ export default function Financial() {
               </div>
               {/* Download */}
               <div className="dropdown dropdown-end" ref={historyDownloadRef}>
-                <label
-                  tabIndex={0}
-                  onClick={() => setHistoryDownloadOpen(!historyDownloadOpen)}
-                  className="btn btn-outline btn-success rounded-full"
-                >
+                <label tabIndex={0} onClick={() => setHistoryDownloadOpen(!historyDownloadOpen)} className="btn btn-outline btn-success rounded-full">
                   Download
                   <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
@@ -473,19 +443,9 @@ export default function Financial() {
                 </label>
                 {historyDownloadOpen && (
                   <ul tabIndex={0} className="dropdown-content menu p-2 shadow bg-base-100 border w-52 rounded-box">
-                    <li>
-                      <a onClick={() => handleHistoryDownload('PDF')}>
-                        <FaFilePdf className="text-red-500" /> PDF
-                      </a>
-                    </li>
-                    <li>
-                      <a onClick={() => handleHistoryDownload('Excel')}>
-                        <FaFileExcel className="text-green-600" /> Excel
-                      </a>
-                    </li>
-                    <li>
-                      <a onClick={() => handleHistoryDownload('Custom Range')}>Custom Range</a>
-                    </li>
+                    <li><a onClick={() => handleHistoryDownload('PDF')}><FaFilePdf className="text-red-500" /> PDF</a></li>
+                    <li><a onClick={() => handleHistoryDownload('Excel')}><FaFileExcel className="text-green-600" /> Excel</a></li>
+                    <li><a onClick={() => handleHistoryDownload('Custom Range')}>Custom Range</a></li>
                   </ul>
                 )}
               </div>
@@ -501,15 +461,10 @@ export default function Financial() {
               <thead className="bg-[#f7f7fb] text-sm text-gray-600 font-semibold">
                 <tr>
                   <th>
-                    <input
-                      type="checkbox"
-                      className="checkbox checkbox-sm rounded"
-                      checked={selectedRows.length === currentData.length}
-                      onChange={e => {
-                        if (e.target.checked) setSelectedRows(currentData.map((_, i) => i));
-                        else setSelectedRows([]);
-                      }}
-                    />
+                    <input type="checkbox" className="checkbox checkbox-sm rounded" checked={selectedRows.length === currentData.length} onChange={e => {
+                      if (e.target.checked) setSelectedRows(currentData.map((_, i) => i));
+                      else setSelectedRows([]);
+                    }} />
                   </th>
                   <th>User Name</th>
                   <th>Role</th>
@@ -524,15 +479,10 @@ export default function Financial() {
                 {currentData.map((item, idx) => (
                   <tr key={idx} className={selectedRows.includes(idx) ? 'bg-[#f0fdfa]' : ''}>
                     <td>
-                      <input
-                        type="checkbox"
-                        className="checkbox checkbox-sm rounded"
-                        checked={selectedRows.includes(idx)}
-                        onChange={e => {
-                          if (e.target.checked) setSelectedRows([...selectedRows, idx]);
-                          else setSelectedRows(selectedRows.filter(i => i !== idx));
-                        }}
-                      />
+                      <input type="checkbox" className="checkbox checkbox-sm rounded" checked={selectedRows.includes(idx)} onChange={e => {
+                        if (e.target.checked) setSelectedRows([...selectedRows, idx]);
+                        else setSelectedRows(selectedRows.filter(i => i !== idx));
+                      }} />
                     </td>
                     <td>
                       <div className="flex items-center gap-3">
@@ -548,30 +498,24 @@ export default function Financial() {
                       </div>
                     </td>
                     <td>
-                      <span
-                        className="px-4 py-1 rounded-full text-xs font-medium"
-                        style={{
-                          color: '#0066FF',
-                          border: '2px solid #0066FF',
-                          backgroundColor: '#E0F0FF',
-                          display: 'inline-block',
-                          minWidth: '80px',
-                          textAlign: 'center'
-                        }}
-                      >
+                      <span className="px-4 py-1 rounded-full text-xs font-medium" style={{
+                        color: '#0066FF',
+                        border: '2px solid #0066FF',
+                        backgroundColor: '#E0F0FF',
+                        display: 'inline-block',
+                        minWidth: '80px',
+                        textAlign: 'center'
+                      }}>
                         Member
                       </span>
                     </td>
                     <td>
-                      <span
-                        className="px-3 py-1 rounded-full text-xs font-medium"
-                        style={{
-                          color: item.type === 'Income' ? '#15803d' : '#dc2626',
-                          backgroundColor: item.type === 'Income' ? '#d1fae5' : '#fee2e2',
-                          border: `1px solid ${item.type === 'Income' ? '#15803d' : '#dc2626'}`,
-                          display: 'inline-block'
-                        }}
-                      >
+                      <span className="px-3 py-1 rounded-full text-xs font-medium" style={{
+                        color: item.type === 'Income' ? '#15803d' : '#dc2626',
+                        backgroundColor: item.type === 'Income' ? '#d1fae5' : '#fee2e2',
+                        border: `1px solid ${item.type === 'Income' ? '#15803d' : '#dc2626'}`,
+                        display: 'inline-block'
+                      }}>
                         {item.type}
                       </span>
                     </td>
@@ -594,17 +538,13 @@ export default function Financial() {
                 {[...Array(totalPages)].map((_, i) => {
                   const page = i + 1;
                   return (
-                    <button
-                      key={page}
-                      onClick={() => handlePageChange(page)}
-                      className={`btn btn-sm ${page === currentPage ? 'bg-gray-300 text-black' : 'btn-ghost text-gray-600'}`}
-                    >
+                    <button key={page} onClick={() => handlePageChange(page)} className={`btn btn-sm ${page === currentPage ? 'bg-gray-300 text-black' : 'btn-ghost text-gray-600'}`}>
                       {page}
                     </button>
                   );
                 })}
                 <button onClick={() => handlePageChange(currentPage + 1)} className="btn btn-sm" disabled={currentPage === totalPages}>»</button>
-              </div>a
+              </div>
             </div>
           </div>
         </>

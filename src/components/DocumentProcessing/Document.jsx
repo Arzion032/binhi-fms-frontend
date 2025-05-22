@@ -1,11 +1,560 @@
-import React from 'react'
+// src/components/Document.jsx
+import React, { useState, useRef, useEffect, useCallback } from 'react';
+import {
+  Search,
+  SlidersHorizontal,
+  RefreshCw,
+  ChevronDown,
+  Copy,
+  Trash2
+} from 'lucide-react';
+import ApproveModal, { RejectModal } from './ApproveModal';
 
-const Document = () => {
+export default function Document() {
+  // ─── TAB STATE & INDICATOR ───────────────────────────────────────────────────
+  const [activeTab, setActiveTab] = useState('pending');
+  const pendingRef = useRef();
+  const historyRef = useRef();
+  const tabsRef = useRef();
+  const [indicator, setIndicator] = useState({ left: 0, width: 0 });
+
+  const updateIndicator = useCallback(() => {
+    const container = tabsRef.current;
+    const btn = activeTab === 'pending' ? pendingRef.current : historyRef.current;
+    if (container && btn) {
+      const c = container.getBoundingClientRect();
+      const b = btn.getBoundingClientRect();
+      setIndicator({
+        left: b.left - c.left + container.scrollLeft,
+        width: b.width
+      });
+    }
+  }, [activeTab]);
+
+  useEffect(() => {
+    updateIndicator();
+    window.addEventListener('resize', updateIndicator);
+    return () => window.removeEventListener('resize', updateIndicator);
+  }, [updateIndicator]);
+
+  // ─── SEARCH & ADD MEMBER ───────────────────────────────────────────────────────
+  const [showFilters, setShowFilters] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+
+  // ─── REQUESTS STATE ────────────────────────────────────────────────────────────
+  const [requests, setRequests] = useState([
+    { id: 1, name: 'Juan Dela Cruz', email: 'juandelacruz@gmail.com', avatar: '/Screenshot_195.png', listDate: 'Apr 9, 2025, 11:34 AM', role: 'Member', document: 'Rental Form', status: 'Pending', requestedOn: 'April 9, 2025, 11:34 AM' },
+    { id: 2, name: 'Carlo Imnida', email: 'carloimnida@gmail.com', avatar: '/Screenshot_195.png', listDate: 'Apr 8, 2025, 10:00 AM', role: 'Member', document: 'Land Title', status: 'Approved', requestedOn: 'April 8, 2025, 10:00 AM' },
+    { id: 3, name: 'Yna Boomboom', email: 'ynab@example.com', avatar: '/Screenshot_195.png', listDate: 'Apr 7, 2025, 09:20 AM', role: 'Member', document: 'Tax Document', status: 'Rejected', requestedOn: 'April 7, 2025, 09:20 AM' },
+    { id: 4, name: 'Mike Johnson', email: 'mike.j@example.com', avatar: '/Screenshot_195.png', listDate: 'Apr 6, 2025, 08:45 AM', role: 'Member', document: 'Application Form', status: 'Pending', requestedOn: 'April 6, 2025, 08:45 AM' },
+    { id: 5, name: 'Sarah Lee', email: 'sarah.lee@example.com', avatar: '/Screenshot_195.png', listDate: 'Apr 5, 2025, 02:30 PM', role: 'Member', document: 'ID Verification', status: 'Approved', requestedOn: 'April 5, 2025, 02:30 PM' },
+    { id: 6, name: 'David Lee', email: 'david.lee@example.com', avatar: '/Screenshot_195.png', listDate: 'Apr 4, 2025, 11:15 AM', role: 'Member', document: 'Passport Copy', status: 'Rejected', requestedOn: 'April 4, 2025, 11:15 AM' },
+    { id: 7, name: 'Emily Clark', email: 'emily.clark@example.com', avatar: '/Screenshot_195.png', listDate: 'Apr 3, 2025, 09:05 AM', role: 'Member', document: 'Certificate', status: 'Pending', requestedOn: 'April 3, 2025, 09:05 AM' },
+    { id: 8, name: 'Robert Brown', email: 'robert.brown@example.com', avatar: '/Screenshot_195.png', listDate: 'Apr 2, 2025, 04:20 PM', role: 'Member', document: 'Tax Form', status: 'Approved', requestedOn: 'April 2, 2025, 04:20 PM' },
+    { id: 9, name: 'Linda White', email: 'linda.white@example.com', avatar: '/Screenshot_195.png', listDate: 'Apr 1, 2025, 12:00 PM', role: 'Member', document: 'Lease Agreement', status: 'Rejected', requestedOn: 'April 1, 2025, 12:00 PM' },
+    { id: 10, name: 'Steven Garcia', email: 'steven.garcia@example.com', avatar: '/Screenshot_195.png', listDate: 'Mar 31, 2025, 03:40 PM', role: 'Member', document: 'Employment Letter', status: 'Pending', requestedOn: 'March 31, 2025, 03:40 PM' },
+    { id: 11, name: 'Karen Martinez', email: 'karen.martinez@example.com', avatar: '/Screenshot_195.png', listDate: 'Mar 30, 2025, 10:10 AM', role: 'Member', document: 'Insurance Document', status: 'Approved', requestedOn: 'March 30, 2025, 10:10 AM' },
+    { id: 12, name: 'Brian Rodriguez', email: 'brian.rodriguez@example.com', avatar: '/Screenshot_195.png', listDate: 'Mar 29, 2025, 05:50 PM', role: 'Member', document: 'Bank Statement', status: 'Rejected', requestedOn: 'March 29, 2025, 05:50 PM' },
+    { id: 13, name: 'Michelle Nguyen', email: 'michelle.nguyen@example.com', avatar: '/Screenshot_195.png', listDate: 'Mar 28, 2025, 07:25 AM', role: 'Member', document: 'Utility Bill', status: 'Pending', requestedOn: 'March 28, 2025, 07:25 AM' },
+    { id: 14, name: 'Chris Patel', email: 'chris.patel@example.com', avatar: '/Screenshot_195.png', listDate: 'Mar 27, 2025, 06:15 PM', role: 'Member', document: 'Mortgage Contract', status: 'Approved', requestedOn: 'March 27, 2025, 06:15 PM' },
+    { id: 15, name: 'Jessica Kim', email: 'jessica.kim@example.com', avatar: '/Screenshot_195.png', listDate: 'Mar 26, 2025, 01:05 PM', role: 'Member', document: 'Vehicle Registration', status: 'Rejected', requestedOn: 'March 26, 2025, 01:05 PM' }
+  ]);
+
+  // ─── PENDING TAB SELECT & DELETE ─────────────────────────────────────────────
+  const [selectedPending, setSelectedPending] = useState([]);
+  const handleDeletePending = () => {
+    if (!window.confirm('Delete selected pending requests?')) return;
+    setRequests(rs => rs.filter((_, i) => !selectedPending.includes(i)));
+    setSelectedPending([]);
+  };
+
+  // ─── HISTORY TABLE STATE & DELETE ─────────────────────────────────────────────
+  const historyData = requests.map(r => ({ ...r, reason: 'Duplicate Request' }));
+  const [historyPage, setHistoryPage] = useState(1);
+  const itemsPerPageHistory = 7;
+  const totalHistoryPages = Math.ceil(historyData.length / itemsPerPageHistory);
+  const visibleHistoryData = historyData.slice(
+    (historyPage - 1) * itemsPerPageHistory,
+    historyPage * itemsPerPageHistory
+  );
+  const [selectedRowsHistory, setSelectedRowsHistory] = useState([]);
+  const handleDeleteHistory = () => {
+    if (!window.confirm('Delete selected history requests?')) return;
+    setSelectedRowsHistory([]);
+  };
+
+  // ─── DETAIL VIEW STATE ────────────────────────────────────────────────────────
+  const [selectedRequest, setSelectedRequest] = useState(requests[0]);
+
+  // ─── APPROVE MODAL STATE ───────────────────────────────────────────────────────
+  const [showApproveModal, setShowApproveModal] = useState(false);
+  const handleApproveClick = () => setShowApproveModal(true);
+  const handleDoApprove = () => {
+    setRequests(rs =>
+      rs.map(r => (r.id === selectedRequest.id ? { ...r, status: 'Approved' } : r))
+    );
+  };
+
+  // ─── REJECT MODAL STATE ────────────────────────────────────────────────────────
+  const [showRejectModal, setShowRejectModal] = useState(false);
+  const handleRejectClick = () => setShowRejectModal(true);
+  const handleDoReject = (reason) => {
+    // you can store the reason if needed
+    setRequests(rs =>
+      rs.map(r => (r.id === selectedRequest.id ? { ...r, status: 'Rejected' } : r))
+    );
+  };
+
   return (
-    <div>
-     {/* is it anything that makes the world and everyone around the earth is happy */}
-    </div>
-  )
-}
+    <div className="p-0">
+      {/* Sticky Header & Tabs */}
+      <div className="sticky top-0 z-30 w-full bg-[#f9fbf8] shadow-sm">
+        <div className="flex items-center justify-between px-6 py-3">
+          <div className="text-sm breadcrumbs font-inter text-base">
+            <ul className="flex gap-1">
+              <li><a className="text-green-600 underline">Dashboard</a></li>
+              <li><a className="text-green-600 underline">Document Management</a></li>
+              <li className="text-gray-400">
+                {activeTab === 'pending' ? 'Pending Requests' : 'Request History'}
+              </li>
+            </ul>
+          </div>
+          <button className="btn btn-square btn-binhi ml-4">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="w-5 h-5">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 12h.01M12 12h.01M19 12h.01" />
+            </svg>
+          </button>
+        </div>
+        <div className="px-6 pb-4 h-5 flex items-center">
+          <h1 className="text-[40px] font-bold text-gray-800">Document Management</h1>
+        </div>
+        <div className="mb-4 border-b border-gray-200 relative">
+          <ul ref={tabsRef} className="flex -mb-px text-sm font-medium text-center" role="tablist">
+            <li className="mr-10" role="presentation">
+              <button
+                ref={pendingRef}
+                onClick={() => setActiveTab('pending')}
+                className={`inline-block p-4 ${activeTab === 'pending' ? 'text-green-600' : 'text-gray-500 hover:text-gray-600'}`}
+                role="tab"
+                aria-selected={activeTab === 'pending'}
+              >Pending Requests</button>
+            </li>
+            <li className="mr-10" role="presentation">
+              <button
+                ref={historyRef}
+                onClick={() => setActiveTab('history')}
+                className={`inline-block p-4 ${activeTab === 'history' ? 'text-green-600' : 'text-gray-500 hover:text-gray-600'}`}
+                role="tab"
+                aria-selected={activeTab === 'history'}
+              >Request History</button>
+            </li>
+          </ul>
+          <div
+            className="absolute bottom-0 h-0.5 bg-green-600 transition-all duration-300"
+            style={{ left: indicator.left, width: indicator.width }}
+          />
+        </div>
+      </div>
 
-export default Document
+      <div className="px-6 py-4">
+        {activeTab === 'pending' ? (
+          <>
+            {/* Pending Toolbar */}
+            <div className="flex items-center justify-between mb-4 px-4 pt-2">
+              {/* Left: Refresh or Delete */}
+              {selectedPending.length > 0 ? (
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={handleDeletePending}
+                    className="flex items-center gap-2 border border-gray-200 rounded-2xl px-4 py-2 hover:bg-red-50"
+                  >
+                    <Trash2 size={18} stroke="#dc2626" />
+                    <span style={{ color: '#dc2626' }}>Delete</span>
+                    <span className="text-gray-500 ml-1">
+                      {selectedPending.length} Selected
+                    </span>
+                  </button>
+                  <button
+                    onClick={() => setSelectedPending([])}
+                    className="flex items-center gap-1 border border-gray-200 rounded-2xl px-4 py-2 hover:bg-gray-100"
+                  >✕ Clear</button>
+                </div>
+              ) : (
+                <div className="flex items-center gap-2">
+                  <RefreshCw size={20} stroke="#16A34A" />
+                  <span className="font-medium text-base" style={{ color: '#111827' }}>
+                    Pending Requests {requests.length}
+                  </span>
+                </div>
+              )}
+
+              {/* Right: Search + Add Member */}
+              <div className="ml-auto flex items-center gap-3">
+                <div className="relative w-[280px] flex items-center border rounded-full px-3 py-1 bg-white">
+                  <Search className="text-gray-500 w-5 h-5 mr-2" />
+                  <input
+                    type="text"
+                    placeholder="Search Document"
+                    value={searchQuery}
+                    onChange={e => setSearchQuery(e.target.value)}
+                    className="flex-1 outline-none bg-transparent"
+                    style={{ color: '#374151' }}
+                  />
+                  <button onClick={() => setShowFilters(!showFilters)}>
+                    <SlidersHorizontal className="text-gray-600 w-5 h-5" />
+                  </button>
+                </div>
+                <button
+                  className="rounded-full px-4 py-2 font-semibold"
+                  style={{ backgroundColor: '#16A34A', color: '#FFFFFF' }}
+                >+ Add Member</button>
+              </div>
+            </div>
+
+            {/* Pending List & Detail */}
+            <div className="flex gap-4">
+              {/* Left list */}
+              <div className="w-[300px] bg-white rounded-2xl border border-[#E5E7EB] shadow-sm overflow-hidden">
+                <div className="px-4 py-4">
+                  <button
+                    className="w-full flex items-center justify-between px-4 py-2 rounded-full border border-[#D1D5DB]"
+                    style={{ color: '#374151' }}
+                  >
+                    <span className="flex items-center gap-1">⇅ Recent</span>
+                    <ChevronDown size={16} />
+                  </button>
+                </div>
+                <div className="max-h-[550px] overflow-y-auto px-4 pb-4">
+                  <div className="space-y-3">
+                    {requests.map((req, i) => (
+                      <div
+                        key={req.id}
+                        className={`flex items-center gap-3 p-2 rounded-lg cursor-pointer ${
+                          selectedPending.includes(i)
+                            ? 'bg-[#f0fdfa]'
+                            : selectedRequest.id === req.id
+                              ? 'bg-[#F3F4F6]'
+                              : ''
+                        }`}
+                        onClick={() => {
+                          setSelectedPending(prev =>
+                            prev.includes(i)
+                              ? prev.filter(idx => idx !== i)
+                              : [...prev, i]
+                          );
+                          setSelectedRequest(req);
+                        }}
+                      >
+                        <img src={req.avatar} alt={req.name} className="w-10 h-10 rounded-full" />
+                        <div>
+                          <div className="font-semibold text-[#111827]">{req.name}</div>
+                          <div className="text-sm text-[#6B7280]">{req.listDate}</div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              {/* Right detail */}
+              <div className="flex-1 bg-white rounded-2xl border border-[#E5E7EB] p-6 shadow-sm flex flex-col">
+                <div className="flex items-center gap-4 mb-4">
+                  <img src={selectedRequest.avatar} alt={selectedRequest.name} className="w-12 h-12 rounded-full" />
+                  <div>
+                    <div className="text-2xl font-bold text-[#111827]">{selectedRequest.name}</div>
+                    <div className="text-sm text-[#6B7280]">{selectedRequest.email}</div>
+                  </div>
+                </div>
+                <hr className="border-t border-[#E5E7EB] mb-6" />
+                <div className="space-y-4 flex-1">
+                  <div>
+                    <div className="text-sm text-[#6B7280] font-medium">Role</div>
+                    <span
+                      className="inline-block px-3 py-1 rounded-full text-xs font-medium"
+                      style={{
+                        color: '#0066FF',
+                        backgroundColor: '#E0F0FF',
+                        border: '2px solid #0066FF'
+                      }}
+                    >
+                      {selectedRequest.role}
+                    </span>
+                  </div>
+                  <div>
+                    <div className="text-sm text-[#6B7280] font-medium">Document Request</div>
+                    <div className="text-base text-[#111827]">{selectedRequest.document}</div>
+                  </div>
+                  <div>
+                    <div className="text-sm text-[#6B7280] font-medium">Status</div>
+                    <span
+                      className="inline-block px-3 py-1 rounded-full text-xs font-medium"
+                      style={{
+                        color:
+                          selectedRequest.status === 'Pending'
+                            ? '#92400E'
+                            : selectedRequest.status === 'Approved'
+                              ? '#15803D'
+                              : '#DC2626',
+                        backgroundColor:
+                          selectedRequest.status === 'Pending'
+                            ? '#FEF3C7'
+                            : selectedRequest.status === 'Approved'
+                              ? '#D1FAE5'
+                              : '#FEE2E2',
+                        border: `1px solid ${
+                          selectedRequest.status === 'Pending'
+                            ? '#92400E'
+                            : selectedRequest.status === 'Approved'
+                              ? '#15803D'
+                              : '#DC2626'
+                        }`
+                      }}
+                    >
+                      {selectedRequest.status}
+                    </span>
+                  </div>
+                  <div>
+                    <div className="text-sm text-[#6B7280] font-medium">Requested on</div>
+                    <div className="text-base text-[#111827]">{selectedRequest.requestedOn}</div>
+                  </div>
+                </div>
+                <div className="mt-6 flex justify-end gap-4">
+                  <button
+                    onClick={handleRejectClick}
+                    className="px-6 py-2 rounded-full font-semibold bg-[#EF4444] text-white hover:bg-[#DC2626] transition"
+                  >
+                    Reject
+                  </button>
+                  <button
+                    onClick={handleApproveClick}
+                    className="px-6 py-2 rounded-full font-semibold bg-[#16A34A] text-white hover:bg-green-600 transition"
+                  >
+                    Approve
+                  </button>
+                </div>
+              </div>
+            </div>
+          </>
+        ) : (
+          <>
+            {/* History Toolbar */}
+            <div className="flex items-center justify-between mb-4 px-4 pt-2">
+              {selectedRowsHistory.length > 0 ? (
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={handleDeleteHistory}
+                    className="flex items-center gap-2 border border-gray-200 rounded-2xl px-4 py-2 hover:bg-red-50"
+                  >
+                    <Trash2 size={18} stroke="#dc2626" />
+                    <span style={{ color: '#dc2626' }}>Delete</span>
+                    <span className="text-gray-500 ml-1">
+                      {selectedRowsHistory.length} Selected
+                    </span>
+                  </button>
+                  <button
+                    onClick={() => setSelectedRowsHistory([])}
+                    className="flex items-center gap-1 border border-gray-200 rounded-2xl px-4 py-2 hover:bg-gray-100"
+                  >✕ Clear</button>
+                </div>
+              ) : (
+                <div className="flex items-center gap-2">
+                  <RefreshCw size={20} stroke="#16A34A" />
+                  <span className="font-medium text-base" style={{ color: '#111827' }}>
+                    Request History {requests.length}
+                  </span>
+                </div>
+              )}
+              <div className="ml-auto flex items-center gap-3">
+                <div className="relative w-[280px] flex items-center border rounded-full px-3 py-1 bg-white">
+                  <Search className="text-gray-500 w-5 h-5 mr-2" />
+                  <input
+                    type="text"
+                    placeholder="Search Document"
+                    value={searchQuery}
+                    onChange={e => setSearchQuery(e.target.value)}
+                    className="flex-1 outline-none bg-transparent"
+                    style={{ color: '#374151' }}
+                  />
+                  <button onClick={() => setShowFilters(!showFilters)}>
+                    <SlidersHorizontal className="text-gray-600 w-5 h-5" />
+                  </button>
+                </div>
+                <button
+                  className="rounded-full px-4 py-2 font-semibold"
+                  style={{ backgroundColor: '#16A34A', color: '#FFFFFF' }}
+                >+ Add Member</button>
+              </div>
+            </div>
+
+            <div className="border-b border-gray-300 mt-2 mb-2" />
+
+            {/* History Table */}
+            <div className="w-full rounded-xl overflow-visible">
+              <h2 className="text-xl font-bold mb-4 px-4 pt-2">Request History</h2>
+              <table className="table w-full">
+                <thead className="bg-[#f7f7fb] text-sm text-gray-600 font-semibold">
+                  <tr>
+                    <th>
+                      <input
+                        type="checkbox"
+                        className="checkbox checkbox-sm rounded"
+                        checked={selectedRowsHistory.length === historyData.length}
+                        onChange={e =>
+                          e.target.checked
+                            ? setSelectedRowsHistory(historyData.map((_, i) => i))
+                            : setSelectedRowsHistory([])
+                        }
+                      />
+                    </th>
+                    <th>Username</th>
+                    <th>Role</th>
+                    <th>Document</th>
+                    <th>Status</th>
+                    <th>Reason</th>
+                    <th className="text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {visibleHistoryData.map((row, idx) => {
+                    const globalIndex = (historyPage - 1) * itemsPerPageHistory + idx;
+                    return (
+                      <tr
+                        key={row.id}
+                        style={{ height: '49px' }}
+                        className={selectedRowsHistory.includes(globalIndex) ? 'bg-[#f0fdfa]' : ''}
+                      >
+                        <td>
+                          <input
+                            type="checkbox"
+                            className="checkbox checkbox-sm rounded"
+                            checked={selectedRowsHistory.includes(globalIndex)}
+                            onChange={e => {
+                              setSelectedRowsHistory(prev =>
+                                e.target.checked
+                                  ? [...prev, globalIndex]
+                                  : prev.filter(i => i !== globalIndex)
+                              );
+                            }}
+                          />
+                        </td>
+                        <td>
+                          <div className="flex items-center gap-3">
+                            <div className="w-8 h-8 mask mask-squircle">
+                              <img src={row.avatar} alt={row.name} />
+                            </div>
+                            <div>
+                              <div className="font-semibold">{row.name}</div>
+                              <div className="text-sm text-gray-500">{row.email}</div>
+                            </div>
+                          </div>
+                        </td>
+                        <td>
+                          <span
+                            className="px-4 py-1 rounded-full text-xs font-medium inline-block"
+                            style={{
+                              color: '#0066FF',
+                              border: '2px solid #0066FF',
+                              backgroundColor: '#E0F0FF'
+                            }}
+                          >
+                            {row.role}
+                          </span>
+                        </td>
+                        <td>{row.document}</td>
+                        <td>
+                          <span
+                            className="px-3 py-1 rounded-full text-xs font-medium inline-block"
+                            style={{
+                              color:
+                                row.status === 'Pending'
+                                  ? '#92400E'
+                                  : row.status === 'Approved'
+                                    ? '#15803D'
+                                    : '#DC2626',
+                              border: `1px solid ${
+                                row.status === 'Pending'
+                                  ? '#92400E'
+                                  : row.status === 'Approved'
+                                    ? '#15803D'
+                                    : '#DC2626'
+                              }`,
+                              backgroundColor:
+                                row.status === 'Pending'
+                                  ? '#FEF3C7'
+                                  : row.status === 'Approved'
+                                    ? '#D1FAE5'
+                                    : '#FEE2E2'
+                            }}
+                          >
+                            {row.status}
+                          </span>
+                        </td>
+                        <td>{row.reason}</td>
+                        <td className="group flex justify-end items-center gap-1">
+                          <Copy
+                            size={18}
+                            stroke="#16A34A"
+                            className="transition-transform duration-200 group-hover:-translate-x-1 cursor-pointer"
+                          />
+                          <span className="text-[#16A34A] text-sm font-medium opacity-0 group-hover:opacity-100 transition-opacity">
+                            Review
+                          </span>
+                          <Trash2
+                            size={18}
+                            stroke="#EF4444"
+                            className="transition-transform duration-200 group-hover:translate-x-1 cursor-pointer"
+                          />
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+
+              {/* Pagination */}
+              <div className="flex justify-center my-6">
+                <div className="flex items-center gap-1">
+                  <button
+                    onClick={() => setHistoryPage(h => Math.max(1, h - 1))}
+                    className="btn btn-sm"
+                    disabled={historyPage === 1}
+                  >«</button>
+                  {[...Array(totalHistoryPages)].map((_, i) => {
+                    const page = i + 1;
+                    return (
+                      <button
+                        key={page}
+                        onClick={() => setHistoryPage(page)}
+                        className={`btn btn-sm ${page === historyPage ? 'bg-gray-300 text-black' : 'btn-ghost text-gray-600'}`}
+                      >{page}</button>
+                    );
+                  })}
+                  <button
+                    onClick={() => setHistoryPage(h => Math.min(totalHistoryPages, h + 1))}
+                    className="btn btn-sm"
+                    disabled={historyPage === totalHistoryPages}
+                  >»</button>
+                </div>
+              </div>
+            </div>
+          </>
+        )}
+      </div>
+
+      {/* ─── APPROVE MODAL ───────────────────────────────────────────────────────── */}
+      <ApproveModal
+        isOpen={showApproveModal}
+        onClose={() => setShowApproveModal(false)}
+        onApprove={handleDoApprove}
+      />
+
+      {/* ─── REJECT MODAL ────────────────────────────────────────────────────────── */}
+      <RejectModal
+        isOpen={showRejectModal}
+        onClose={() => setShowRejectModal(false)}
+        onConfirm={handleDoReject}
+        request={selectedRequest}
+      />
+    </div>
+  );
+}
