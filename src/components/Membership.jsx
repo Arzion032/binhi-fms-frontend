@@ -5,7 +5,6 @@ import Step1 from '../assets/Step1.png';
 import Step2 from '../assets/Step2.png';
 import loop from '../assets/loop.png';
 import Member from '../assets/Member.png';
-import Dis from '../assets/Dis.png';
 import Firstname from '../assets/Firstname.png';
 import Role from '../assets/Role.png';
 import Number from '../assets/Number.png';
@@ -1509,7 +1508,7 @@ export default function MemberTabs() {
                 Cancel
               </button>
               <button
-                
+                onClick={() => setShowConfirmationModal(false)}
                 className="px-7 py-2 bg-white text-[#E02A3B] border border-[#E02A3B] rounded-full hover:bg-[#E02A3B] hover:text-white text-sm font-medium"
                 style={{ width: "130px", height: "39px" }}
               >
