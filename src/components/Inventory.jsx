@@ -13,7 +13,6 @@ export default function EquipmentPage() {
   const [searchCurrent, setSearchCurrent] = useState('');
   const [showFilters, setShowFilters] = useState(false);
   const [selectedRole, setSelectedRole] = useState('');
-  const [isIncomeModalOpen, setIncomeModalOpen] = useState(false);
   const [indicatorStyle, setIndicatorStyle] = useState({});
   const tabsRef = useRef([]);
   const containerRef = useRef();
@@ -37,6 +36,15 @@ export default function EquipmentPage() {
   const clearFilters = () => {
     setSelectedRole('');
   };
+
+  {/* Modals */}
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isEditOpen, setIsEditOpen] = useState(false);
+  const [isIncomeModalOpen, setIncomeModalOpen] = useState(false);
+  const [isEditOpen, setIsEditOpen] = useState(false);
+  const [showConfirmDiscard, setShowConfirmDiscard] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
+
 
   const rows = Array.from({ length: 8 }, (_, index) => ({
     id: index + 1,
@@ -101,102 +109,311 @@ export default function EquipmentPage() {
 
         {activeTab === "equipment" && (
           <>
-            <div className="flex justify-end mb-6">
-              <div className="flex items-center space-x-4">
-                <div className="relative w-[280px] h-[35px] flex items-center border rounded-full px-3 py-1 bg-white">
-                  <Search className="text-gray-500 w-5 h-5 mr-2" />
-                  <input type="text" placeholder="Search Member" className="flex-1 outline-none bg-white" value={searchCurrent} onChange={(e) => setSearchCurrent(e.target.value)} />
-                  <button onClick={() => setShowFilters(!showFilters)}>
-                    <SlidersHorizontal className="text-gray-600 w-5 h-5" />
-                  </button>
-                </div>
+              
+            
+            <div className="flex justify-end items-center mb-6 gap-4 flex-wrap">
+  {/* Search Bar */}
+  <div className="relative w-[280px] h-[35px] flex items-center border rounded-full px-3 py-1 bg-white">
+    <Search className="text-gray-500 w-5 h-5 mr-2" />
+    <input
+      type="text"
+      placeholder="Search Member"
+      className="flex-1 outline-none bg-white"
+      value={searchCurrent}
+      onChange={(e) => setSearchCurrent(e.target.value)}
+    />
+    <button onClick={() => setShowFilters(!showFilters)}>
+      <SlidersHorizontal className="text-gray-600 w-5 h-5" />
+    </button>
+  </div>
 
-                {showFilters && (
-                  <div className="flex items-center space-x-1 p-2 rounded-lg w-fit">
-                    <div className="flex items-center space-x-1 border rounded-l-3xl px-3 py-1 cursor-pointer bg-white border border-[#858585] h-[35px]">
-                      <SlidersHorizontal className="text-blue w-4 h-4" />
-                      <span className="mr-2 p-2 text-sm text-blue font-medium">Active Filters</span>
-                    </div>
-                    <select value={selectedRole} onChange={(e) => setSelectedRole(e.target.value)} className="border border-[#858585] h-[35px] w-[60px] text-center text-sm bg-white text-[#858585]">
-                      <option value="">Role</option>
-                      <option value="admin">Farmer</option>
-                      <option value="member">Member</option>
-                    </select>
-                    <button onClick={clearFilters} className="flex items-center space-x-1 border rounded-r-3xl px-3 py-1 text-sm border border-[#858585] h-[35px] bg-white text-[#858585]">
-                      <X className="w-4 h-4 text-[#858585]" />
-                      <span>Clear</span>
-                    </button>
-                  </div>
-                )}
+  {/* Filters (conditionally shown) */}
+  {showFilters && (
+    <div className="flex items-center space-x-1 p-2 rounded-lg w-fit">
+      {/* Filter Label */}
+      <div className="flex items-center space-x-1 border rounded-l-3xl px-3 py-1 cursor-pointer bg-white border border-[#858585] h-[35px]">
+        <SlidersHorizontal className="text-blue w-4 h-4" />
+        <span className="mr-2 p-2 text-sm text-blue font-medium">Active Filters</span>
+      </div>
 
-                <button className="flex items-center justify-center gap-2 bg-app-primary hover:bg-app-primary/90 text-white rounded-full px-6 py-2">
-                  <FaPlus className="w-5 h-5" />
-                  <span className="font-semibold text-[16px]">Add Equipment</span>
+      {/* Dropdown */}
+      <select
+        value={selectedRole}
+        onChange={(e) => setSelectedRole(e.target.value)}
+        className="border border-[#858585] h-[35px] w-[60px] text-center text-sm bg-white text-[#858585]"
+      >
+        <option value="">Role</option>
+        <option value="admin">Farmer</option>
+        <option value="member">Member</option>
+      </select>
+
+      {/* Clear Filter */}
+      <button
+        onClick={clearFilters}
+        className="flex items-center space-x-1 border rounded-r-3xl px-3 py-1 text-sm border border-[#858585] h-[35px] bg-white text-[#858585]"
+      >
+        <X className="w-4 h-4 text-[#858585]" />
+        <span>Clear</span>
+      </button>
+    </div>
+  )}
+
+  {/* Add Equipment Button */}
+  <button
+    onClick={() => setIsModalOpen(true)}
+    className="flex items-center justify-center gap-2 bg-app-primary hover:bg-app-primary/90 text-white rounded-full px-6 py-2"
+  >
+    <FaPlus className="w-5 h-5" />
+    <span className="font-semibold text-[16px]">Add Equipment</span>
+  </button>
+
+  {/* Modal */}
+  {isModalOpen && (
+    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-40 z-50">
+      <div className="bg-white rounded-2xl w-[400px] p-6 relative shadow-xl">
+        {/* Header */}
+        <div className="flex justify-between items-center mb-2">
+          <div>
+            <h2 className="text-lg font-bold text-gray-800">Add Equipment</h2>
+            <p className="text-sm text-gray-500">Please enter the new equipment.</p>
+          </div>
+          <button onClick={() => setIsModalOpen(false)}>
+            <X className="w-5 h-5 text-gray-600" />
+          </button>
+        </div>
+
+        {/* Form */}
+        <form className="space-y-4 mt-4">
+          <div>
+            <label className="block text-sm font-semibold">
+              Equipment <span className="text-red-500">*</span>
+            </label>
+            <input
+              type="text"
+              placeholder="Enter the Equipment"
+              className="w-full px-3 py-2 rounded-full border border-gray-300 focus:outline-none"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-semibold">
+              Quantity <span className="text-red-500">*</span>
+            </label>
+            <input
+              type="number"
+              placeholder="Enter the Quantity"
+              className="w-full px-3 py-2 rounded-full border border-gray-300 focus:outline-none"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-semibold">Rental Price</label>
+            <div className="flex items-center border border-gray-300 rounded-full px-3">
+              <span className="text-gray-500 text-sm">₱</span>
+              <input
+                type="number"
+                placeholder="Enter the Rental Price"
+                className="w-full px-2 py-2 bg-transparent focus:outline-none"
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-semibold">Remarks/Notes</label>
+            <textarea
+              placeholder="Remarks or Notes"
+              className="w-full px-3 py-2 border border-gray-300 rounded-xl focus:outline-none"
+              rows="3"
+            />
+          </div>
+
+          <div className="flex justify-between mt-4 gap-3">
+            <button
+              type="button"
+              onClick={() => setIsModalOpen(false)}
+              className="w-full bg-red-500 hover:bg-red-600 text-white font-semibold py-2 rounded-full"
+            >
+              Disregard
+            </button>
+            <button
+              type="submit"
+              className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-2 rounded-full"
+            >
+              Confirm
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  )}
+
+   {/* Top Section */}
+   <div className="flex flex-wrap gap-4 mb-4">
+          {/* CARD 1 */}
+          <div className="relative bg-white rounded-2xl border border-gray-300 flex flex-col justify-between h-[60px] w-[350px] shadow-sm">
+            <div className="absolute left-0 top-0 h-full w-3 rounded-tl-2xl rounded-bl-2xl bg-[#4caf50]" />
+            <div className="absolute top-2 right-2 z-20">
+              <button
+                onClick={() => setIncomeModalOpen(true)}
+                className="flex items-center justify-center w-[32px] h-[32px] text-green-600 rounded-full hover:bg-green-600 hover:text-white transition-all"
+              >
+                <PlusCircle className="w-[20px] h-[20px]" />
+              </button>
+            </div>
+            <div className="flex flex-col justify-center px-6 h-full">
+              <span className="text-sm text-gray-500">Available</span>
+              <span className="text-xl font-bold text-black leading-tight">15</span>
+            </div>
+          </div>
+
+          {/* CARD 2 */}
+          <div className="relative bg-white rounded-2xl border border-gray-300 flex flex-col justify-between h-[60px] w-[350px] shadow-sm">
+            <div className="absolute left-0 top-0 h-full w-3 rounded-tl-2xl rounded-bl-2xl bg-[#FF3B4E]" />
+            <div className="absolute top-2 right-2 z-20">
+              <button
+                onClick={() => setIncomeModalOpen(true)}
+                className="flex items-center justify-center w-[32px] h-[32px] text-[#FF3B4E] rounded-full hover:bg-[#FF3B4E] hover:text-white transition-all"
+              >
+                <PlusCircle className="w-[20px] h-[20px]" />
+              </button>
+            </div>
+            <div className="flex flex-col justify-center px-6 h-full">
+              <span className="text-sm text-gray-500">Available</span>
+              <span className="text-xl font-bold text-black leading-tight">15</span>
+            </div>
+          </div>
+
+          {/* CARD 3 */}
+          <div className="relative bg-white rounded-2xl border border-gray-300 flex flex-col justify-between h-[60px] w-[350px] shadow-sm">
+            <div className="absolute left-0 top-0 h-full w-3 rounded-tl-2xl rounded-bl-2xl bg-[#D1A157]" />
+            <div className="absolute top-2 right-2 z-20">
+              <button
+                onClick={() => setIncomeModalOpen(true)}
+                className="flex items-center justify-center w-[32px] h-[32px] text-[#D1A157] rounded-full hover:bg-[#D1A157] hover:text-white transition-all"
+              >
+                <PlusCircle className="w-[20px] h-[20px]" />
+              </button>
+            </div>
+            <div className="flex flex-col justify-center px-6 h-full">
+              <span className="text-sm text-gray-500">Available</span>
+              <span className="text-xl font-bold text-black leading-tight">15</span>
+            </div>
+          </div>
+        </div>
+
+  {/* Table */}
+  <div className="w-full overflow-x-auto rounded-xl">
+    <table className="table w-full">
+      <thead>
+        <tr className="text-left" style={{ backgroundColor: "#F4F4F4" }}>
+          <th>
+            <input type="checkbox" className="checkbox checkbox-sm rounded" />
+          </th>
+          <th>Equipment</th>
+          <th>Quantity</th>
+          <th>Available</th>
+          <th>Rented</th>
+          <th>Repair Needed</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {Array.from({ length: 7 }).map((_, index) => (
+          <tr key={index} className="bg-gray-100">
+            <td>
+              <input type="checkbox" className="checkbox checkbox-sm rounded" />
+            </td>
+            <td>Utility Tractor</td>
+            <td>6</td>
+            <td>2</td>
+            <td>2</td>
+            <td>2</td>
+            <td className="flex gap-2">
+              <button className="text-green-600">⬇️</button>
+              <span
+        onClick={() => setIsEditOpen(true)}
+        className="w-4 h-4 cursor-pointer hover:brightness-110 inline-block"
+      >
+        <img src={Pencil} alt="Pencil" className="w-4 h-4" />
+      </span>
+              <span className="w-4 h-4 cursor-pointer hover:brightness-110 inline-block">
+                <img src={edtIcon} alt="Trash" className="w-4 h-4" />
+              </span>
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+
+    {/* Pagination */}
+    <div className="flex justify-center items-center p-4 space-x-2 text-gray-500 text-sm">
+      <button className="px-2">&lt;</button>
+      {[1, 2, 3, 4, 5].map((num) => (
+        <button
+          key={num}
+          className={`w-8 h-8 rounded ${num === 1 ? "bg-gray-300" : "hover:bg-gray-200"}`}
+        >
+          {num}
+        </button>
+      ))}
+      <span>...</span>
+      <button className="px-2">&gt;</button>
+    </div>
+  </div>
+</div>
+
+  {/* Edit Modal */}
+  {isEditOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-30 z-50 flex justify-center items-center">
+          <div className="bg-white rounded-2xl p-6 w-[360px] max-w-full shadow-lg">
+            <h2 className="text-lg font-semibold mb-1">Edit Equipment</h2>
+            <p className="text-sm text-gray-500 mb-4">Please edit the equipment.</p>
+
+            <form className="space-y-3">
+              <div>
+                <label className="block text-sm font-medium">Equipment *</label>
+                <input type="text" defaultValue="Utility Tractor" className="w-full rounded-full border px-4 py-2" />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium">Total Quantity *</label>
+                <input type="number" defaultValue={6} className="w-full rounded-full border px-4 py-2" />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium">Repair Needed</label>
+                <input type="number" defaultValue={2} className="w-full rounded-full border px-4 py-2" />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium">Rental Price</label>
+                <input type="text" defaultValue="₱ 1,500" className="w-full rounded-full border px-4 py-2" />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium">Remarks/Notes</label>
+                <textarea className="w-full rounded-xl border px-4 py-2" rows="3" placeholder="Remarks or Notes" />
+              </div>
+
+              <div className="flex justify-between mt-4">
+                <button
+                  type="button"
+                  onClick={() => setIsEditOpen(false)}
+                  className="bg-red-500 text-white px-6 py-2 rounded-full"
+                >
+                  Disregard
+                </button>
+                <button
+                  type="submit"
+                  className="bg-green-600 text-white px-6 py-2 rounded-full"
+                >
+                  Confirm
                 </button>
               </div>
-            </div>
-
-            <div className="flex flex-wrap gap-4 mb-4">
-              {["#4caf50", "#FF3B4E", "#D1A157"].map((color, index) => (
-                <div key={index} className="relative bg-white rounded-2xl border border-gray-300 flex flex-col justify-between h-[60px] w-[350px] shadow-sm">
-                  <div className={`absolute left-0 top-0 h-full w-3 rounded-tl-2xl rounded-bl-2xl`} style={{ backgroundColor: color }} />
-                  <div className="absolute top-2 right-2 z-20">
-                    <button onClick={() => setIncomeModalOpen(true)} className="flex items-center justify-center w-[32px] h-[32px] text-green-600 rounded-full hover:bg-green-600 hover:text-white transition-all">
-                      <PlusCircle className="w-[20px] h-[20px]" />
-                    </button>
-                  </div>
-                  <div className="flex flex-col justify-center px-6 h-full">
-                    <span className="text-sm text-gray-500">Available</span>
-                    <span className="text-xl font-bold text-black leading-tight">15</span>
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            <div className="w-full overflow-x-auto rounded-xl">
-              <table className="table w-full">
-                <thead>
-                  <tr className="text-left" style={{ backgroundColor: "#F4F4F4" }}>
-                    <th><input type="checkbox" className="checkbox checkbox-sm rounded" /></th>
-                    <th>Equipment</th>
-                    <th>Quantity</th>
-                    <th>Available</th>
-                    <th>Rented</th>
-                    <th>Repair Needed</th>
-                    <th>Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {Array.from({ length: 7 }).map((_, index) => (
-                    <tr key={index} className="bg-gray-100">
-                      <td><input type="checkbox" className="checkbox checkbox-sm rounded" /></td>
-                      <td>Utility Tractor</td>
-                      <td>6</td>
-                      <td>2</td>
-                      <td>2</td>
-                      <td>2</td>
-                      <td className="flex gap-2">
-                        <button className="text-green-600">⬇️</button>
-                        <span>
-                          <img src={Pencil} alt="Pencil" className="w-4 h-4" />
-                        </span>
-                        <span className="w-4 h-4 cursor-pointer hover:brightness-110 inline-block">
-                          <img src={edtIcon} alt="Trash" className="w-4 h-4" />
-                         </span>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-              <div className="flex justify-center items-center p-4 space-x-2 text-gray-500 text-sm">
-                <button className="px-2">&lt;</button>
-                {[1, 2, 3, 4, 5].map((num) => (
-                  <button key={num} className={`w-8 h-8 rounded ${num === 1 ? 'bg-gray-300' : 'hover:bg-gray-200'}`}>{num}</button>
-                ))}
-                <span>...</span>
-                <button className="px-2">&gt;</button>
-              </div>
-            </div>
+            </form>
+          </div>
+        </div>
+      )}
           </>
         )}
 
