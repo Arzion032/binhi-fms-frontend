@@ -99,7 +99,6 @@ export default function Document() {
   const [showRejectModal, setShowRejectModal] = useState(false);
   const handleRejectClick = () => setShowRejectModal(true);
   const handleDoReject = (reason) => {
-    // you can store the reason if needed
     setRequests(rs =>
       rs.map(r => (r.id === selectedRequest.id ? { ...r, status: 'Rejected' } : r))
     );
@@ -490,20 +489,30 @@ export default function Document() {
                           </span>
                         </td>
                         <td>{row.reason}</td>
-                        <td className="group flex justify-end items-center gap-1">
-                          <Copy
-                            size={18}
-                            stroke="#16A34A"
-                            className="transition-transform duration-200 group-hover:-translate-x-1 cursor-pointer"
-                          />
-                          <span className="text-[#16A34A] text-sm font-medium opacity-0 group-hover:opacity-100 transition-opacity">
-                            Review
-                          </span>
-                          <Trash2
-                            size={18}
-                            stroke="#EF4444"
-                            className="transition-transform duration-200 group-hover:translate-x-1 cursor-pointer"
-                          />
+                        <td
+                          style={{ minWidth: 160 }}
+                        >
+                          {/* Marketplace-like sliding effect */}
+                          <div className="group flex items-center gap-4 justify-end cursor-pointer relative">
+                            <div className="relative flex items-center">
+                              <Copy
+                                size={20}
+                                stroke="#16A34A"
+                                className="transition-transform duration-200 group-hover:-translate-x-2"
+                              />
+                              <span
+                                className="absolute left-5 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 text-[#16A34A] text-sm font-medium transition-opacity duration-200 whitespace-nowrap"
+                                style={{ minWidth: 50 }}
+                              >
+                                Review
+                              </span>
+                            </div>
+                            <Trash2
+                              size={20}
+                              stroke="#EF4444"
+                              className="cursor-pointer transition-transform duration-200 group-hover:translate-x-8"
+                            />
+                          </div>
                         </td>
                       </tr>
                     );
