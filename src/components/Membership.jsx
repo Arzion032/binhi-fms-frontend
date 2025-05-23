@@ -5,7 +5,6 @@ import Step1 from '../assets/Step1.png';
 import Step2 from '../assets/Step2.png';
 import loop from '../assets/loop.png';
 import Member from '../assets/Member.png';
-import Dis from '../assets/Dis.png';
 import Firstname from '../assets/Firstname.png';
 import Role from '../assets/Role.png';
 import Number from '../assets/Number.png';
@@ -558,13 +557,13 @@ export default function MemberTabs() {
 
             {/* Table */}
             <div className="overflow-x-auto py-0">
-            <table className="min-w-full border-spacing-y-2">
+            <table className="table w-full">
               <thead>
                 <tr className="text-left" style={{ backgroundColor: "#F4F4F4" }}>
-                  <th className="p-3 rounded-tl-lg rounded-tr-lg">
+                  <th className="p-4 rounded-tl-lg rounded-tr-lg">
                     <input
                       type="checkbox"
-                      className="w-4 h-4 accent-blue-500 cursor-pointer"
+                      className="checkbox checkbox-sm rounded"
                       checked={selectedMembers.length === filteredMembers.length && filteredMembers.length > 0}
                       onChange={toggleSelectAll}
                       aria-label="Select all members"
@@ -585,6 +584,7 @@ export default function MemberTabs() {
                     <td className="p-4">
                       <input
                         type="checkbox"
+                        className="checkbox checkbox-sm rounded"
                         checked={selectedMembers.includes(member.id)}
                         onChange={() => toggleSelectMember(member.id)}
                         aria-label={`Select member ${member.firstName} ${member.lastName}`}
@@ -1242,12 +1242,12 @@ export default function MemberTabs() {
 
           {/* Table */}
          <div className="overflow-x-auto">
-      <table className="min-w-full border-spacing-y-2">
+      <table className="table w-full">
         <thead className="bg-gray-50 text-gray-700 font-semibold">
         <tr className="text-left" style={{ backgroundColor: "#F4F4F4" }}>
             <th className="p-4 rounded-tl-lg rounded-tr-lg">
               <input
-               className="w-4 h-4 accent-blue-500 cursor-pointer"
+               className="checkbox checkbox-sm rounded"
                 type="checkbox"
                 checked={selectedMembers.length === filteredMembers.length && filteredMembers.length > 0}
           onChange={toggleSelectAll}
@@ -1269,7 +1269,7 @@ export default function MemberTabs() {
               <td className="p-4">
                 <input
                   type="checkbox"
-                  className="w-4 h-4 accent-blue-500 cursor-pointer"
+                  className="checkbox checkbox-sm rounded"
                 />
               </td>
               <td className="p-4 flex items-center">
@@ -1508,7 +1508,7 @@ export default function MemberTabs() {
                 Cancel
               </button>
               <button
-                
+                onClick={() => setShowConfirmationModal(false)}
                 className="px-7 py-2 bg-white text-[#E02A3B] border border-[#E02A3B] rounded-full hover:bg-[#E02A3B] hover:text-white text-sm font-medium"
                 style={{ width: "130px", height: "39px" }}
               >

@@ -1,5 +1,6 @@
 import React from "react";
 import Membership from './components/Membership';
+import Inventory from './components/Inventory';
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Layout from "./components/Layout/Layout";
 import Financial from "./components/FinancialTracker/financial";
@@ -17,6 +18,7 @@ function App() {
         <Route path="/membership" element={<Layout><Membership/></Layout>} />
         <Route path="/document" element={<Layout><Document/></Layout>} />
         <Route path="/marketplace" element={<Layout><Marketplace/></Layout>} />
+        <Route path="/inventory" element={<Layout><Inventory/></Layout>} />
       </Routes>
     </Router>
     </div>
