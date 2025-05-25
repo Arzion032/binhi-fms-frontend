@@ -120,9 +120,9 @@ const CATEGORIES_SUMMARY = [
 
 const BADGE_STYLES = {
   Fruits: { color: '#7C3AED', background: '#F3E8FF', border: '#7C3AED' },
-  'Milks & Dairy': { color: '#3B82F6', background: '#EFF6FF', border: '#3B82F6' },
+  'Milks & Dairy': { color: '#3B82F6', background: '#DDECFF', border: '#3B82F6' },
   Vegetable: { color: '#16A34A', background: '#D1FAE5', border: '#16A34A' },
-  Grains: { color: '#FACC15', background: '#FEF9C3', border: '#FACC15' },
+  Grains: { color: '#B79900', background: '#FFF8D4', border: '#B79900' },
   'Root Crops': { color: '#F97316', background: '#FFEDD5', border: '#F97316' },
   Meats: { color: '#DC2626', background: '#FEE2E2', border: '#DC2626' },
 };
