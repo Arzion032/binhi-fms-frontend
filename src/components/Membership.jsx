@@ -409,72 +409,83 @@ export default function MemberTabs() {
 
     
     <div className="p-0">
-       <div className="w-full bg-binhi-100 shadow-sm">
-      {/* Navbar with breadcrumbs and right icon */}
-      <div className="flex items-center justify-between px-6 py-3">
-        {/* Breadcrumbs */}
-        <div className="flex-1">
-          <div className="text-sm breadcrumbs font-inter text-base">
-            <ul>
-              <li><a className="text-binhigreen underline">Dashboard</a></li>
-              <li><a className="text-binhigreen underline">Membership Management</a></li>
-              <li><a className="text-binhigreen underline">Members</a></li>
-              <li className="text-gray-400">Current Members</li>
-            </ul>
-          </div>
-        </div>
-
-        {/* Dots Button */}
-        <button className="btn btn-square btn-binhi ml-4">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-            className="w-5 h-5"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="2"
-              d="M5 12h.01M12 12h.01M19 12h.01"
-            />
-          </svg>
-        </button>
-      </div>
-
-      {/* Page Title */}
-      <div className="px-6 pb-4 h-5 flex items-center">
-        <h1 className="text-[40px] font-bold text-gray-800">
-          Membership Management
-        </h1>
-      </div>
-    </div>
-      {/* Tabs Navigation */}
-      <div className="mb-4 border-b border-gray-200 dark:border-gray-700 relative">
-        <ul
-          className="flex flex-wrap -mb-px text-sm font-medium text-center"
-          role="tablist"
-        >
-          {["current", "pending", "rejected"].map((tab, index) => (
-            <li key={tab} className="mr-10" role="presentation">
-              <button
-                ref={(el) => (tabRefs.current[index] = el)}
-                className={`inline-block p-4 ${activeTab === tab ? "text-green-600" : "text-gray-500 hover:text-gray-600"}`}
-                onClick={() => setActiveTab(tab)}
-                role="tab"
-                aria-selected={activeTab === tab}
-              >
-                {tab === "current" ? "Current Members" : tab === "pending" ? "Pending Members" : "Rejected Members"}
-              </button>
+  {/* Header with Breadcrumbs */}
+  <div className="w-full bg-binhi-100 shadow-sm">
+    {/* Navbar with breadcrumbs and dots icon */}
+    <div className="flex items-center justify-between px-6 py-3">
+      <div className="flex-1">
+        <div className="text-sm breadcrumbs font-inter text-base">
+          <ul>
+            <li><a className="text-binhigreen underline">Dashboard</a></li>
+            <li><a className="text-binhigreen underline">Membership Management</a></li>
+            <li><a className="text-binhigreen underline">Members</a></li>
+            <li className="text-gray-400">
+              {activeTab === "current"
+                ? "Current Members"
+                : activeTab === "pending"
+                ? "Pending Members"
+                : "Rejected Members"}
             </li>
-          ))}
-        </ul>
-        <div
-          className="absolute bottom-0 h-0.5 bg-green-600 transition-all duration-300"
-          style={{ left: underlineStyle.left, width: underlineStyle.width }}
-        />
+          </ul>
+        </div>
       </div>
+
+      {/* Dots Button */}
+      <button className="btn btn-square btn-binhi ml-4">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+          className="w-5 h-5"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth="2"
+            d="M5 12h.01M12 12h.01M19 12h.01"
+          />
+        </svg>
+      </button>
+    </div>
+
+    {/* Page Title */}
+    <div className="px-6 pb-4 h-5 flex items-center">
+      <h1 className="text-[40px] font-bold text-gray-800">Membership Management</h1>
+    </div>
+  </div>
+
+  {/* Tabs Navigation */}
+  <div className="mb-4 border-b border-gray-200 dark:border-gray-700 relative">
+    <ul
+      className="flex flex-wrap -mb-px text-sm font-medium text-center"
+      role="tablist"
+    >
+      {["current", "pending", "rejected"].map((tab, index) => (
+        <li key={tab} className="mr-10" role="presentation">
+          <button
+            ref={(el) => (tabRefs.current[index] = el)}
+            className={`inline-block p-4 ${
+              activeTab === tab ? "text-green-600" : "text-gray-500 hover:text-gray-600"
+            }`}
+            onClick={() => setActiveTab(tab)}
+            role="tab"
+            aria-selected={activeTab === tab}
+          >
+            {tab === "current"
+              ? "Current Members"
+              : tab === "pending"
+              ? "Pending Members"
+              : "Rejected Members"}
+          </button>
+        </li>
+      ))}
+    </ul>
+    <div
+      className="absolute bottom-0 h-0.5 bg-green-600 transition-all duration-300"
+      style={{ left: underlineStyle.left, width: underlineStyle.width }}
+    />
+  </div>
 
       {/* Current Members Tab */}
       {activeTab === "current" && (
