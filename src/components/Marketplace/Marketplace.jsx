@@ -12,6 +12,8 @@ import {
 import AddCategoryModal from './AddCategoryModal';
 import EditDetailsModal from './EditDetailsModal';
 import OrderHistoryModal from './OrderHistoryModal';
+import OrderManagementModal from './OrderManagementModal';
+import PayoutModal from './PayoutModal';
 
 // --- Customer Management Data (7 customers) ---
 const CUSTOMER_DATA = [
@@ -24,6 +26,7 @@ const CUSTOMER_DATA = [
     birthdate: "20 Aug 1999",
     age: 78,
     avatar: "/Screenshot_195.png",
+    contact: "(+63) 948 122 9142",
   },
   {
     id: 2,
@@ -34,6 +37,7 @@ const CUSTOMER_DATA = [
     birthdate: "15 Feb 1987",
     age: 37,
     avatar: "/Screenshot_195.png",
+    contact: "(+63) 912 345 6789",
   },
   {
     id: 3,
@@ -44,6 +48,7 @@ const CUSTOMER_DATA = [
     birthdate: "04 Nov 1965",
     age: 58,
     avatar: "/Screenshot_195.png",
+    contact: "(+63) 999 888 7777",
   },
   {
     id: 4,
@@ -54,6 +59,7 @@ const CUSTOMER_DATA = [
     birthdate: "30 Sep 1973",
     age: 50,
     avatar: "/Screenshot_195.png",
+    contact: "(+63) 922 222 4444",
   },
   {
     id: 5,
@@ -64,6 +70,7 @@ const CUSTOMER_DATA = [
     birthdate: "12 May 1980",
     age: 44,
     avatar: "/Screenshot_195.png",
+    contact: "(+63) 901 222 3333",
   },
   {
     id: 6,
@@ -74,6 +81,7 @@ const CUSTOMER_DATA = [
     birthdate: "10 Dec 1958",
     age: 65,
     avatar: "/Screenshot_195.png",
+    contact: "(+63) 977 123 4567",
   },
   {
     id: 7,
@@ -84,6 +92,7 @@ const CUSTOMER_DATA = [
     birthdate: "03 Mar 1970",
     age: 54,
     avatar: "/Screenshot_195.png",
+    contact: "(+63) 934 567 8910",
   }
 ];
 
@@ -148,6 +157,8 @@ const SAMPLE_ORDER_ROWS = [
       name: "Juan Dela Cruz",
       email: "juandcruz@gmail.com",
       avatar: "/Screenshot_195.png",
+      address: "Purok 3 Zone 6 Penafrancia Cupang Antipolo City",
+      contact: "(+63) 948 122 9142",
     },
     product: {
       name: "Premium Farm Fresh Sweet Corn",
@@ -164,6 +175,8 @@ const SAMPLE_ORDER_ROWS = [
       name: "Maria Reyes",
       email: "mariareyes@gmail.com",
       avatar: "/Screenshot_195.png",
+      address: "Purok 1, Poblacion, Bulacan",
+      contact: "(+63) 912 345 6789",
     },
     product: {
       name: "Premium Angus Beef Strips",
@@ -180,6 +193,8 @@ const SAMPLE_ORDER_ROWS = [
       name: "Pedro Santos",
       email: "pedrosantos@gmail.com",
       avatar: "/Screenshot_195.png",
+      address: "San Roque, Bulacan",
+      contact: "(+63) 999 888 7777",
     },
     product: {
       name: "Organic Rainbow Carrots",
@@ -196,6 +211,8 @@ const SAMPLE_ORDER_ROWS = [
       name: "Anna Flores",
       email: "annaflores@gmail.com",
       avatar: "/Screenshot_195.png",
+      address: "Sta. Maria, Bulacan",
+      contact: "(+63) 922 222 4444",
     },
     product: {
       name: "Artisan Wheat Flour",
@@ -207,6 +224,131 @@ const SAMPLE_ORDER_ROWS = [
     transaction: "Pending",
   },
 ];
+
+// --- Farmer Payout Data Example ---
+const FARMER_PAYOUT_SUMMARY = [
+  { name: 'Complete', count: 15, color: '#16A34A', bg: '#E6F9EC', border: '#16A34A' },
+  { name: 'Pending', count: 15, color: '#92400E', bg: '#FFF7E6', border: '#D1A157' },
+  { name: 'Failed', count: 15, color: '#DC2626', bg: '#FEE2E2', border: '#DC2626' },
+];
+
+const FARMER_PAYOUT_ROWS = [
+  {
+    id: 1,
+    farmer: {
+      name: "Juan Dela Cruz",
+      email: "juandcruz@gmail.com",
+      avatar: "/Screenshot_195.png",
+    },
+    product: {
+      name: "Farm Fresh Sweet Corn",
+      variation: "Yellow, White",
+      image: "/Screenshot_195.png",
+      quantity: 1
+    },
+    status: "Pending",
+    paymentMethod: "GCash",
+    gcashNumber: "0938-100-4277",
+    gcashName: "J*** D*** C***"
+  },
+  {
+    id: 2,
+    farmer: {
+      name: "Juan Dela Cruz",
+      email: "juandcruz@gmail.com",
+      avatar: "/Screenshot_195.png",
+    },
+    product: {
+      name: "Farm Fresh Sweet Corn",
+      variation: "Yellow, White",
+      image: "/Screenshot_195.png",
+      quantity: 1
+    },
+    status: "Pending",
+    paymentMethod: "GCash",
+    gcashNumber: "0938-100-4277",
+    gcashName: "J*** D*** C***"
+  },
+  {
+    id: 3,
+    farmer: {
+      name: "Juan Dela Cruz",
+      email: "juandcruz@gmail.com",
+      avatar: "/Screenshot_195.png",
+    },
+    product: {
+      name: "Farm Fresh Sweet Corn",
+      variation: "Yellow, White",
+      image: "/Screenshot_195.png",
+      quantity: 1
+    },
+    status: "Pending",
+    paymentMethod: "GCash",
+    gcashNumber: "0938-100-4277",
+    gcashName: "J*** D*** C***"
+  },
+  {
+    id: 4,
+    farmer: {
+      name: "Juan Dela Cruz",
+      email: "juandcruz@gmail.com",
+      avatar: "/Screenshot_195.png",
+    },
+    product: {
+      name: "Farm Fresh Sweet Corn",
+      variation: "Yellow, White",
+      image: "/Screenshot_195.png",
+      quantity: 1
+    },
+    status: "Pending",
+    paymentMethod: "GCash",
+    gcashNumber: "0938-100-4277",
+    gcashName: "J*** D*** C***"
+  },
+  {
+    id: 5,
+    farmer: {
+      name: "Juan Dela Cruz",
+      email: "juandcruz@gmail.com",
+      avatar: "/Screenshot_195.png",
+    },
+    product: {
+      name: "Farm Fresh Sweet Corn",
+      variation: "Yellow, White",
+      image: "/Screenshot_195.png",
+      quantity: 1
+    },
+    status: "Pending",
+    paymentMethod: "GCash",
+    gcashNumber: "0938-100-4277",
+    gcashName: "J*** D*** C***"
+  },
+  {
+    id: 6,
+    farmer: {
+      name: "Juan Dela Cruz",
+      email: "juandcruz@gmail.com",
+      avatar: "/Screenshot_195.png",
+    },
+    product: {
+      name: "Farm Fresh Sweet Corn",
+      variation: "Yellow, White",
+      image: "/Screenshot_195.png",
+      quantity: 1
+    },
+    status: "Pending",
+    paymentMethod: "GCash",
+    gcashNumber: "0938-100-4277",
+    gcashName: "J*** D*** C***"
+  },
+];
+
+const FARMER_PAYOUT_BADGE_STYLES = {
+  Complete: { color: '#16A34A', background: '#E6F9EC', border: '#16A34A' },
+  Pending: { color: '#92400E', background: '#FEF3C7', border: '#FACC15' },
+  Failed: { color: '#DC2626', background: '#FEE2E2', border: '#DC2626' },
+  default: { color: '#757575', background: '#E5E7EB', border: '#D4D4D8' },
+};
 
 const INITIAL_PRODUCTS = [
   {
@@ -372,6 +514,8 @@ export default function Marketplace() {
   const tabsRef = useRef();
   const tabRefs = useRef([]);
   const [indicator, setIndicator] = useState({ left: 0, width: 0 });
+  const [orderManagementModalOpen, setOrderManagementModalOpen] = useState(false);
+  const [selectedOrder, setSelectedOrder] = useState(null);
   const updateIndicator = useCallback(() => {
     const container = tabsRef.current;
     const idx = tabs.indexOf(activeTab);
@@ -454,6 +598,21 @@ export default function Marketplace() {
     setSelectedOrderRows([]);
   };
 
+  // --- Farmer Payout State ---
+  const [selectedFarmerRows, setSelectedFarmerRows] = useState([]);
+  const [farmerPayoutPage, setFarmerPayoutPage] = useState(1);
+  const farmerRowsPerPage = 6;
+  const filteredFarmerRows = FARMER_PAYOUT_ROWS.filter(row =>
+    row.farmer.name.toLowerCase().includes(searchQuery.trim().toLowerCase()) ||
+    row.product.name.toLowerCase().includes(searchQuery.trim().toLowerCase())
+  );
+  const farmerPayoutTotalPages = Math.ceil(filteredFarmerRows.length / farmerRowsPerPage);
+  const visibleFarmerRows = filteredFarmerRows.slice(
+    (farmerPayoutPage - 1) * farmerRowsPerPage,
+    farmerPayoutPage * farmerRowsPerPage
+  );
+  useEffect(() => { setFarmerPayoutPage(1); }, [searchQuery]);
+
   // Order history modal
   const [orderHistoryOpen, setOrderHistoryOpen] = useState(false);
   const [orderHistoryCustomer, setOrderHistoryCustomer] = useState(null);
@@ -463,7 +622,7 @@ export default function Marketplace() {
   const [categoryModalMode, setCategoryModalMode] = useState('add');
   const [showEditModal, setShowEditModal] = useState(false);
   const [editProduct, setEditProduct] = useState(null);
-  const [editModalMode, setEditModalMode] = useState('edit'); // NEW
+  const [editModalMode, setEditModalMode] = useState('edit');
 
   const closeEditModal = () => {
     setShowEditModal(false);
@@ -482,6 +641,42 @@ export default function Marketplace() {
     setShowEditModal(true);
   };
 
+  // --- Order Management Modal State ---
+  const [showOrderManagementModal, setShowOrderManagementModal] = useState(false);
+  const [orderModalData, setOrderModalData] = useState(null);
+  const openOrderModal = (row) => {
+    setOrderModalData(row);
+    setShowOrderManagementModal(true);
+  };
+  const closeOrderModal = () => {
+    setOrderModalData(null);
+    setShowOrderManagementModal(false);
+  };
+
+  // --- Farmer Payout Modal State ---
+  const [showPayoutModal, setShowPayoutModal] = useState(false);
+  const [currentPayout, setCurrentPayout] = useState(null);
+  const [payoutSuccess, setPayoutSuccess] = useState(false);
+
+  const handlePayNow = (row) => {
+    setCurrentPayout(row);
+    setShowPayoutModal(true);
+    setPayoutSuccess(false);
+  };
+  const handleProceedPayout = () => {
+    setPayoutSuccess(true);
+    // Optionally update payout status here!
+  };
+  const handlePayoutBack = () => {
+    setShowPayoutModal(false);
+    setCurrentPayout(null);
+    setPayoutSuccess(false);
+  };
+  const handlePayoutClose = () => {
+    setShowPayoutModal(false);
+    setCurrentPayout(null);
+    setPayoutSuccess(false);
+  };
   // ---- Render ----
   return (
     <div className="p-0">
@@ -558,6 +753,8 @@ export default function Marketplace() {
           ? selectedCustomerRows.length
           : activeTab === "Order Management"
           ? selectedOrderRows.length
+          : activeTab === "Farmer Payout"
+          ? selectedFarmerRows.length
           : 0) > 0 ? (
           <div className="flex items-center gap-2">
             <button
@@ -568,6 +765,8 @@ export default function Marketplace() {
                   ? () => setSelectedCustomerRows([])
                   : activeTab === "Order Management"
                   ? handleDeleteOrderRows
+                  : activeTab === "Farmer Payout"
+                  ? () => setSelectedFarmerRows([])
                   : undefined
               }
               className="flex items-center gap-2 border border-gray-200 rounded-2xl px-4 py-2 hover:bg-red-50"
@@ -582,6 +781,8 @@ export default function Marketplace() {
                   ? selectedCustomerRows.length
                   : activeTab === "Order Management"
                   ? selectedOrderRows.length
+                  : activeTab === "Farmer Payout"
+                  ? selectedFarmerRows.length
                   : 0}{" "}
                 Selected
               </span>
@@ -594,6 +795,8 @@ export default function Marketplace() {
                   ? setSelectedCustomerRows([])
                   : activeTab === "Order Management"
                   ? setSelectedOrderRows([])
+                  : activeTab === "Farmer Payout"
+                  ? setSelectedFarmerRows([])
                   : undefined
               }
               className="flex items-center gap-1 border border-gray-200 rounded-2xl px-4 py-2 hover:bg-gray-100"
@@ -611,6 +814,8 @@ export default function Marketplace() {
                 ? `Total Customers ${CUSTOMER_DATA.length}`
                 : activeTab === "Order Management"
                 ? `All Orders ${orderRows.length}`
+                : activeTab === "Farmer Payout"
+                ? `All Payouts ${FARMER_PAYOUT_ROWS.length}`
                 : ""}
             </span>
           </div>
@@ -636,7 +841,9 @@ export default function Marketplace() {
                   ? "Search Product"
                   : activeTab === "Customer Management"
                   ? "Search Customer"
-                  : "Search Order"
+                  : activeTab === "Order Management"
+                  ? "Search Order"
+                  : "Search Farmer"
               }
               value={searchQuery}
               onChange={e => setSearchQuery(e.target.value)}
@@ -710,7 +917,6 @@ export default function Marketplace() {
           )}
         </div>
       </div>
-
       {/* CATEGORY SUMMARY (Product Management only) */}
       {activeTab === "Product Management" && (
         <div className="px-6 pb-4">
@@ -814,6 +1020,50 @@ export default function Marketplace() {
         </div>
       )}
 
+      {/* FARMER PAYOUT STATUS CARDS (Farmer Payout only) */}
+      {activeTab === "Farmer Payout" && (
+        <div className="px-6 pb-4">
+          <div className="flex gap-4 overflow-x-auto">
+            {FARMER_PAYOUT_SUMMARY.map((item) => (
+              <div
+                key={item.name}
+                style={{
+                  position: "relative",
+                  border: `1.5px solid #858585`,
+                  borderRadius: "1.6rem",
+                  minWidth: "180px",
+                  height: "80px",
+                  padding: "0 1.5rem",
+                  display: "flex",
+                  flexDirection: "column",
+                  justifyContent: "center",
+                  backgroundColor: "#fff",
+                  flex: 1,
+                  overflow: "hidden",
+                }}
+              >
+                <div
+                  style={{
+                    position: "absolute",
+                    left: "0",
+                    top: "0",
+                    bottom: "0",
+                    width: "14px",
+                    backgroundColor: item.border,
+                    borderRadius: "1.6rem 0 0 1.6rem",
+                  }}
+                />
+                <span style={{ fontSize: "0.93rem", color: "#9CA3AF", fontWeight: 500, marginLeft: "12px" }}>
+                  {item.name}
+                </span>
+                <span style={{ fontSize: "2.1rem", fontWeight: 900, color: "#000", marginLeft: "12px" }}>
+                  {item.count}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
       {/* MAIN TABLE AREA */}
       <div className="px-6 pb-6">
         <div style={{ borderRadius: '1rem', overflow: 'hidden', minHeight: 420 }}>
@@ -824,6 +1074,8 @@ export default function Marketplace() {
               ? "Customer List"
               : activeTab === "Order Management"
               ? "Orders List"
+              : activeTab === "Farmer Payout"
+              ? "Farmer Payouts"
               : ""}
           </h2>
           {/* --- PRODUCT MANAGEMENT TABLE --- */}
@@ -1087,7 +1339,6 @@ export default function Marketplace() {
               </tbody>
             </table>
           )}
-
           {/* --- ORDER MANAGEMENT TABLE --- */}
           {activeTab === "Order Management" && (
             <table style={{ width: "100%", borderCollapse: "collapse" }}>
@@ -1224,12 +1475,18 @@ export default function Marketplace() {
                         </span>
                       </td>
                       <td style={{ padding: "0.75rem" }}>
-                        <div className="group flex items-center gap-2 cursor-pointer">
+                        <div
+                          className="group flex items-center gap-2 cursor-pointer"
+                          onClick={() => {
+                          setSelectedOrder(o);         // Pass the order object to modal
+                          setOrderManagementModalOpen(true); // Open modal
+                          }}
+                        >
                           <svg
                             xmlns="http://www.w3.org/2000/svg"
                             viewBox="0 0 24 24"
                             fill="none"
-                            stroke="#4CAE4F"     // green hex
+                            stroke="#4CAE4F"
                             strokeWidth={2}
                             strokeLinecap="round"
                             strokeLinejoin="round"
@@ -1252,6 +1509,151 @@ export default function Marketplace() {
               </tbody>
             </table>
           )}
+          {/* --- FARMER PAYOUT TABLE --- */}
+          {activeTab === "Farmer Payout" && (
+            <table style={{ width: "100%", borderCollapse: "collapse" }}>
+              <thead style={{ backgroundColor: "#F7F7FB" }}>
+                <tr style={{ color: "#4B5563", fontSize: "0.875rem", fontWeight: 600 }}>
+                  <th style={{ padding: "0.75rem" }}>
+                    <input
+                      type="checkbox"
+                      className="checkbox checkbox-sm rounded"
+                      checked={
+                        selectedFarmerRows.length === visibleFarmerRows.length &&
+                        visibleFarmerRows.length > 0
+                      }
+                      onChange={e =>
+                        setSelectedFarmerRows(
+                          e.target.checked
+                            ? visibleFarmerRows.map(row => row.id)
+                            : []
+                        )
+                      }
+                    />
+                  </th>
+                  <th style={{ padding: "0.75rem", textAlign: "left" }}>Farmer</th>
+                  <th style={{ padding: "0.75rem", textAlign: "left" }}>Product</th>
+                  <th style={{ padding: "0.75rem", textAlign: "left" }}>Status</th>
+                  <th style={{ padding: "0.75rem", textAlign: "left" }}>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                {visibleFarmerRows.map(row => {
+                  const isSelected = selectedFarmerRows.includes(row.id);
+                  const badge = FARMER_PAYOUT_BADGE_STYLES[row.status] || FARMER_PAYOUT_BADGE_STYLES.default;
+                  return (
+                    <tr
+                      key={row.id}
+                      style={{
+                        backgroundColor: isSelected ? "#F0FDFA" : "transparent",
+                        height: "56px"
+                      }}
+                    >
+                      <td style={{ padding: "0.75rem" }}>
+                        <input
+                          type="checkbox"
+                          className="checkbox checkbox-sm rounded"
+                          checked={isSelected}
+                          onChange={e => {
+                            if (e.target.checked) {
+                              setSelectedFarmerRows([...selectedFarmerRows, row.id]);
+                            } else {
+                              setSelectedFarmerRows(selectedFarmerRows.filter(id => id !== row.id));
+                            }
+                          }}
+                        />
+                      </td>
+                      <td style={{ padding: "0.75rem" }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
+                          <img
+                            src={row.farmer.avatar}
+                            alt={row.farmer.name}
+                            style={{ width: 32, height: 32, borderRadius: "50%" }}
+                          />
+                          <div>
+                            <div style={{ fontWeight: 600, color: "#111827" }}>{row.farmer.name}</div>
+                            <div style={{ fontSize: "0.83rem", color: "#6B7280" }}>
+                              {row.farmer.email}
+                            </div>
+                          </div>
+                        </div>
+                      </td>
+                      <td style={{ padding: "0.75rem" }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
+                          <img
+                            src={row.product.image}
+                            alt={row.product.name}
+                            style={{ width: 32, height: 32, borderRadius: "0.7rem", border: "1.5px solid #EFEFEF" }}
+                          />
+                          <div>
+                            <div style={{ fontWeight: 600, color: "#111827" }}>{row.product.name}</div>
+                            <div style={{ fontSize: "0.83rem", color: "#9CA3AF" }}>
+                              Variation: {row.product.variation}
+                            </div>
+                          </div>
+                        </div>
+                      </td>
+                      <td style={{ padding: "0.75rem" }}>
+                        <span
+                          style={{
+                            display: "inline-block",
+                            padding: "0.25rem 0.85rem",
+                            fontSize: "0.78rem",
+                            fontWeight: 500,
+                            borderRadius: "9999px",
+                            color: badge.color,
+                            backgroundColor: badge.background,
+                            border: `1px solid ${badge.border}`,
+                            minWidth: 80,
+                            textAlign: "center"
+                          }}
+                        >
+                          {row.status}
+                        </span>
+                      </td>
+                      <td style={{ padding: "0.75rem" }}>
+                        <button
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "0.35rem",
+                            backgroundColor: "#16A34A",
+                            borderRadius: "999px",
+                            color: "#fff",
+                            fontWeight: 600,
+                            fontSize: "1rem",
+                            border: "none",
+                            padding: "0.45rem 1.1rem",
+                            boxShadow: "0 2px 8px 0 rgba(36,185,111,0.08)",
+                            cursor: "pointer"
+                          }}
+                          onClick={() => handlePayNow(row)}
+                        >
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="22"
+                            height="22"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="#fff"
+                            strokeWidth="1.8"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            className="w-5 h-5"
+                          >
+                            <path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2" />
+                            <polyline points="23 11 12 2 1 11" />
+                            <rect x="1" y="11" width="22" height="11" rx="2" />
+                          </svg>
+                          Pay Now
+                        </button>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          )}
 
           {/* --- PAGINATION (Shared style) --- */}
           <div className="flex justify-center my-6">
@@ -1264,6 +1666,8 @@ export default function Marketplace() {
                     ? setCustomerPage(p => Math.max(1, p - 1))
                     : activeTab === "Order Management"
                     ? setOrderPage(p => Math.max(1, p - 1))
+                    : activeTab === "Farmer Payout"
+                    ? setFarmerPayoutPage(p => Math.max(1, p - 1))
                     : undefined
                 }
                 className="btn btn-sm"
@@ -1274,6 +1678,8 @@ export default function Marketplace() {
                     ? customerPage === 1
                     : activeTab === "Order Management"
                     ? orderPage === 1
+                    : activeTab === "Farmer Payout"
+                    ? farmerPayoutPage === 1
                     : true
                 }
               >«</button>
@@ -1284,6 +1690,8 @@ export default function Marketplace() {
                   ? [...Array(customerTotalPages)]
                   : activeTab === "Order Management"
                   ? [...Array(orderTotalPages)]
+                  : activeTab === "Farmer Payout"
+                  ? [...Array(farmerPayoutTotalPages)]
                   : [])
               ].map((_, i) => {
                 const page = i + 1;
@@ -1294,6 +1702,8 @@ export default function Marketplace() {
                     ? page === customerPage
                     : activeTab === "Order Management"
                     ? page === orderPage
+                    : activeTab === "Farmer Payout"
+                    ? page === farmerPayoutPage
                     : false;
                 return (
                   <button
@@ -1305,6 +1715,8 @@ export default function Marketplace() {
                         ? setCustomerPage(page)
                         : activeTab === "Order Management"
                         ? setOrderPage(page)
+                        : activeTab === "Farmer Payout"
+                        ? setFarmerPayoutPage(page)
                         : undefined
                     }
                     className={`btn btn-sm ${isCurrent ? 'bg-gray-300 text-black' : 'btn-ghost text-gray-600'}`}
@@ -1319,6 +1731,8 @@ export default function Marketplace() {
                     ? setCustomerPage(p => Math.min(customerTotalPages, p + 1))
                     : activeTab === "Order Management"
                     ? setOrderPage(p => Math.min(orderTotalPages, p + 1))
+                    : activeTab === "Farmer Payout"
+                    ? setFarmerPayoutPage(p => Math.min(farmerPayoutTotalPages, p + 1))
                     : undefined
                 }
                 className="btn btn-sm"
@@ -1329,6 +1743,8 @@ export default function Marketplace() {
                     ? customerPage === customerTotalPages
                     : activeTab === "Order Management"
                     ? orderPage === orderTotalPages
+                    : activeTab === "Farmer Payout"
+                    ? farmerPayoutPage === farmerPayoutTotalPages
                     : true
                 }
               >»</button>
@@ -1362,6 +1778,19 @@ export default function Marketplace() {
         onClose={() => setOrderHistoryOpen(false)}
         customerName={orderHistoryCustomer?.name || ""}
         orders={SAMPLE_ORDERS}
+      />
+      <OrderManagementModal
+        isOpen={orderManagementModalOpen}
+        onClose={() => setOrderManagementModalOpen(false)}
+        order={selectedOrder}
+      />
+      <PayoutModal
+        isOpen={showPayoutModal}
+        onClose={handlePayoutClose}
+        payout={currentPayout}
+        onProceed={handleProceedPayout}
+        onBack={handlePayoutBack}
+        isSuccess={payoutSuccess}
       />
     </div>
   );
