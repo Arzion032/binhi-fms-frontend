@@ -13,12 +13,15 @@ export default function EditDetailsModal({
   isOpen,
   onClose,
   product,
-  onConfirm
+  onConfirm,
+  mode = "details", // default is "details" per your screenshot
 }) {
   const [name, setName] = useState('');
   const [price, setPrice] = useState('');
   const [stock, setStock] = useState('');
   const [category, setCategory] = useState('');
+  const [variation, setVariation] = useState('');
+  const [avatar, setAvatar] = useState('');
   const [error, setError] = useState('');
   const [showDisregardModal, setShowDisregardModal] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
@@ -26,9 +29,11 @@ export default function EditDetailsModal({
   useEffect(() => {
     if (product && isOpen) {
       setName(product.name || '');
+      setVariation(product.variation || '');
+      setAvatar(product.avatar || '');
       setPrice(
         typeof product.price === 'number'
-          ? product.price.toLocaleString('en-PH')
+          ? product.price.toLocaleString('en-PH', { minimumFractionDigits: 2 })
           : product.price || ''
       );
       setStock(
@@ -53,7 +58,7 @@ export default function EditDetailsModal({
 
   function handleConfirm(e) {
     e.preventDefault();
-    if (!name.trim() || !price.trim() || !stock.trim() || !category.trim()) {
+    if (!price.trim() || !stock.trim() || !category.trim()) {
       setError('Please fill out all required fields.');
       return;
     }
@@ -61,7 +66,6 @@ export default function EditDetailsModal({
     if (onConfirm) {
       onConfirm({
         ...product,
-        name,
         price: Number(price.replace(/,/g, '')),
         stock: Number(stock),
         category
@@ -72,7 +76,7 @@ export default function EditDetailsModal({
 
   function handlePriceChange(e) {
     let val = e.target.value.replace(/[^\d]/g, '');
-    val = val ? parseInt(val, 10).toLocaleString('en-PH') : '';
+    val = val ? parseInt(val, 10).toLocaleString('en-PH', { minimumFractionDigits: 2 }) : '';
     setPrice(val);
   }
 
@@ -85,7 +89,7 @@ export default function EditDetailsModal({
 
   return (
     <div className="fixed z-50 inset-0 flex items-center justify-center bg-black bg-opacity-30">
-      {/* Main Edit Modal */}
+      {/* Main Modal */}
       <form
         className="relative bg-white w-full max-w-xl mx-auto rounded-[2.2rem] shadow-xl p-10 pt-9"
         style={{
@@ -107,27 +111,32 @@ export default function EditDetailsModal({
           </svg>
         </button>
         {/* Title and subtitle */}
-        <h2 className="text-2xl font-bold leading-tight mb-0">Edit Product</h2>
+        <h2 className="text-2xl font-bold leading-tight mb-0">
+          Product Details
+        </h2>
         <p className="text-base text-gray-600 mb-4">
-          Please edit the product.
+          Here’s the details of the product.
         </p>
         <hr className="mb-6 mt-1" />
 
+        {/* Image, Product Name, and Variation */}
+        <div className="flex items-center gap-4 mb-7">
+          <img
+            src={avatar || '/Screenshot_195.png'}
+            alt={name}
+            className="rounded-full"
+            style={{ width: 65, height: 65, objectFit: "cover" }}
+          />
+          <div>
+            <div className="text-[1.3rem] font-bold text-[#222A35] leading-tight">{name}</div>
+            {variation && (
+              <div className="text-[1rem] text-gray-600" style={{marginTop:2}}>Variation: {variation}</div>
+            )}
+          </div>
+        </div>
+
         {/* Fields */}
         <div className="space-y-5">
-          <div>
-            <label className="font-semibold text-base mb-1 block">
-              Product Name <span style={{ color: '#EF4444' }}>*</span>
-            </label>
-            <input
-              className="w-full px-6 py-3 rounded-2xl border border-[#D1D5DB] focus:border-[#16A34A] focus:ring-2 focus:ring-[#16A34A] text-base"
-              value={name}
-              onChange={e => setName(e.target.value)}
-              placeholder="Product Name"
-              required
-              style={{ color: '#222A35' }}
-            />
-          </div>
           <div>
             <label className="font-semibold text-base mb-1 block">
               Price <span style={{ color: '#EF4444' }}>*</span>
@@ -141,13 +150,36 @@ export default function EditDetailsModal({
                 placeholder="0"
                 required
                 inputMode="numeric"
-                style={{ color: '#222A35' }}
+                style={{
+                  color: '#222A35',
+                  background: "#fff",
+                }}
               />
             </div>
           </div>
           <div>
             <label className="font-semibold text-base mb-1 block">
-              Stocks <span style={{ color: '#EF4444' }}>*</span>
+              Category <span style={{ color: '#EF4444' }}>*</span>
+            </label>
+            <select
+              className="block w-full rounded-2xl border border-[#D1D5DB] px-6 py-3 text-base focus:border-[#16A34A] focus:outline-none"
+              value={category}
+              onChange={e => setCategory(e.target.value)}
+              required
+              style={{
+                color: category ? '#222A35' : '#888',
+                background: "#fff"
+              }}
+            >
+              <option value="">Please select a category</option>
+              {categories.map(cat => (
+                <option value={cat} key={cat}>{cat}</option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label className="font-semibold text-base mb-1 block">
+              Stock <span style={{ color: '#EF4444' }}>*</span>
             </label>
             <input
               className="w-full px-6 py-3 rounded-2xl border border-[#D1D5DB] focus:border-[#16A34A] focus:ring-2 focus:ring-[#16A34A] text-base"
@@ -156,32 +188,18 @@ export default function EditDetailsModal({
               placeholder="0"
               required
               inputMode="numeric"
-              style={{ color: '#222A35' }}
+              style={{
+                color: '#222A35',
+                background: "#fff",
+              }}
             />
-          </div>
-          <div>
-            <label className="font-semibold text-base mb-1 block">
-              Category
-            </label>
-            <select
-              className="block w-full rounded-2xl border border-[#D1D5DB] px-6 py-3 text-base focus:border-[#16A34A] focus:outline-none"
-              value={category}
-              onChange={e => setCategory(e.target.value)}
-              required
-              style={{ color: category ? '#222A35' : '#888', background: '#fff' }}
-            >
-              <option value="">Please select a category</option>
-              {categories.map(cat => (
-                <option value={cat} key={cat}>{cat}</option>
-              ))}
-            </select>
           </div>
           {error && (
             <div className="text-red-500 text-base">{error}</div>
           )}
         </div>
 
-        {/* Footer buttons */}
+        {/* Footer buttons - always show */}
         <div className="flex justify-between gap-4 mt-12">
           <button
             type="button"
@@ -196,7 +214,7 @@ export default function EditDetailsModal({
             className="flex-1 bg-[#16A34A] text-white font-semibold rounded-full py-4 text-lg transition hover:bg-[#15803D] focus:outline-none focus:ring-2 focus:ring-[#15803D]"
             style={{ fontSize: "1.15rem" }}
           >
-            Confirm
+            Approve
           </button>
         </div>
       </form>

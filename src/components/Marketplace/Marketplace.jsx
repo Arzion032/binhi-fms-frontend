@@ -292,6 +292,7 @@ const INITIAL_PRODUCTS = [
     status: 'Approved'
   }
 ];
+
 export default function Marketplace() {
   // Tab and indicator state
   const tabs = [
@@ -362,6 +363,7 @@ export default function Marketplace() {
     customerPage * customersPerPage
   );
   useEffect(() => { setCustomerPage(1); }, [searchQuery]);
+
   // Order history modal
   const [orderHistoryOpen, setOrderHistoryOpen] = useState(false);
   const [orderHistoryCustomer, setOrderHistoryCustomer] = useState(null);
@@ -369,9 +371,27 @@ export default function Marketplace() {
   // Add/Edit modals
   const [showAddCategory, setShowAddCategory] = useState(false);
   const [categoryModalMode, setCategoryModalMode] = useState('add');
+
   const [showEditModal, setShowEditModal] = useState(false);
   const [editProduct, setEditProduct] = useState(null);
-  const closeEditModal = () => { setShowEditModal(false); setEditProduct(null); };
+  const [editModalMode, setEditModalMode] = useState('edit'); // NEW
+
+  const closeEditModal = () => {
+    setShowEditModal(false);
+    setEditProduct(null);
+  };
+
+  // Handlers for Details/Edit
+  const handleDetails = (product) => {
+    setEditProduct(product);
+    setEditModalMode('details');
+    setShowEditModal(true);
+  };
+  const handleEdit = (product) => {
+    setEditProduct(product);
+    setEditModalMode('edit');
+    setShowEditModal(true);
+  };
 
   // ---- Render ----
   return (
@@ -475,42 +495,92 @@ export default function Marketplace() {
             </span>
           </div>
         )}
-        {/* RIGHT: Search and filter */}
-        <div className="relative" style={{ width: '240px' }}>
-          <Search
-            size={18}
-            style={{
-              position: 'absolute',
-              left: '0.75rem',
-              top: '50%',
-              transform: 'translateY(-50%)',
-              color: '#6B7280'
-            }}
-          />
-          <input
-            type="text"
-            placeholder={activeTab === "Product Management" ? "Search Product" : "Search Customer"}
-            value={searchQuery}
-            onChange={e => setSearchQuery(e.target.value)}
-            style={{
-              width: '100%',
-              padding: '0.5rem 2.5rem 0.5rem 2.5rem',
-              border: '1px solid #D1D5DB',
-              borderRadius: '9999px',
-              outline: 'none'
-            }}
-          />
-          <SlidersHorizontal
-            size={18}
-            onClick={() => setShowFilters(f => !f)}
-            style={{
-              position: 'absolute',
-              right: '0.75rem',
-              top: '50%',
-              transform: 'translateY(-50%)',
-              color: '#6B7280'
-            }}
-          />
+        {/* RIGHT: Search, filter, add/manage categories */}
+        <div className="flex items-center gap-4">
+          <div className="relative" style={{ width: '240px' }}>
+            <Search
+              size={18}
+              style={{
+                position: 'absolute',
+                left: '0.75rem',
+                top: '50%',
+                transform: 'translateY(-50%)',
+                color: '#6B7280'
+              }}
+            />
+            <input
+              type="text"
+              placeholder={activeTab === "Product Management" ? "Search Product" : "Search Customer"}
+              value={searchQuery}
+              onChange={e => setSearchQuery(e.target.value)}
+              style={{
+                width: '100%',
+                padding: '0.5rem 2.5rem 0.5rem 2.5rem',
+                border: '1px solid #D1D5DB',
+                borderRadius: '9999px',
+                outline: 'none'
+              }}
+            />
+            <SlidersHorizontal
+              size={18}
+              onClick={() => setShowFilters(f => !f)}
+              style={{
+                position: 'absolute',
+                right: '0.75rem',
+                top: '50%',
+                transform: 'translateY(-50%)',
+                color: '#6B7280'
+              }}
+            />
+          </div>
+          {activeTab === "Product Management" && (
+            <>
+              <button
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.5rem',
+                  padding: '0.5rem 1.2rem',
+                  backgroundColor: '#16A34A',
+                  color: '#fff',
+                  border: 'none',
+                  borderRadius: '9999px',
+                  fontWeight: 600,
+                  fontSize: '1rem',
+                  cursor: 'pointer',
+                  boxShadow: '0 2px 8px 0 rgba(36,185,111,0.05)'
+                }}
+                onClick={() => {
+                  setCategoryModalMode('add');
+                  setShowAddCategory(true);
+                }}
+              >
+                <Plus size={18} /> Add Category
+              </button>
+              <button
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.5rem',
+                  padding: '0.5rem 1.2rem',
+                  backgroundColor: '#fff',
+                  color: '#16A34A',
+                  border: '1.5px solid #16A34A',
+                  borderRadius: '9999px',
+                  fontWeight: 600,
+                  fontSize: '1rem',
+                  cursor: 'pointer',
+                  boxShadow: '0 2px 8px 0 rgba(36,185,111,0.05)'
+                }}
+                onClick={() => {
+                  setCategoryModalMode('manage');
+                  setShowAddCategory(true);
+                }}
+              >
+                <BookOpen size={18} /> Manage Categories
+              </button>
+            </>
+          )}
         </div>
       </div>
       {/* CATEGORY SUMMARY (Product Management only) */}
@@ -688,7 +758,7 @@ export default function Marketplace() {
                       >
                         <div className="group flex items-center gap-4">
                           {p.status === 'Pending' ? (
-                            <div className="relative flex items-center" style={{ cursor: 'pointer' }} onClick={() => { setEditProduct(p); setShowEditModal(true); }}>
+                            <div className="relative flex items-center" style={{ cursor: 'pointer' }} onClick={() => handleDetails(p)}>
                               <Copy
                                 size={20}
                                 stroke="#16A34A"
@@ -702,12 +772,12 @@ export default function Marketplace() {
                               </span>
                             </div>
                           ) : (
-                            <div className="relative flex items-center">
+                            <div className="relative flex items-center" style={{ cursor: 'pointer' }}>
                               <Pencil
                                 size={20}
                                 stroke="#3B82F6"
                                 className="cursor-pointer transition-transform duration-200 group-hover:-translate-x-1"
-                                onClick={() => { setEditProduct(p); setShowEditModal(true); }}
+                                onClick={() => handleEdit(p)}
                               />
                               <span
                                 className="absolute left-7 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 text-[#3B82F6] text-sm font-medium transition-opacity duration-200 whitespace-nowrap"
@@ -730,6 +800,7 @@ export default function Marketplace() {
               </tbody>
             </table>
           )}
+
           {/* --- CUSTOMER MANAGEMENT TABLE --- */}
           {activeTab === "Customer Management" && (
             <table style={{ width: '100%', borderCollapse: 'collapse' }}>
@@ -887,6 +958,7 @@ export default function Marketplace() {
             )
           );
         }}
+        mode={editModalMode} // Passes "details" or "edit"
       />
       <OrderHistoryModal
         isOpen={orderHistoryOpen}
