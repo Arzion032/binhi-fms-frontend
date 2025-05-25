@@ -92,9 +92,8 @@ export default function OrderHistoryModal({ isOpen, onClose, customerName, order
                         className="flex items-center gap-1 px-3 py-[0.18rem] text-[.95rem] border border-[#23b46c] bg-[#F3FFF7] text-[#24B96F] font-semibold rounded-lg hover:bg-[#e7f8ef] transition ml-3"
                         style={{ fontWeight: 600, height: "28px" }}
                       >
-                        <svg width="18" height="18" fill="none" viewBox="0 0 20 20">
-                          <rect width="20" height="20" rx="5" fill="#E4FAEF" />
-                          <path d="M5.833 10.416c.19 1.688 1.685 2.918 3.5 2.918 1.987 0 3.5-1.403 3.5-3.334v-1.25C12.833 7.818 11.32 6.416 9.333 6.416c-1.815 0-3.31 1.23-3.5 2.918a.416.416 0 00-.333.408v.208c0 .23.186.416.417.416zm3.5-5.833a2.084 2.084 0 012.084 2.084H7.25A2.083 2.083 0 019.333 4.583z" fill="#24B96F" />
+                        <svg width="18" height="18" viewBox="0 0 20 20" fill="none">
+                          <path d="M2.05 6.73L3.41 4.09A2 2 0 0 1 5.16 3h9.68a2 2 0 0 1 1.75 1.09l1.36 2.64a1 1 0 0 1-.23 1.22A4.38 4.38 0 0 1 16 8.5a4 4 0 0 1-6 0 4 4 0 0 1-6 0 4.37 4.37 0 0 1-1.41-1.05 1 1 0 0 1-.24-1.22zM3 9.5v5.5A2 2 0 0 0 5 17h10a2 2 0 0 0 2-2V9.5M8 17V13a2 2 0 1 1 4 0v4" stroke="#24B96F" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
                         </svg>
                         View Shop
                       </button>

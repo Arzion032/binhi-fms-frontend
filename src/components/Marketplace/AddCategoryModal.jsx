@@ -7,39 +7,60 @@ export default function AddCategoryModal({ isOpen, mode = 'add', onClose, onSwit
   const [iconUrl, setIconUrl] = useState(null);
   const [showDisregardModal, setShowDisregardModal] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
+
   const fileInputRef = useRef(null);
 
-  if (!isOpen) return null;
-
-  const handleIconClick = () => {
-    fileInputRef.current.click();
-  };
-
-  const handleIconChange = (e) => {
-    const file = e.target.files[0];
-    if (file && file.type.startsWith('image/')) {
-      setIconFile(file);
-      setIconUrl(URL.createObjectURL(file));
-    }
-  };
-
-  // Dummy categories for Manage Categories Modal
-  const categories = [
+  // Manage categories state
+  const [categories, setCategories] = useState([
     { name: 'Vegetable', products: 28, icon: '/Screenshot_195.png', bg: '#E9F7EC' },
     { name: 'Root Crops', products: 28, icon: '/Screenshot_195.png', bg: '#FDF3E7' },
     { name: 'Milks & Dairy', products: 28, icon: '/Screenshot_195.png', bg: '#E7EFFA' },
     { name: 'Meats', products: 28, icon: '/Screenshot_195.png', bg: '#FDE7EB' },
     { name: 'Fruits', products: 28, icon: '/Screenshot_195.png', bg: '#F2E7FA' },
     { name: 'Grains', products: 28, icon: '/Screenshot_195.png', bg: '#F9F5E3' },
-    // Add more if needed
-  ];
+  ]);
+  const [editIndex, setEditIndex] = useState(null);
+  const [editIcon, setEditIcon] = useState(null);
+  const [editIconUrl, setEditIconUrl] = useState('');
+  const [editName, setEditName] = useState('');
+  const editFileInputRef = useRef(null);
 
-  // AVATAR_SIZE controls the main icon circle size
-  const AVATAR_SIZE = 96;
-  const PEN_SIZE = 32;
+  const AVATAR_SIZE = 56;
 
-  // Validation
-  const canConfirm = !!categoryName.trim() && !!description.trim();
+  // Tooltip state for info icon
+  const [infoHoverIndex, setInfoHoverIndex] = useState(null);
+
+  if (!isOpen) return null;
+
+  const handleEditClick = (idx) => {
+    setEditIndex(idx);
+    setEditName(categories[idx].name);
+    setEditIcon(null);
+    setEditIconUrl(categories[idx].icon);
+  };
+
+  const handleEditIconChange = (e) => {
+    const file = e.target.files[0];
+    if (file && file.type.startsWith('image/')) {
+      setEditIcon(file);
+      setEditIconUrl(URL.createObjectURL(file));
+    }
+  };
+
+  const handleEditSave = () => {
+    if (!editName.trim()) return;
+    const newCategories = [...categories];
+    newCategories[editIndex] = {
+      ...newCategories[editIndex],
+      name: editName,
+      icon: editIconUrl,
+    };
+    setCategories(newCategories);
+    setEditIndex(null);
+    setEditIcon(null);
+    setEditIconUrl('');
+    setEditName('');
+  };
 
   // --- Manage Categories Modal Layout ---
   if (mode === 'manage') {
@@ -94,8 +115,7 @@ export default function AddCategoryModal({ isOpen, mode = 'add', onClose, onSwit
               + Add Category
             </button>
           </div>
-
-          {/* Category List (scrollable, taller) */}
+          {/* Category List (inline edit for active) */}
           <div
             className="flex flex-col gap-4 mb-7"
             style={{
@@ -107,24 +127,176 @@ export default function AddCategoryModal({ isOpen, mode = 'add', onClose, onSwit
             {categories.map((cat, idx) => (
               <div
                 key={cat.name}
-                className="flex items-center bg-white border border-gray-400 rounded-2xl px-5 py-4 shadow-sm"
+                className="flex items-center bg-white border border-gray-400 rounded-2xl px-5 py-4 shadow-sm relative group"
+                style={{ transition: "box-shadow 0.2s" }}
               >
-                <div
-                  className="flex items-center justify-center rounded-full mr-5 overflow-hidden"
-                  style={{
-                    background: cat.bg,
-                    width: 56,
-                    height: 56,
-                  }}
-                >
-                  <img src={cat.icon} alt={cat.name} className="w-full h-full object-cover" />
-                </div>
-                <div>
-                  <div className="font-bold text-lg" style={{ color: "#212121" }}>
-                    {cat.name}
-                  </div>
-                  <div className="text-sm text-gray-600">{cat.products} Products</div>
-                </div>
+                {/* Inline edit mode */}
+                {editIndex === idx ? (
+                  <>
+                    {/* Category Icon with gray overlay and pencil center */}
+                    <div
+                      className="flex items-center justify-center rounded-full mr-5 overflow-hidden relative cursor-pointer group"
+                      style={{
+                        background: cat.bg,
+                        width: AVATAR_SIZE,
+                        height: AVATAR_SIZE,
+                      }}
+                      onClick={() => editFileInputRef.current.click()}
+                    >
+                      <img
+                        src={editIconUrl}
+                        alt="Category"
+                        className="w-full h-full object-cover"
+                        style={{
+                          filter: 'grayscale(1) brightness(1)',
+                          opacity: 0.6,
+                        }}
+                      />
+                      {/* Gray overlay */}
+                      <div
+                        style={{
+                          position: 'absolute',
+                          top: 0,
+                          left: 0,
+                          width: '100%',
+                          height: '100%',
+                          background: 'rgba(245,245,245,0.7)',
+                        }}
+                      />
+                      {/* Centered Pencil Icon */}
+                      <span
+                        style={{
+                          position: 'absolute',
+                          top: '50%',
+                          left: '50%',
+                          transform: 'translate(-50%, -50%)',
+                          pointerEvents: 'none',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                        }}
+                      >
+                        <svg width="30" height="30" fill="none" stroke="#818181" strokeWidth={2.2} viewBox="0 0 24 24">
+                          <path d="M15.232 5.232l3.536 3.536M9 13l6.192-6.192a2 2 0 1 1 2.828 2.828L11.828 15.828A4 4 0 0 1 9 17H5v-4a4 4 0 0 1 1.172-2.828l8.06-8.06z"/>
+                        </svg>
+                      </span>
+                      <input
+                        ref={editFileInputRef}
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={handleEditIconChange}
+                      />
+                    </div>
+                    {/* Name, editable */}
+                    <div className="flex-1">
+                      <input
+                        className="font-bold text-lg outline-none bg-transparent border-b border-gray-300 w-full"
+                        style={{ color: "#212121" }}
+                        value={editName}
+                        onChange={e => setEditName(e.target.value)}
+                        maxLength={32}
+                      />
+                      <div className="text-sm text-gray-600 flex items-center">
+                        {cat.products} Products
+                        {/* Info icon & tooltip not shown in edit mode */}
+                      </div>
+                    </div>
+                    {/* Check icon for confirm (right) */}
+                    <button
+                      className="ml-2 rounded-full p-2 flex items-center justify-center"
+                      style={{ width: 36, height: 36 }}
+                      onClick={handleEditSave}
+                      disabled={!editName.trim()}
+                      title="Save"
+                    >
+                      {/* SVG from https://www.svgrepo.com/svg/460726/check-mark-circle with fill #43B864 */}
+                      <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="#43B864">
+                        <path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm-1.001 15L6.5 12.5l1.415-1.414 3.084 3.083 5.086-5.086L17.5 10.5l-6.501 6.5z" />
+                      </svg>
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    {/* Category Icon */}
+                    <div
+                      className="flex items-center justify-center rounded-full mr-5 overflow-hidden"
+                      style={{
+                        background: cat.bg,
+                        width: AVATAR_SIZE,
+                        height: AVATAR_SIZE,
+                      }}
+                    >
+                      <img src={cat.icon} alt={cat.name} className="w-full h-full object-cover" />
+                    </div>
+                    {/* Category Info */}
+                    <div className="flex-1 flex flex-col">
+                      <div className="font-bold text-lg flex items-center" style={{ color: "#212121" }}>
+                        {cat.name}
+                      </div>
+                      <div className="text-sm text-gray-600 flex items-center relative">
+                        {cat.products} Products
+                        {/* Info icon, only on card hover */}
+                        <span
+                          className="ml-1 flex items-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
+                          onMouseEnter={() => setInfoHoverIndex(idx)}
+                          onMouseLeave={() => setInfoHoverIndex(null)}
+                          style={{ position: 'relative' }}
+                        >
+                          {/* Info SVG from https://www.svgrepo.com/svg/59321/information-icon */}
+                          <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                            <circle cx="12" cy="12" r="10" stroke="#1e88e5" strokeWidth="2" fill="#e3f0fc"/>
+                            <rect x="11" y="10" width="2" height="6" rx="1" fill="#1e88e5"/>
+                            <rect x="11" y="7" width="2" height="2" rx="1" fill="#1e88e5"/>
+                          </svg>
+                          {/* Tooltip */}
+                          {infoHoverIndex === idx && (
+                            <span
+                              style={{
+                                position: 'absolute',
+                                top: '120%',
+                                left: '50%',
+                                transform: 'translateX(-50%)',
+                                background: '#222',
+                                color: '#fff',
+                                padding: '5px 14px',
+                                borderRadius: 8,
+                                fontSize: 13,
+                                whiteSpace: 'nowrap',
+                                zIndex: 100,
+                                boxShadow: '0 2px 8px rgba(0,0,0,0.15)'
+                              }}
+                            >
+                              Number of products under this category
+                            </span>
+                          )}
+                        </span>
+                      </div>
+                    </div>
+                    {/* Right-side hover icons */}
+                    <div className="absolute right-6 top-1/2 -translate-y-1/2 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                      {/* Edit */}
+                      <button
+                        className="p-2 rounded-full transition"
+                        title="Edit Category"
+                        onClick={() => handleEditClick(idx)}
+                      >
+                        <svg width="22" height="22" fill="none" stroke="#2563eb" strokeWidth={2.3} viewBox="0 0 24 24">
+                          <path d="M15.232 5.232l3.536 3.536M9 13l6.192-6.192a2 2 0 1 1 2.828 2.828L11.828 15.828A4 4 0 0 1 9 17H5v-4a4 4 0 0 1 1.172-2.828l8.06-8.06z"/>
+                        </svg>
+                      </button>
+                      {/* Delete */}
+                      <button
+                        className="p-2 rounded-full transition"
+                        title="Delete Category"
+                      >
+                        <svg width="22" height="22" fill="none" stroke="#ef4444" strokeWidth={2.3} viewBox="0 0 24 24">
+                          <path d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                      </button>
+                    </div>
+                  </>
+                )}
               </div>
             ))}
           </div>
@@ -165,7 +337,6 @@ export default function AddCategoryModal({ isOpen, mode = 'add', onClose, onSwit
           {showDisregardModal && (
             <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-30">
               <div className="bg-white rounded-2xl shadow-xl relative p-8 w-full max-w-md text-center">
-                {/* Close Button */}
                 <button
                   onClick={() => setShowDisregardModal(false)}
                   className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 text-xl"
@@ -173,8 +344,6 @@ export default function AddCategoryModal({ isOpen, mode = 'add', onClose, onSwit
                 >
                   &times;
                 </button>
-
-                {/* ! Warning Icon */}
                 <div className="flex justify-center mb-6">
                   <div className="bg-[#FF4B4B] rounded-full p-6 mb-6 flex items-center justify-center shadow-md">
                     <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="#FFFFFF">
@@ -229,7 +398,7 @@ export default function AddCategoryModal({ isOpen, mode = 'add', onClose, onSwit
     );
   }
 
-  // --- Main Add Category Modal Layout ---
+  // --- Main Add Category Modal Layout (untouched) ---
   return (
     <div className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50">
       {/* Main Add Category Modal */}
@@ -256,18 +425,18 @@ export default function AddCategoryModal({ isOpen, mode = 'add', onClose, onSwit
         <div className="flex items-center mb-7 mt-1">
           <div
             className="flex-shrink-0 flex flex-col items-center"
-            style={{ position: 'relative', width: AVATAR_SIZE, height: AVATAR_SIZE }}
+            style={{ position: 'relative', width: 96, height: 96 }}
           >
             {/* Avatar Circle */}
             <div
               className="bg-[#dbdbdb] rounded-full flex flex-col items-center justify-center cursor-pointer overflow-hidden group"
               style={{
-                width: AVATAR_SIZE,
-                height: AVATAR_SIZE,
+                width: 96,
+                height: 96,
                 position: "relative",
                 zIndex: 1,
               }}
-              onClick={handleIconClick}
+              onClick={() => fileInputRef.current.click()}
               title="Upload Icon"
             >
               {iconUrl ? (
@@ -300,7 +469,13 @@ export default function AddCategoryModal({ isOpen, mode = 'add', onClose, onSwit
                 type="file"
                 accept="image/*"
                 className="hidden"
-                onChange={handleIconChange}
+                onChange={e => {
+                  const file = e.target.files[0];
+                  if (file && file.type.startsWith('image/')) {
+                    setIconFile(file);
+                    setIconUrl(URL.createObjectURL(file));
+                  }
+                }}
               />
             </div>
             {/* Overlapping Pen Icon (bottom right, inside the circle) */}
@@ -313,15 +488,15 @@ export default function AddCategoryModal({ isOpen, mode = 'add', onClose, onSwit
                 borderRadius: '50%',
                 border: '2px solid #e5e5e5',
                 boxShadow: '0 2px 8px rgba(0,0,0,0.10)',
-                width: `${PEN_SIZE}px`,
-                height: `${PEN_SIZE}px`,
+                width: `32px`,
+                height: `32px`,
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
                 cursor: 'pointer',
                 zIndex: 2,
               }}
-              onClick={e => { e.stopPropagation(); handleIconClick(); }}
+              onClick={e => { e.stopPropagation(); fileInputRef.current.click(); }}
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -393,19 +568,19 @@ export default function AddCategoryModal({ isOpen, mode = 'add', onClose, onSwit
           </button>
           <button
             onClick={() => {
-              if (canConfirm) {
+              if (categoryName.trim() && description.trim()) {
                 setShowSuccessModal(true);
               }
             }}
-            disabled={!canConfirm}
+            disabled={!(categoryName.trim() && description.trim())}
             style={{
-              backgroundColor: canConfirm ? '#43B864' : '#C8E6CB',
+              backgroundColor: categoryName.trim() && description.trim() ? '#43B864' : '#C8E6CB',
               color: '#FFFFFF',
               borderRadius: '2rem',
               fontSize: '1.2rem',
               fontWeight: 600,
               width: '47%',
-              cursor: canConfirm ? "pointer" : "not-allowed",
+              cursor: categoryName.trim() && description.trim() ? "pointer" : "not-allowed",
             }}
             className="py-4 transition"
           >
@@ -426,7 +601,6 @@ export default function AddCategoryModal({ isOpen, mode = 'add', onClose, onSwit
             >
               &times;
             </button>
-
             {/* ! Warning Icon */}
             <div className="flex justify-center mb-6">
               <div className="bg-[#FF4B4B] rounded-full p-6 mb-6 flex items-center justify-center shadow-md">
