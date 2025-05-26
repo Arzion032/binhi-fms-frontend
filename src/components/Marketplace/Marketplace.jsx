@@ -631,9 +631,9 @@ export default function Marketplace() {
 
   // Handlers for Details/Edit
   const handleDetails = (product) => {
-    setEditProduct(product);
-    setEditModalMode('details');
-    setShowEditModal(true);
+  setEditProduct(product);
+  setEditModalMode('details');
+  setShowEditModal(true);
   };
   const handleEdit = (product) => {
     setEditProduct(product);
@@ -1771,7 +1771,7 @@ export default function Marketplace() {
             )
           );
         }}
-        mode={editModalMode} // Passes "details" or "edit"
+        mode={editModalMode} // "edit" or "details"
       />
       <OrderHistoryModal
         isOpen={orderHistoryOpen}

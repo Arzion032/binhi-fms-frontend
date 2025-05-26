@@ -14,7 +14,7 @@ export default function EditDetailsModal({
   onClose,
   product,
   onConfirm,
-  mode = "details", // default is "details" per your screenshot
+  mode = "details", // "details" for preview, "edit" for edit
 }) {
   const [name, setName] = useState('');
   const [price, setPrice] = useState('');
@@ -26,6 +26,16 @@ export default function EditDetailsModal({
   const [showDisregardModal, setShowDisregardModal] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
 
+  // Fix money formatting by storing the raw value and formatting on display
+  function formatPeso(value) {
+    // Accept empty string
+    if (!value) return "";
+    // Accept "0", "1234", "1,234.50" etc
+    let num = Number(String(value).replace(/,/g, ''));
+    if (isNaN(num)) return "";
+    return num.toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+
   useEffect(() => {
     if (product && isOpen) {
       setName(product.name || '');
@@ -33,8 +43,8 @@ export default function EditDetailsModal({
       setAvatar(product.avatar || '');
       setPrice(
         typeof product.price === 'number'
-          ? product.price.toLocaleString('en-PH', { minimumFractionDigits: 2 })
-          : product.price || ''
+          ? formatPeso(product.price)
+          : formatPeso(product.price)
       );
       setStock(
         typeof product.stock === 'number'
@@ -58,15 +68,16 @@ export default function EditDetailsModal({
 
   function handleConfirm(e) {
     e.preventDefault();
+    // For both modes: allow Approve, but only update data in edit mode
     if (!price.trim() || !stock.trim() || !category.trim()) {
       setError('Please fill out all required fields.');
       return;
     }
     setError('');
-    if (onConfirm) {
+    if (mode === "edit" && onConfirm) {
       onConfirm({
         ...product,
-        price: Number(price.replace(/,/g, '')),
+        price: Number(String(price).replace(/,/g, '')),
         stock: Number(stock),
         category
       });
@@ -75,9 +86,21 @@ export default function EditDetailsModal({
   }
 
   function handlePriceChange(e) {
-    let val = e.target.value.replace(/[^\d]/g, '');
-    val = val ? parseInt(val, 10).toLocaleString('en-PH', { minimumFractionDigits: 2 }) : '';
-    setPrice(val);
+    let val = e.target.value.replace(/[^\d.]/g, ''); // accept numbers and dots only
+    if (val.split('.').length > 2) val = val.replace(/\.+$/, ''); // remove trailing dots if more than one
+    // Only allow 2 decimal places max
+    if (val.includes('.')) {
+      const [intPart, decPart] = val.split('.');
+      val = intPart + '.' + decPart.slice(0,2);
+    }
+    // Format with commas on display, but keep decimals
+    let formatted = '';
+    if (val) {
+      let [intPart, decPart] = val.split('.');
+      intPart = intPart ? String(Number(intPart)).replace(/\B(?=(\d{3})+(?!\d))/g, ",") : '';
+      formatted = decPart !== undefined ? `${intPart}.${decPart}` : intPart;
+    }
+    setPrice(formatted);
   }
 
   function handleStockChange(e) {
@@ -87,6 +110,7 @@ export default function EditDetailsModal({
 
   if (!isOpen) return null;
 
+  const isDetails = mode === 'details';
   return (
     <div className="fixed z-50 inset-0 flex items-center justify-center bg-black bg-opacity-30">
       {/* Main Modal */}
@@ -112,10 +136,10 @@ export default function EditDetailsModal({
         </button>
         {/* Title and subtitle */}
         <h2 className="text-2xl font-bold leading-tight mb-0">
-          Product Details
+          {isDetails ? "Product Preview" : "Edit Product Details"}
         </h2>
         <p className="text-base text-gray-600 mb-4">
-          Here’s the details of the product.
+          {isDetails ? "Here’s the details of the product." : "Update the product information below."}
         </p>
         <hr className="mb-6 mt-1" />
 
@@ -130,7 +154,7 @@ export default function EditDetailsModal({
           <div>
             <div className="text-[1.3rem] font-bold text-[#222A35] leading-tight">{name}</div>
             {variation && (
-              <div className="text-[1rem] text-gray-600" style={{marginTop:2}}>Variation: {variation}</div>
+              <div className="text-[1rem] text-gray-600" style={{ marginTop: 2 }}>Variation: {variation}</div>
             )}
           </div>
         </div>
@@ -146,14 +170,17 @@ export default function EditDetailsModal({
               <input
                 className="w-full pl-12 pr-4 py-3 rounded-2xl border border-[#D1D5DB] focus:border-[#16A34A] focus:ring-2 focus:ring-[#16A34A] text-base"
                 value={price}
-                onChange={handlePriceChange}
-                placeholder="0"
+                onChange={isDetails ? undefined : handlePriceChange}
+                placeholder="0.00"
                 required
-                inputMode="numeric"
+                inputMode="decimal"
                 style={{
                   color: '#222A35',
-                  background: "#fff",
+                  background: isDetails ? "#f3f4f6" : "#fff",
+                  pointerEvents: isDetails ? "none" : "auto"
                 }}
+                readOnly={isDetails}
+                disabled={isDetails}
               />
             </div>
           </div>
@@ -164,12 +191,14 @@ export default function EditDetailsModal({
             <select
               className="block w-full rounded-2xl border border-[#D1D5DB] px-6 py-3 text-base focus:border-[#16A34A] focus:outline-none"
               value={category}
-              onChange={e => setCategory(e.target.value)}
+              onChange={isDetails ? undefined : e => setCategory(e.target.value)}
               required
               style={{
                 color: category ? '#222A35' : '#888',
-                background: "#fff"
+                background: isDetails ? "#f3f4f6" : "#fff",
+                pointerEvents: isDetails ? "none" : "auto"
               }}
+              disabled={isDetails}
             >
               <option value="">Please select a category</option>
               {categories.map(cat => (
@@ -184,14 +213,17 @@ export default function EditDetailsModal({
             <input
               className="w-full px-6 py-3 rounded-2xl border border-[#D1D5DB] focus:border-[#16A34A] focus:ring-2 focus:ring-[#16A34A] text-base"
               value={stock}
-              onChange={handleStockChange}
+              onChange={isDetails ? undefined : handleStockChange}
               placeholder="0"
               required
               inputMode="numeric"
               style={{
                 color: '#222A35',
-                background: "#fff",
+                background: isDetails ? "#f3f4f6" : "#fff",
+                pointerEvents: isDetails ? "none" : "auto"
               }}
+              readOnly={isDetails}
+              disabled={isDetails}
             />
           </div>
           {error && (
