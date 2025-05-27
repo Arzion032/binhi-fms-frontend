@@ -19,6 +19,9 @@ import editIcon from '../assets/Edit.png';
 import edtIcon from '../assets/Trash.png';
 import Pencil from '../assets/Pencil.png';
 import PDF from '../assets/PDF.png';
+import { faChevronLeft, faChevronRight } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+
 
 
 const currentMembersInitial = [
@@ -262,6 +265,24 @@ export default function MemberTabs() {
     } else {
       setSelectedMembers(filteredMembers.map(m => m.id));
     }
+  };
+
+  const calculateAge = (dob) => {
+    const birthDate = new Date(dob);
+    const today = new Date();
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const m = today.getMonth() - birthDate.getMonth();
+    if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+      age--;
+    }
+    return age;
+  };
+  
+  const getDaysAgo = (date) => {
+    const d = new Date(date);
+    const now = new Date();
+    const diff = Math.floor((now - d) / (1000 * 60 * 60 * 24));
+    return `${diff} day${diff !== 1 ? 's' : ''}`;
   };
   
   // Toggle select member by id
@@ -570,7 +591,7 @@ export default function MemberTabs() {
             <div className="overflow-x-auto py-0">
             <table className="table w-full">
               <thead>
-                <tr className="text-left" style={{ backgroundColor: "#F4F4F4" }}>
+                <tr className="text-left text-sm text-black" style={{ backgroundColor: "#F4F4F4" }}>
                   <th className="p-4 rounded-tl-lg rounded-tr-lg">
                     <input
                       type="checkbox"
@@ -601,37 +622,54 @@ export default function MemberTabs() {
                         aria-label={`Select member ${member.firstName} ${member.lastName}`}
                       />
                     </td>
-                    <td className="p-4 flex items-center">
-                      <img
-                        src={Juan}
-                        alt={`${member.firstName} ${member.lastName}`}
-                        className="w-10 h-10 rounded-full object-cover mr-3"
-                      />
-                      <div>
-                        <div>{member.firstName} {member.lastName}</div>
-                        <div className="text-sm text-gray-600">{member.email}</div>
-                      </div>
-                    </td>
-                    <td className="p-4">
-                      <div
-                        className="text-center font-bold"
-                        style={{
-                          color: '#0038A8',
-                          borderRadius: '200px',
-                          border: '0.75px solid #0038A8',
-                          opacity: 0.75,
-                          background: '#C0D5FF',
-                          padding: '0px 8px',
-                          fontSize: '12px',
-                          display: 'inline-block',
-                        }}
-                      >
-                        {member.role}
-                      </div>
-                    </td>
-                    <td className="p-4">{member.address}</td>
-                    <td className="p-4">{member.dob}</td>
-                    <td className="p-4">{member.dateAdded}</td>
+  <td className="p-4 flex items-center">
+  <img
+    src={Juan}
+    alt={`${member.firstName} ${member.lastName}`}
+    className="w-10 h-10 rounded-full object-cover mr-3"
+  />
+  <div>
+    <div className="font-medium">{member.firstName} {member.lastName}</div>
+    <div className="text-xs text-gray-400 font-normal">{member.email}</div>
+  </div>
+</td>
+
+<td className="p-4">
+  <div
+    className="text-center font-medium"
+    style={{
+      color: '#0038A8',
+      borderRadius: '200px',
+      border: '0.75px solid #0038A8',
+      opacity: 0.75,
+      background: '#C0D5FF',
+      padding: '0px 8px',
+      fontSize: '12px',
+      display: 'inline-block',
+    }}
+  >
+    {member.role}
+  </div>
+</td>
+
+<td className="p-4">
+  <div className="font-medium">{member.address}</div>
+  <div className="text-xs text-gray-400 font-normal">Bulacan</div>
+</td>
+
+<td className="p-4">
+  <div className="font-medium">
+    {new Date(member.dob).toLocaleDateString('en-US', { day: '2-digit', month: 'short', year: 'numeric' })}
+  </div>
+  <div className="text-xs text-gray-400 font-normal">{calculateAge(member.dob)} Years Old</div>
+</td>
+
+<td className="p-4">
+  <div className="font-medium">
+    {new Date(member.dateAdded).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
+  </div>
+  <div className="text-xs text-gray-400 font-normal">{getDaysAgo(member.dateAdded)} ago</div>
+</td>
                     <td className="p-4 flex gap-2">
 
                     <span
@@ -658,18 +696,39 @@ export default function MemberTabs() {
               </tbody>
             </table>
 
-            <div className="flex justify-center mt-10 mb-4">
-<div className="join space-x-10">
-  <button className="join-item btn bg-[#F8FCF8] text-[#909090] hover:bg-[#409943]">1</button>
-  <button className="join-item btn bg-[#F8FCF8] text-[#909090] hover:bg-[#409943]">2</button>
-  <button className="join-item btn bg-[#F8FCF8] text-[#909090] hover:bg-[#409943]">3</button>
-  <button className="join-item btn bg-[#F8FCF8] text-[#909090] hover:bg-[#409943]">4</button>
-  <button className="join-item btn bg-[#F8FCF8] text-[#909090] hover:bg-[#409943]">5</button>
-  <button className="join-item btn bg-[#F8FCF8] text-[#909090] hover:bg-[#409943]">...</button>
+                  {/* Pagination */}
+                  <div className="absolute bottom-0 left-0 w-full">
+            <div className="flex justify-center items-center gap-10 p-20 space-x-2 text-gray] text-sm font-bold">
+            <button
+    aria-label="Previous page"
+    className="px-2 hover:bg-[#D9D9D9] rounded"
+  >
+    <FontAwesomeIcon icon={faChevronLeft} />
+  </button>
+
+  {[1, 2, 3, 4, 5].map((num) => (
+    <button
+      key={num}
+      className={`w-8 h-8 rounded ${
+        num === 1
+          ? "bg-gray-300 text-black"
+          : "hover:bg-[#D9D9D9] hover:text-black"
+      }`}
+    >
+      {num}
+    </button>
+  ))}
+  <span>...</span>
+  <button
+    aria-label="Next page"
+    className="px-2 hover:bg-[#D9D9D9] rounded"
+  >
+    <FontAwesomeIcon icon={faChevronRight} />
+  </button>
 </div>
 </div>
-          </div>
-          </div>
+</div>
+</div>
         </>
       )}
 
@@ -1255,7 +1314,7 @@ export default function MemberTabs() {
          <div className="overflow-x-auto">
       <table className="table w-full">
         <thead className="bg-gray-50 text-gray-700 font-semibold">
-        <tr className="text-left" style={{ backgroundColor: "#F4F4F4" }}>
+        <tr className="text-left text-sm text-black" style={{ backgroundColor: "#F4F4F4" }}>
             <th className="p-4 rounded-tl-lg rounded-tr-lg">
               <input
                className="checkbox checkbox-sm rounded"
@@ -1293,11 +1352,11 @@ export default function MemberTabs() {
 
                 <div>
                   <div className="font-medium">{item.name}</div>
-                  <div className="text-sm text-gray-500 font-medium">{item.email}</div>
+                  <div className="text-sm text-gray-500 font-normal">{item.email}</div>
                 </div>
               </td>
               <td className="p-4">
-                <span className="text-center font-bold"
+                <span className="text-center font-medium"
                       style={{
                         color: '#0038A8',
                         borderRadius: '200px',
@@ -1313,7 +1372,7 @@ export default function MemberTabs() {
                 </span>
               </td>
               <td className="p-4">
-                <span className="text-center font-bold"
+                <span className="text-center font-medium"
                       style={{
                         color: '#A51B29',
                         borderRadius: '200px',
@@ -1336,7 +1395,7 @@ export default function MemberTabs() {
                 <div className="text-xs text-gray-400">Click to view</div>
               </td>
               <td className="p-4">
-                <div className="text-sm font-bold">{item.date}</div>
+                <div className="text-sm font-medium">{item.date}</div>
                 <div className="text-xs text-gray-400">{item.daysAgo}</div>
               </td>
               <td className="p-4 flex items-center gap-3">
@@ -1533,19 +1592,39 @@ export default function MemberTabs() {
         </tbody>
       </table>
 
-      {/* Pagination */}
-      <div className="flex justify-center mt-10 mb-4">
-<div className="join space-x-10">
-  <button className="join-item btn bg-[#F8FCF8] text-[#909090] hover:bg-[#409943]">1</button>
-  <button className="join-item btn bg-[#F8FCF8] text-[#909090] hover:bg-[#409943]">2</button>
-  <button className="join-item btn bg-[#F8FCF8] text-[#909090] hover:bg-[#409943]">3</button>
-  <button className="join-item btn bg-[#F8FCF8] text-[#909090] hover:bg-[#409943]">4</button>
-  <button className="join-item btn bg-[#F8FCF8] text-[#909090] hover:bg-[#409943]">5</button>
-  <button className="join-item btn bg-[#F8FCF8] text-[#909090] hover:bg-[#409943]">...</button>
+       {/* Pagination */}
+       <div className="absolute bottom-0 left-0 w-full">
+            <div className="flex justify-center items-center gap-10 p-20 space-x-2 text-gray-500 text-sm font-bold">
+            <button
+    aria-label="Previous page"
+    className="px-2 hover:bg-[#D9D9D9] rounded"
+  >
+    <FontAwesomeIcon icon={faChevronLeft} />
+  </button>
+
+  {[1, 2, 3, 4, 5].map((num) => (
+    <button
+      key={num}
+      className={`w-8 h-8 rounded ${
+        num === 1
+          ? "bg-gray-300 text-black"
+          : "hover:bg-[#D9D9D9] hover:text-black"
+      }`}
+    >
+      {num}
+    </button>
+  ))}
+  <span>...</span>
+  <button
+    aria-label="Next page"
+    className="px-2 hover:bg-[#D9D9D9] rounded"
+  >
+    <FontAwesomeIcon icon={faChevronRight} />
+  </button>
 </div>
 </div>
-    </div>
-    </div>
+</div>
+</div>
         </>
       )}
 
