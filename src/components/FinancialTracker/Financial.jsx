@@ -398,13 +398,12 @@ export default function Financial() {
                   </div>
                   <select value={selectedRole} onChange={e => setSelectedRole(e.target.value)} className="border border-[#858585] h-[35px] text-sm bg-white text-[#858585] pl-2 pr-6">
                     <option value="">Role</option>
-                    <option value="Income">Income</option>
-                    <option value="Expense">Expense</option>
+                    <option value="Income">Member</option>
                   </select>
                   <select value={selectedType} onChange={e => setSelectedType(e.target.value)} className="border border-[#858585] h-[35px] text-sm bg-white text-[#858585] pl-2 pr-6">
                     <option value="">Type</option>
-                    <option value="Marketplace">Marketplace</option>
-                    <option value="Farm Supply">Farm Supply</option>
+                    <option value="Marketplace">Income</option>
+                    <option value="Farm Supply">Expense</option>
                   </select>
                   <select value={selectedSource} onChange={e => setSelectedSource(e.target.value)} className="border border-[#858585] h-[35px] text-sm	bg-white text-[#858585] pl-2 pr-6">
                     <option value="">Source</option>
