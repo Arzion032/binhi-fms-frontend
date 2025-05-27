@@ -60,14 +60,6 @@ export default function Document() {
     { id: 15, name: 'Jessica Kim', email: 'jessica.kim@example.com', avatar: '/Screenshot_195.png', listDate: 'Mar 26, 2025, 01:05 PM', role: 'Member', document: 'Vehicle Registration', status: 'Rejected', requestedOn: 'March 26, 2025, 01:05 PM' }
   ]);
 
-  // ─── PENDING TAB SELECT & DELETE ─────────────────────────────────────────────
-  const [selectedPending, setSelectedPending] = useState([]);
-  const handleDeletePending = () => {
-    if (!window.confirm('Delete selected pending requests?')) return;
-    setRequests(rs => rs.filter((_, i) => !selectedPending.includes(i)));
-    setSelectedPending([]);
-  };
-
   // ─── HISTORY TABLE STATE & DELETE ─────────────────────────────────────────────
   const historyData = requests.map(r => ({ ...r, reason: 'Duplicate Request' }));
   const [historyPage, setHistoryPage] = useState(1);
@@ -160,32 +152,13 @@ export default function Document() {
           <>
             {/* Pending Toolbar */}
             <div className="flex items-center justify-between mb-4 px-4 pt-2">
-              {/* Left: Refresh or Delete */}
-              {selectedPending.length > 0 ? (
-                <div className="flex items-center gap-2">
-                  <button
-                    onClick={handleDeletePending}
-                    className="flex items-center gap-2 border border-gray-200 rounded-2xl px-4 py-2 hover:bg-red-50"
-                  >
-                    <Trash2 size={18} stroke="#dc2626" />
-                    <span style={{ color: '#dc2626' }}>Delete</span>
-                    <span className="text-gray-500 ml-1">
-                      {selectedPending.length} Selected
-                    </span>
-                  </button>
-                  <button
-                    onClick={() => setSelectedPending([])}
-                    className="flex items-center gap-1 border border-gray-200 rounded-2xl px-4 py-2 hover:bg-gray-100"
-                  >✕ Clear</button>
-                </div>
-              ) : (
-                <div className="flex items-center gap-2">
-                  <RefreshCw size={20} stroke="#16A34A" />
-                  <span className="font-medium text-base" style={{ color: '#111827' }}>
-                    Pending Requests {requests.length}
-                  </span>
-                </div>
-              )}
+              {/* Left: Refresh (no delete UI anymore) */}
+              <div className="flex items-center gap-2">
+                <RefreshCw size={20} stroke="#16A34A" />
+                <span className="font-medium text-base" style={{ color: '#111827' }}>
+                  Pending Requests {requests.length}
+                </span>
+              </div>
 
               {/* Right: Search + Add Member */}
               <div className="ml-auto flex items-center gap-3">
@@ -225,24 +198,13 @@ export default function Document() {
                 </div>
                 <div className="max-h-[550px] overflow-y-auto px-4 pb-4">
                   <div className="space-y-3">
-                    {requests.map((req, i) => (
+                    {requests.map((req) => (
                       <div
                         key={req.id}
                         className={`flex items-center gap-3 p-2 rounded-lg cursor-pointer ${
-                          selectedPending.includes(i)
-                            ? 'bg-[#f0fdfa]'
-                            : selectedRequest.id === req.id
-                              ? 'bg-[#F3F4F6]'
-                              : ''
+                          selectedRequest.id === req.id ? 'bg-[#F3F4F6]' : ''
                         }`}
-                        onClick={() => {
-                          setSelectedPending(prev =>
-                            prev.includes(i)
-                              ? prev.filter(idx => idx !== i)
-                              : [...prev, i]
-                          );
-                          setSelectedRequest(req);
-                        }}
+                        onClick={() => setSelectedRequest(req)}
                       >
                         <img src={req.avatar} alt={req.name} className="w-10 h-10 rounded-full" />
                         <div>
