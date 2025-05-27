@@ -191,8 +191,8 @@ export default function EquipmentPage() {
                       className="border border-[#858585] h-[35px] w-[60px] text-center text-sm bg-white text-[#858585]"
                     >
                       <option value="">Role</option>
-                      <option value="admin">Farmer</option>
-                      <option value="member">Member</option>
+                      <option value="admin"></option>
+                      <option value="member"></option>
                     </select>
                     <button
                       onClick={clearFilters}
@@ -1162,8 +1162,8 @@ export default function EquipmentPage() {
                     className="border border-[#858585] h-[35px] w-[60px] text-center text-sm bg-white text-[#858585]"
                   >
                     <option value="">Role</option>
-                    <option value="admin">Farmer</option>
-                    <option value="member">Member</option>
+                    <option value="admin"></option>
+                    <option value="member"></option>
                   </select>
                   <button
                     onClick={clearFilters}
@@ -1260,7 +1260,7 @@ export default function EquipmentPage() {
                     className="opacity-0 group-hover:opacity-100 text-blue text-sm font-medium transition-opacity duration-200 whitespace-nowrap"
                     onClick={() => setIsDetailsOpen(true)}
                   >
-                    Details?
+                    Details
                   </span>
                 </div>
               </div>
