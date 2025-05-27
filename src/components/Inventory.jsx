@@ -158,7 +158,7 @@ export default function EquipmentPage() {
                     className="ml-5 mr-5 w-[20px] max-w-full object-contain"
                   />
                   <span className="text-[15.5px] text-lg font-semibold mr-2">All Equipments</span>
-                  <span className="text-gray-400 font-normal">24</span>
+                  <span className="text-gray-400 font-normal text-xs">24</span>
                 </div>
 
                 {/* Right side: Search + Filter */}
@@ -168,7 +168,7 @@ export default function EquipmentPage() {
                   <Search className="text-gray-500 w-5 h-5 mr-2" />
                   <input
                     type="text"
-                    placeholder="Search Member"
+                    placeholder="Search Equipment"
                     className="flex-1 outline-none bg-white"
                     value={searchCurrent}
                     onChange={(e) => setSearchCurrent(e.target.value)}
@@ -822,27 +822,31 @@ export default function EquipmentPage() {
 
 
      {/* Pagination */}
-     <div className="absolute bottom-0 left-0 w-full">
-            <div className="flex justify-center items-center gap-10 p-20 space-x-2 text-gray-500 text-sm font-bold">
-  <button className="px-2 hover:bg-[#D9D9D9] rounded">‹</button>
-  {[1, 2, 3, 4, 5].map((num) => (
-    <button
-      key={num}
-      className={`w-8 h-8 rounded ${
-        num === 1
-          ? "bg-gray-300 text-black"
-          : "hover:bg-[#D9D9D9] hover:text-black"
-      }`}
-    >
-      {num}
-    </button>
-  ))}
-  <span>...</span>
-  <button className="px-2 hover:bg-gray-300 rounded">›</button>
+     <div className="fixed bottom-0 left-0 w-full py-4">
+  <div className="flex justify-center">
+    <div className="flex items-center gap-1">
+      <button className="btn btn-sm hover:bg-[#D9D9D9] rounded">«</button>
+
+      {[1, 2, 3, 4, 5].map((page) => (
+        <button
+          key={page}
+          className={`btn btn-sm ${
+            page === 1
+              ? 'bg-gray-300 text-black'
+              : 'btn-ghost text-gray-600 hover:bg-[#D9D9D9] hover:text-black'
+          }`}
+        >
+          {page}
+        </button>
+      ))}
+
+      <button className="btn btn-sm hover:bg-[#D9D9D9] rounded">»</button>
+    </div>
+  </div>
 </div>
 </div>
 </div>
-</div>
+
 
    {/* Edit Modal */}
    {isEditOpen && (
@@ -1137,7 +1141,7 @@ export default function EquipmentPage() {
                                   className="ml-5 mr-5 w-[20px] max-w-full object-contain"
                                 />
                     <span className="text-[15.5px] text-lg font-semibold mr-2">Rented Equipments</span>
-                    <span className="text-gray-400 font-normal">24</span>
+                    <span className="text-gray-400 font-normal text-xs">24</span>
                   </div>
 
             {/* Right side: Search + Filters + Button */}
@@ -1146,7 +1150,7 @@ export default function EquipmentPage() {
                 <Search className="text-gray-500 w-5 h-5 mr-2" />
                 <input
                   type="text"
-                  placeholder="Search Member"
+                  placeholder="Search Equipment"
                   className="flex-1 outline-none bg-white"
                   value={searchCurrent}
                   onChange={(e) => setSearchCurrent(e.target.value)}
@@ -1213,7 +1217,7 @@ export default function EquipmentPage() {
     </thead>
     <tbody>
       {rows.map((row) => (
-        <tr key={row.id} className="bg-[#F8FCF8] border-b border-gray-200 text-center">
+        <tr key={row.id} className="bg-[#F8FCF8] border-gray-200 text-center">
           <td>
             <input type="checkbox" className="checkbox checkbox-sm rounded" />
           </td>
@@ -1653,48 +1657,33 @@ export default function EquipmentPage() {
             </div>
           </div>
         )}
-
+         
             {/* Pagination */}
-            
-            <nav
-  className="absolute bottom-0 left-0 w-full flex justify-center items-center gap-10 p-20 text-sm font-bold bg-[#F8FCF8] text-gray-500 select-none"
-  aria-label="Pagination"
->
-  <button
-    aria-label="Previous page"
-    className="px-2 hover:bg-[#D9D9D9] rounded"
-  >
-    <FontAwesomeIcon icon={faChevronLeft} />
-  </button>
+     <div className="fixed bottom-0 left-0 w-full py-4">
+  <div className="flex justify-center">
+    <div className="flex items-center gap-1">
+      <button className="btn btn-sm hover:bg-[#D9D9D9] rounded">«</button>
 
-  <button
-    aria-current="page"
-    className="bg-gray-300 text-black w-8 h-8 rounded"
-  >
-    1
-  </button>
+      {[1, 2, 3, 4, 5].map((page) => (
+        <button
+          key={page}
+          className={`btn btn-sm ${
+            page === 1
+              ? 'bg-gray-300 text-black'
+              : 'btn-ghost text-gray-600 hover:bg-[#D9D9D9] hover:text-black'
+          }`}
+        >
+          {page}
+        </button>
+      ))}
 
-  {[2, 3, 4, 5].map((page) => (
-    <button
-      key={page}
-      className="w-8 h-8 rounded hover:bg-[#D9D9D9] hover:text-black"
-    >
-      {page}
-    </button>
-  ))}
-
-  <span className="px-2">...</span>
-
-  <button
-    aria-label="Next page"
-    className="px-2 hover:bg-[#D9D9D9] rounded"
-  >
-    <FontAwesomeIcon icon={faChevronRight} />
-  </button>
-</nav>
-</div>
-</div>
-</div>
+      <button className="btn btn-sm hover:bg-[#D9D9D9] rounded">»</button>
+    </div>
+  </div>
+  </div>
+  </div>
+  </div>
+  </div>
 
 
           {/* Details Modal */}

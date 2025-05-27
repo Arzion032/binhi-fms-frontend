@@ -520,6 +520,7 @@ export default function MemberTabs() {
                 className="ml-5 mr-5 w-[20px] max-w-full object-contain"
               />
               <span className="text-[15.5px] text-lg font-semibold mr-2">All Members</span>
+              <span className="text-gray-400 font-normal text-xs">24</span>
             </div>
             
             {/* Right Side */}
@@ -697,36 +698,29 @@ export default function MemberTabs() {
             </table>
 
                   {/* Pagination */}
-                  <div className="absolute bottom-0 left-0 w-full">
-            <div className="flex justify-center items-center gap-10 p-20 space-x-2 text-gray] text-sm font-bold">
-            <button
-    aria-label="Previous page"
-    className="px-2 hover:bg-[#D9D9D9] rounded"
-  >
-    <FontAwesomeIcon icon={faChevronLeft} />
-  </button>
+                  {/* Pagination */}
+     <div className="fixed bottom-0 left-0 w-full py-4">
+  <div className="flex justify-center">
+    <div className="flex items-center gap-1">
+      <button className="btn btn-sm hover:bg-[#D9D9D9] rounded">«</button>
 
-  {[1, 2, 3, 4, 5].map((num) => (
-    <button
-      key={num}
-      className={`w-8 h-8 rounded ${
-        num === 1
-          ? "bg-gray-300 text-black"
-          : "hover:bg-[#D9D9D9] hover:text-black"
-      }`}
-    >
-      {num}
-    </button>
-  ))}
-  <span>...</span>
-  <button
-    aria-label="Next page"
-    className="px-2 hover:bg-[#D9D9D9] rounded"
-  >
-    <FontAwesomeIcon icon={faChevronRight} />
-  </button>
-</div>
-</div>
+      {[1, 2, 3, 4, 5].map((page) => (
+        <button
+          key={page}
+          className={`btn btn-sm ${
+            page === 1
+              ? 'bg-gray-300 text-black'
+              : 'btn-ghost text-gray-600 hover:bg-[#D9D9D9] hover:text-black'
+          }`}
+        >
+          {page}
+        </button>
+      ))}
+
+      <button className="btn btn-sm hover:bg-[#D9D9D9] rounded">»</button>
+    </div>
+  </div>
+  </div>
 </div>
 </div>
         </>
@@ -746,6 +740,7 @@ export default function MemberTabs() {
         <span className="text-[15.5px] text-lg font-semibold mr-2">
           Pending Members
         </span>
+        <span className="text-gray-400 font-normal text-xs">24</span>
       </div>
 
       {/* Right Side */}
@@ -1232,6 +1227,7 @@ export default function MemberTabs() {
                 className="ml-5 mr-5 w-[20px] max-w-full object-contain"
               />
               <span className="text-[15.5px] text-lg font-semibold mr-2">Rejected Members</span>
+              <span className="text-gray-400 font-normal text-xs">24</span>
             </div>
             {/* Right Side */}
       <div className="flex items-center space-x-4">
@@ -1593,36 +1589,29 @@ export default function MemberTabs() {
       </table>
 
        {/* Pagination */}
-       <div className="absolute bottom-0 left-0 w-full">
-            <div className="flex justify-center items-center gap-10 p-20 space-x-2 text-gray-500 text-sm font-bold">
-            <button
-    aria-label="Previous page"
-    className="px-2 hover:bg-[#D9D9D9] rounded"
-  >
-    <FontAwesomeIcon icon={faChevronLeft} />
-  </button>
 
-  {[1, 2, 3, 4, 5].map((num) => (
-    <button
-      key={num}
-      className={`w-8 h-8 rounded ${
-        num === 1
-          ? "bg-gray-300 text-black"
-          : "hover:bg-[#D9D9D9] hover:text-black"
-      }`}
-    >
-      {num}
-    </button>
-  ))}
-  <span>...</span>
-  <button
-    aria-label="Next page"
-    className="px-2 hover:bg-[#D9D9D9] rounded"
-  >
-    <FontAwesomeIcon icon={faChevronRight} />
-  </button>
-</div>
-</div>
+     <div className="fixed bottom-0 left-0 w-full py-4">
+  <div className="flex justify-center">
+    <div className="flex items-center gap-1">
+      <button className="btn btn-sm hover:bg-[#D9D9D9] rounded">«</button>
+
+      {[1, 2, 3, 4, 5].map((page) => (
+        <button
+          key={page}
+          className={`btn btn-sm ${
+            page === 1
+              ? 'bg-gray-300 text-black'
+              : 'btn-ghost text-gray-600 hover:bg-[#D9D9D9] hover:text-black'
+          }`}
+        >
+          {page}
+        </button>
+      ))}
+
+      <button className="btn btn-sm hover:bg-[#D9D9D9] rounded">»</button>
+    </div>
+  </div>
+  </div>
 </div>
 </div>
         </>
