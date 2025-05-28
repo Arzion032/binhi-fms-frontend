@@ -19,8 +19,6 @@ import editIcon from '../assets/Edit.png';
 import edtIcon from '../assets/Trash.png';
 import Pencil from '../assets/Pencil.png';
 import PDF from '../assets/PDF.png';
-import { faChevronLeft, faChevronRight } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 
 
@@ -196,6 +194,9 @@ export default function MemberTabs() {
     purok: '',
     street: '',
   });
+
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [isDeleteModalOpe, setIsDeleteModalOpe] = useState(false);
 
   const [showConfirmationModal, setShowConfirmationModal] = useState(false);
   const [showSuccessMessage, setShowSuccessMessage] = useState(false);
@@ -682,9 +683,12 @@ export default function MemberTabs() {
                     </span>
 
 
-                    <span className="w-4 h-4 cursor-pointer hover:brightness-110 inline-block">
-                        <img src={edtIcon} alt="Trash" className="w-4 h-4" />
-                    </span>
+                    <span
+                className="w-4 h-4 cursor-pointer hover:brightness-110 inline-block"
+                onClick={() => setIsDeleteModalOpe(true)}
+              >
+                <img src={edtIcon} alt="Trash" className="w-4 h-4" />
+              </span>
                     </td>
                   </tr>
                 ))}
@@ -1400,10 +1404,15 @@ export default function MemberTabs() {
                       onClick={() => setIsApplicationDetailsOpen(true)}
                     >
                       <img src={editIcon} alt="Edit" className="w-4 h-4" />
-                    </span>
-                <span className="w-4 h-4 cursor-pointer hover:brightness-110 inline-block">
-                    <img src={edtIcon} alt="Trash" className="w-4 h-4" />
-                </span>
+
+                      </span>
+                      <span
+                className="w-4 h-4 cursor-pointer hover:brightness-110 inline-block"
+                onClick={() => setIsDeleteModalOpe(true)}
+              >
+                <img src={edtIcon} alt="Trash" className="w-4 h-4" />
+              </span>
+                
               </td>
             </tr>
           ))}
@@ -1616,6 +1625,49 @@ export default function MemberTabs() {
 </div>
         </>
       )}
+
+{isDeleteModalOpe && (
+          <div className="fixed inset-0 z-50 bg-black bg-opacity-40 flex items-center justify-center">
+            <div className="bg-white rounded-3xl p-6 w-[400px] border border-black shadow-lg relative text-center">
+              <button
+                onClick={() => setIsDeleteModalOpe(false)}
+                className="absolute top-2 right-3 text-gray-400 hover:text-black"
+              >
+                &times;
+              </button>
+            
+              <div className="mb-4 flex justify-center items-center">
+                    <img src={Disregard} alt="Disregard.png" className="w-[80px] max-w-full object-contain" />
+                  </div>
+                <h2 className="text-2xl text-center font-bold mb-2">Confirm Deletion?</h2>
+                <p className="text-sm text-center text-gray-600">
+                  The selected equipment will be permanently removed from your records.
+                </p>
+                
+                <div className="flex justify-center gap-3 mt-6">
+                  <button
+                    onClick={() => setIsDeleteModalOpe(false)}
+                    className="px-7 py-2 bg-white text-[#E02A3B] border border-[#E02A3B] rounded-full hover:bg-[#E02A3B] hover:text-white text-sm font-medium"
+                    style={{ width: "130px", height: "39px" }}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={() => {
+                      // TODO: Add deletion logic here
+                      setIsDeleteModalOpe(false);
+                    }}
+                    className="px-4 py-2 rounded-3xl bg-[#FF3B4E] text-white hover:bg-[#E02A3B] text-sm"
+                    style={{ width: "130px", height: "39px" }}
+                  >
+                    Delete
+                  </button>
+                </div>
+              
+            </div>
+          </div>
+        )}
+
 
       {/* Add Member Modal */}
       {isAddMemberModalOpen && (
