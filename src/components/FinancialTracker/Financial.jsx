@@ -6,8 +6,6 @@ import StatisticsChart from './StatisticsChart';
 import IncomeModal from './IncomeModal';
 import ExpensesModal from './ExpensesModal';
 
-{/* is it anything that makes the world and everyone around the earth is happy */}
-
 export default function Financial() {
   // ─── TAB STATE & INDICATOR ───────────────────────────────────────────────────
   const [activeTab, setActiveTab] = useState('overview');
@@ -60,14 +58,41 @@ export default function Financial() {
     { name: 'Nisi B. Ding',   email: 'juandcruz@gmail.com', avatar: '/Screenshot_195.png', type: 'Income', source: 'Marketplace', category: '-', amount: '999',   date: 'Apr 12, 2025', relativeDate: '10 days ago' }
   ]);
   const itemsPerPage = 5;
-  const totalPages = Math.ceil(transactions.length / itemsPerPage);
   const [currentPage, setCurrentPage] = useState(1);
-  const currentData = transactions.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
   const [selectedRows, setSelectedRows] = useState([]);
+
+  // --- Filter states and search ---
+  const [showFilters, setShowFilters] = useState(false);
+  const [selectedRole, setSelectedRole] = useState('');
+  const [selectedType, setSelectedType] = useState('');
+  const [selectedSource, setSelectedSource] = useState('');
+  const [searchTransaction, setSearchTransaction] = useState('');
+
+  // Filtering the transactions based on filters & search
+  const filteredTransactions = transactions.filter(t => {
+    const matchesRole = selectedRole ? (selectedRole === 'Income' ? true : true) /* role only has "Member", so always true */ : true;
+    const matchesType = selectedType ? t.type === selectedType : true;
+    const matchesSource = selectedSource ? t.source === selectedSource : true;
+    const matchesSearch = searchTransaction.trim() === '' || t.name.toLowerCase().includes(searchTransaction.trim().toLowerCase());
+    return matchesRole && matchesType && matchesSource && matchesSearch;
+  });
+
+  const filteredTotalPages = Math.ceil(filteredTransactions.length / itemsPerPage);
+
+  const paginatedTransactions = filteredTransactions.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
+  useEffect(() => {
+    setCurrentPage(1);
+    setSelectedRows([]);
+  }, [searchTransaction, selectedRole, selectedType, selectedSource]);
+
   const handleDelete = () => {
     if (!window.confirm('Are you sure you want to delete the selected transactions?')) return;
     const updated = [...transactions];
-    currentData.forEach((_, idx) => {
+    paginatedTransactions.forEach((_, idx) => {
       if (selectedRows.includes(idx)) {
         updated.splice((currentPage - 1) * itemsPerPage + idx, 1);
       }
@@ -76,28 +101,17 @@ export default function Financial() {
     setSelectedRows([]);
   };
   const handlePageChange = (page) => {
-    if (page >= 1 && page <= totalPages) {
+    if (page >= 1 && page <= filteredTotalPages) {
       setCurrentPage(page);
       setSelectedRows([]);
     }
   };
+
   const [historyDownloadOpen, setHistoryDownloadOpen] = useState(false);
   const historyDownloadRef = useRef();
   const handleHistoryDownload = (type) => {
     console.log(`Downloading ${type}`);
     setHistoryDownloadOpen(false);
-  };
-
-  // ─── FILTER STATE ───────────────────────────────────────────────────────────
-  const [showFilters, setShowFilters] = useState(false);
-  const [selectedRole, setSelectedRole] = useState('');
-  const [selectedType, setSelectedType] = useState('');
-  const [selectedSource, setSelectedSource] = useState('');
-  const clearFilters = () => {
-    setSelectedRole('');
-    setSelectedType('');
-    setSelectedSource('');
-    setShowFilters(false);
   };
 
   // ─── CLICK‐OUTSIDE DROPDOWNS ─────────────────────────────────────────────────
@@ -144,7 +158,7 @@ export default function Financial() {
               </li>
             </ul>
           </div>
-          <button className="btn btn-square btn-binhi ml-4">
+          <button className="btn btn-square btn-binhi ml-4" aria-label="More options">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="w-5 h-5">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 12h.01M12 12h.01M19 12h.01" />
             </svg>
@@ -194,6 +208,7 @@ export default function Financial() {
       {/* Content */}
       {activeTab === 'overview' ? (
         <>
+          {/* Overview content unchanged */}
           {/* Balance & Actions */}
           <div className="flex flex-wrap items-center justify-between my-4 gap-2">
             <div className="flex items-center gap-2 text-base font-medium">
@@ -402,15 +417,21 @@ export default function Financial() {
                   </select>
                   <select value={selectedType} onChange={e => setSelectedType(e.target.value)} className="border border-[#858585] h-[35px] text-sm bg-white text-[#858585] pl-2 pr-6">
                     <option value="">Type</option>
-                    <option value="Marketplace">Income</option>
-                    <option value="Farm Supply">Expense</option>
+                    <option value="Income">Income</option>
+                    <option value="Expense">Expense</option>
                   </select>
                   <select value={selectedSource} onChange={e => setSelectedSource(e.target.value)} className="border border-[#858585] h-[35px] text-sm	bg-white text-[#858585] pl-2 pr-6">
                     <option value="">Source</option>
                     <option value="Marketplace">Marketplace</option>
                     <option value="-">-</option>
                   </select>
-                  <button onClick={clearFilters} className="flex items-center space-x-1 border rounded-r-3xl px-3 py-1 text-sm border-[#858585] h-[35px] bg-white text-[#858585]">
+                  <button onClick={() => {
+                    setSelectedRole('');
+                    setSelectedType('');
+                    setSelectedSource('');
+                    setShowFilters(false);
+                    setSearchTransaction('');
+                  }} className="flex items-center space-x-1 border rounded-r-3xl px-3 py-1 text-sm border-[#858585] h-[35px] bg-white text-[#858585]">
                     <X className="w-4 h-4 text-[#858585]" />
                     <span>Clear</span>
                   </button>
@@ -423,25 +444,31 @@ export default function Financial() {
                 </div>
               )}
             </div>
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-3 relative">
               {/* Search + Filter */}
               <div className="relative w-[280px] flex items-center border rounded-full px-3 py-1 bg-white">
                 <Search className="text-gray-500 w-5 h-5 mr-2" />
-                <input type="text" placeholder="Search Transaction" className="flex-1 outline-none bg-white" />
+                <input
+                  type="text"
+                  placeholder="Search Transaction"
+                  className="flex-1 outline-none bg-white"
+                  value={searchTransaction}
+                  onChange={e => setSearchTransaction(e.target.value)}
+                />
                 <button onClick={() => setShowFilters(!showFilters)}>
                   <SlidersHorizontal className="text-gray-600 w-5 h-5" />
                 </button>
               </div>
               {/* Download */}
-              <div className="dropdown dropdown-end" ref={historyDownloadRef}>
-                <label tabIndex={0} onClick={() => setHistoryDownloadOpen(!historyDownloadOpen)} className="btn btn-outline btn-success rounded-full">
+              <div className="dropdown dropdown-end" ref={historyDownloadRef} style={{ zIndex: 9999 }}>
+                <label tabIndex={0} onClick={() => setHistoryDownloadOpen(!historyDownloadOpen)} className="btn btn-outline btn-success rounded-full relative">
                   Download
                   <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
                   </svg>
                 </label>
                 {historyDownloadOpen && (
-                  <ul tabIndex={0} className="dropdown-content menu p-2 shadow bg-base-100 border w-52 rounded-box">
+                  <ul tabIndex={0} className="dropdown-content menu p-2 shadow bg-base-100 border w-52 rounded-box z-50 absolute right-0 mt-2">
                     <li><a onClick={() => handleHistoryDownload('PDF')}><FaFilePdf className="text-red-500" /> PDF</a></li>
                     <li><a onClick={() => handleHistoryDownload('Excel')}><FaFileExcel className="text-green-600" /> Excel</a></li>
                     <li><a onClick={() => handleHistoryDownload('Custom Range')}>Custom Range</a></li>
@@ -460,8 +487,8 @@ export default function Financial() {
               <thead className="bg-[#f7f7fb] text-sm text-gray-600 font-semibold">
                 <tr>
                   <th>
-                    <input type="checkbox" className="checkbox checkbox-sm rounded" checked={selectedRows.length === currentData.length} onChange={e => {
-                      if (e.target.checked) setSelectedRows(currentData.map((_, i) => i));
+                    <input type="checkbox" className="checkbox checkbox-sm rounded" checked={selectedRows.length === paginatedTransactions.length && paginatedTransactions.length > 0} onChange={e => {
+                      if (e.target.checked) setSelectedRows(paginatedTransactions.map((_, i) => i));
                       else setSelectedRows([]);
                     }} />
                   </th>
@@ -475,7 +502,7 @@ export default function Financial() {
                 </tr>
               </thead>
               <tbody>
-                {currentData.map((item, idx) => (
+                {paginatedTransactions.map((item, idx) => (
                   <tr key={idx} className={selectedRows.includes(idx) ? 'bg-[#f0fdfa]' : ''}>
                     <td>
                       <input type="checkbox" className="checkbox checkbox-sm rounded" checked={selectedRows.includes(idx)} onChange={e => {
@@ -527,22 +554,29 @@ export default function Financial() {
                     </td>
                   </tr>
                 ))}
+                {paginatedTransactions.length === 0 && (
+                  <tr>
+                    <td colSpan={8} className="text-center text-gray-500 p-6">
+                      No transactions found.
+                    </td>
+                  </tr>
+                )}
               </tbody>
             </table>
 
             {/* Pagination */}
             <div className="flex justify-center my-6">
               <div className="flex items-center gap-1">
-                <button onClick={() => handlePageChange(currentPage - 1)} className="btn btn-sm" disabled={currentPage === 1}>«</button>
-                {[...Array(totalPages)].map((_, i) => {
+                <button onClick={() => handlePageChange(currentPage - 1)} className="btn btn-sm" disabled={currentPage === 1} aria-label="Previous page">«</button>
+                {[...Array(filteredTotalPages)].map((_, i) => {
                   const page = i + 1;
                   return (
-                    <button key={page} onClick={() => handlePageChange(page)} className={`btn btn-sm ${page === currentPage ? 'bg-gray-300 text-black' : 'btn-ghost text-gray-600'}`}>
+                    <button key={page} onClick={() => handlePageChange(page)} className={`btn btn-sm ${page === currentPage ? 'bg-gray-300 text-black' : 'btn-ghost text-gray-600'}`} aria-current={page === currentPage ? 'page' : undefined}>
                       {page}
                     </button>
                   );
                 })}
-                <button onClick={() => handlePageChange(currentPage + 1)} className="btn btn-sm" disabled={currentPage === totalPages}>»</button>
+                <button onClick={() => handlePageChange(currentPage + 1)} className="btn btn-sm" disabled={currentPage === filteredTotalPages} aria-label="Next page">»</button>
               </div>
             </div>
           </div>

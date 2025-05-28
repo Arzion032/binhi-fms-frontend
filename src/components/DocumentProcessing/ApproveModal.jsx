@@ -2,14 +2,15 @@
 import React, { useState, useEffect } from 'react';
 
 export function RejectModal({ isOpen, onClose, onConfirm, request }) {
-  // two stages: 'form' to enter reason, 'success' to show confirmation
+  // stages: 'form' → 'details' → 'resubmission' → 'disregard-confirm' → 'reconsider-confirm' → 'reconsider-success'
   const [stage, setStage] = useState('form');
   const [name, setName] = useState('');
   const [documentRequest, setDocumentRequest] = useState('');
   const [requestedOn, setRequestedOn] = useState('');
   const [reason, setReason] = useState('');
-
-// EMMAN POGI
+  const [notifyForResubmission, setNotifyForResubmission] = useState(false);
+  const [email, setEmail] = useState('');
+  const [message, setMessage] = useState('');
 
   useEffect(() => {
     if (isOpen) {
@@ -19,6 +20,9 @@ export function RejectModal({ isOpen, onClose, onConfirm, request }) {
       setDocumentRequest(request.document);
       setRequestedOn(request.requestedOn);
       setReason('');
+      setNotifyForResubmission(false);
+      setEmail(request.email || '');
+      setMessage('Notify for Resubmission\n\nYou may resubmit your request.');
     }
   }, [isOpen, request]);
 
@@ -30,10 +34,57 @@ export function RejectModal({ isOpen, onClose, onConfirm, request }) {
       return;
     }
     onConfirm({ name, documentRequest, requestedOn, reason });
-    setStage('success');
+    setStage('details');
   };
 
-  const handleDone = () => {
+  const handleSuccessDone = () => {
+    setStage('details');
+  };
+
+  const handleDetailsConfirm = () => {
+    if (notifyForResubmission) {
+      setStage('resubmission');
+    } else {
+      onClose();
+    }
+  };
+
+  const handleResubmissionDisregard = () => {
+    setStage('disregard-confirm');
+  };
+
+  const handleResubmissionConfirm = () => {
+    // Handle resubmission form submission here
+    console.log('Resubmission form submitted:', {
+      name,
+      documentRequest,
+      email,
+      message
+    });
+    onClose();
+  };
+
+  const handleDisregardCancel = () => {
+    setStage('resubmission');
+  };
+
+  const handleDisregardConfirm = () => {
+    setStage('reconsider-confirm');
+  };
+
+  const handleReconsiderBack = () => {
+    setStage('disregard-confirm');
+  };
+
+  const handleReconsiderConfirm = () => {
+    setStage('reconsider-success');
+  };
+
+  const handleReconsiderSuccessBack = () => {
+    setStage('reconsider-confirm');
+  };
+
+  const handleReconsiderSuccessDone = () => {
     onClose();
   };
 
@@ -95,6 +146,7 @@ export function RejectModal({ isOpen, onClose, onConfirm, request }) {
                   <option value="" disabled>State your reason</option>
                   <option value="Incomplete Document">Incomplete Document</option>
                   <option value="Invalid Information">Invalid Information</option>
+                  <option value="Duplicate Request">Duplicate Request</option>
                   <option value="Other">Other</option>
                 </select>
               </div>
@@ -115,8 +167,7 @@ export function RejectModal({ isOpen, onClose, onConfirm, request }) {
               </button>
             </div>
           </>
-        ) : (
-          // success stage: reuse approve’s check icon & styling
+        ) : stage === 'success' ? (
           <div className="flex flex-col items-center">
             <div className="bg-green-500 rounded-full p-6 mb-6">
               <svg
@@ -140,12 +191,141 @@ export function RejectModal({ isOpen, onClose, onConfirm, request }) {
               The request has been marked as rejected.
             </p>
             <button
-              onClick={handleDone}
+              onClick={handleSuccessDone}
               className="px-8 py-3 bg-green-500 text-white rounded-full font-medium hover:bg-green-600 transition"
             >
               Done
             </button>
           </div>
+        ) : stage === 'details' ? (
+          <>
+            <h2 className="text-2xl font-bold text-black mb-2">
+              Request Details
+            </h2>
+            <p className="text-gray-600 mb-6">
+              This request is already approved.
+            </p>
+            <div className="space-y-4 mb-6">
+              <div>
+                <label className="block mb-1 font-medium text-sm">Name</label>
+                <p className="text-gray-800">{name}</p>
+              </div>
+              <div>
+                <label className="block mb-1 font-medium text-sm">Role</label>
+                <p className="text-gray-800">Member</p>
+              </div>
+              <div>
+                <label className="block mb-1 font-medium text-sm">Document Request</label>
+                <p className="text-gray-800">{documentRequest}</p>
+              </div>
+              <div>
+                <label className="block mb-1 font-medium text-sm">Status</label>
+                <p className="text-gray-800">Rejected</p>
+              </div>
+              <div>
+                <label className="block mb-1 font-medium text-sm">Reason</label>
+                <p className="text-gray-800">{reason}</p>
+              </div>
+            </div>
+            <div className="mb-6">
+              <label className="flex items-center space-x-2 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={notifyForResubmission}
+                  onChange={e => setNotifyForResubmission(e.target.checked)}
+                  className="w-4 h-4 text-green-600 bg-gray-100 border-gray-300 rounded focus:ring-green-500"
+                />
+                <span className="text-sm font-medium">Notify for Resubmission</span>
+              </label>
+            </div>
+            {!notifyForResubmission ? (
+              <button
+                onClick={onClose}
+                className="w-full py-3 bg-green-500 text-white rounded-full font-medium hover:bg-green-600 transition"
+              >
+                Back
+              </button>
+            ) : (
+              <div className="flex justify-between gap-4">
+                <button
+                  onClick={onClose}
+                  className="flex-1 py-3 bg-[#E53E3E] text-white rounded-full font-medium hover:bg-[#C53030] transition"
+                >
+                  Disregard
+                </button>
+                <button
+                  onClick={handleDetailsConfirm}
+                  className="flex-1 py-3 bg-green-500 text-white rounded-full font-medium hover:bg-green-600 transition"
+                >
+                  Confirm
+                </button>
+              </div>
+            )}
+          </>
+        ) : (
+          // resubmission stage
+          <>
+            <h2 className="text-2xl font-bold text-black mb-2">
+              Resubmission Form
+            </h2>
+            <p className="text-gray-600 mb-6">
+              Please complete the form.
+            </p>
+            <div className="space-y-4 mb-6">
+              <div>
+                <label className="block mb-1 font-medium text-sm">Name</label>
+                <input
+                  type="text"
+                  value={name}
+                  onChange={e => setName(e.target.value)}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-full focus:ring-2 focus:ring-green-500"
+                />
+              </div>
+              <div>
+                <label className="block mb-1 font-medium text-sm">Document Request</label>
+                <input
+                  type="text"
+                  value={documentRequest}
+                  onChange={e => setDocumentRequest(e.target.value)}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-full focus:ring-2 focus:ring-green-500"
+                />
+              </div>
+              <div>
+                <label className="block mb-1 font-medium text-sm">Email to</label>
+                <input
+                  type="email"
+                  value={email}
+                  onChange={e => setEmail(e.target.value)}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-full focus:ring-2 focus:ring-green-500"
+                />
+              </div>
+              <div>
+                <label className="block mb-1 font-medium text-sm">
+                  Message <span className="text-red-500">*</span>
+                </label>
+                <textarea
+                  value={message}
+                  onChange={e => setMessage(e.target.value)}
+                  rows={6}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-2xl focus:ring-2 focus:ring-green-500 resize-none"
+                />
+              </div>
+            </div>
+            <div className="flex justify-between gap-4">
+              <button
+                onClick={onClose}
+                className="flex-1 py-3 bg-[#E53E3E] text-white rounded-full font-medium hover:bg-[#C53030] transition"
+              >
+                Disregard
+              </button>
+              <button
+                onClick={handleResubmissionConfirm}
+                className="flex-1 py-3 bg-green-500 text-white rounded-full font-medium hover:bg-green-600 transition"
+              >
+                Confirm
+              </button>
+            </div>
+          </>
         )}
       </div>
     </div>
@@ -222,7 +402,7 @@ export default function ApproveModal({ isOpen, onClose, onApprove }) {
               Document approved successfully!
             </h2>
             <p className="text-center text-gray-600 mb-8">
-              Everything’s set. Feel free to check the requests.
+              Everything's set. Feel free to check the requests.
             </p>
             <div className="flex justify-center gap-4">
               <button

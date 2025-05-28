@@ -6,7 +6,8 @@ import {
   RefreshCw,
   ChevronDown,
   Copy,
-  Trash2
+  Trash2,
+  X,
 } from 'lucide-react';
 import ApproveModal, { RejectModal } from './ApproveModal';
 
@@ -26,7 +27,7 @@ export default function Document() {
       const b = btn.getBoundingClientRect();
       setIndicator({
         left: b.left - c.left + container.scrollLeft,
-        width: b.width
+        width: b.width,
       });
     }
   }, [activeTab]);
@@ -37,9 +38,11 @@ export default function Document() {
     return () => window.removeEventListener('resize', updateIndicator);
   }, [updateIndicator]);
 
-  // ─── SEARCH & ADD MEMBER ───────────────────────────────────────────────────────
+  // ─── SEARCH & FILTER STATE ───────────────────────────────────────────────────────
   const [showFilters, setShowFilters] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [selectedDocumentRequest, setSelectedDocumentRequest] = useState('');
+  const [selectedStatus, setSelectedStatus] = useState('');
 
   // ─── REQUESTS STATE ────────────────────────────────────────────────────────────
   const [requests, setRequests] = useState([
@@ -59,6 +62,54 @@ export default function Document() {
     { id: 14, name: 'Chris Patel', email: 'chris.patel@example.com', avatar: '/Screenshot_195.png', listDate: 'Mar 27, 2025, 06:15 PM', role: 'Member', document: 'Mortgage Contract', status: 'Approved', requestedOn: 'March 27, 2025, 06:15 PM' },
     { id: 15, name: 'Jessica Kim', email: 'jessica.kim@example.com', avatar: '/Screenshot_195.png', listDate: 'Mar 26, 2025, 01:05 PM', role: 'Member', document: 'Vehicle Registration', status: 'Rejected', requestedOn: 'March 26, 2025, 01:05 PM' }
   ]);
+
+  // ─── SORTING STATE ─────────────────────────────────────────────────────────────
+  const [sortOrder, setSortOrder] = useState('recent'); // 'recent' | 'atoz' | 'ztoa' | 'old'
+  const [recentDropdownOpen, setRecentDropdownOpen] = useState(false);
+  const recentDropdownRef = useRef();
+
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (recentDropdownRef.current && !recentDropdownRef.current.contains(event.target)) {
+        setRecentDropdownOpen(false);
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  function parseDateString(dateStr) {
+    return new Date(dateStr);
+  }
+
+  // Filter + sort requests based on filter state and sortOrder
+  const filteredSortedRequests = React.useMemo(() => {
+    let filtered = requests.filter(r => {
+      return (
+        r.name.toLowerCase().includes(searchQuery.toLowerCase()) &&
+        (selectedDocumentRequest ? r.document === selectedDocumentRequest : true) &&
+        (selectedStatus ? r.status === selectedStatus : true)
+      );
+    });
+
+    switch (sortOrder) {
+      case 'atoz':
+        filtered.sort((a, b) => a.name.localeCompare(b.name));
+        break;
+      case 'ztoa':
+        filtered.sort((a, b) => b.name.localeCompare(a.name));
+        break;
+      case 'old':
+        filtered.sort((a, b) => parseDateString(a.listDate) - parseDateString(b.listDate));
+        break;
+      case 'recent':
+      default:
+        filtered.sort((a, b) => parseDateString(b.listDate) - parseDateString(a.listDate));
+        break;
+    }
+
+    return filtered;
+  }, [requests, searchQuery, selectedDocumentRequest, selectedStatus, sortOrder]);
 
   // ─── HISTORY TABLE STATE & DELETE ─────────────────────────────────────────────
   const historyData = requests.map(r => ({ ...r, reason: 'Duplicate Request' }));
@@ -96,6 +147,19 @@ export default function Document() {
     );
   };
 
+  // Clear filters
+  const clearFilters = () => {
+    setSelectedDocumentRequest('');
+    setSelectedStatus('');
+    setShowFilters(false);
+  };
+
+  // Get unique documents for filter dropdown
+  const uniqueDocuments = React.useMemo(() => {
+    const docs = new Set(requests.map(r => r.document));
+    return Array.from(docs).sort();
+  }, [requests]);
+
   return (
     <div className="p-0">
       {/* Sticky Header & Tabs */}
@@ -110,7 +174,7 @@ export default function Document() {
               </li>
             </ul>
           </div>
-          <button className="btn btn-square btn-binhi ml-4">
+          <button className="btn btn-square btn-binhi ml-4" aria-label="Menu">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="w-5 h-5">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 12h.01M12 12h.01M19 12h.01" />
             </svg>
@@ -151,16 +215,57 @@ export default function Document() {
         {activeTab === 'pending' ? (
           <>
             {/* Pending Toolbar */}
-            <div className="flex items-center justify-between mb-4 px-4 pt-2">
-              {/* Left: Refresh (no delete UI anymore) */}
+            <div className="flex items-center justify-between mb-2 px-4 pt-2">
+              {/* Left: Show filter UI or "Pending Requests" text */}
               <div className="flex items-center gap-2">
-                <RefreshCw size={20} stroke="#16A34A" />
-                <span className="font-medium text-base" style={{ color: '#111827' }}>
-                  Pending Requests {requests.length}
-                </span>
+                {showFilters ? (
+                  <div className="flex items-center space-x-1 p-2 rounded-lg w-fit">
+                    <div className="flex items-center space-x-1 border rounded-l-3xl px-3 py-1 cursor-pointer bg-white border-[#858585] h-[35px]">
+                      <SlidersHorizontal className="w-4 h-4 text-[#3b82f6]" />
+                      <span className="mr-2 p-2 text-sm text-[#3b82f6] font-medium">Active Filters</span>
+                    </div>
+                    {/* Document Request Filter */}
+                    <select
+                      value={selectedDocumentRequest}
+                      onChange={e => setSelectedDocumentRequest(e.target.value)}
+                      className="border border-[#858585] h-[35px] text-sm bg-white text-[#858585] pl-2 pr-6"
+                    >
+                      <option value="">Document Request</option>
+                      {uniqueDocuments.map(doc => (
+                        <option key={doc} value={doc}>{doc}</option>
+                      ))}
+                    </select>
+                    {/* Status Filter */}
+                    <select
+                      value={selectedStatus}
+                      onChange={e => setSelectedStatus(e.target.value)}
+                      className="border border-[#858585] h-[35px] text-sm bg-white text-[#858585] pl-2 pr-6"
+                    >
+                      <option value="">Status</option>
+                      <option value="Pending">Pending</option>
+                      <option value="Approved">Approved</option>
+                      <option value="Rejected">Rejected</option>
+                    </select>
+                    <button
+                      onClick={clearFilters}
+                      className="flex items-center space-x-1 border rounded-r-3xl px-3 py-1 text-sm border-[#858585] h-[35px] bg-white text-[#858585]"
+                      aria-label="Clear filters"
+                    >
+                      <X className="w-4 h-4 text-[#858585]" />
+                      <span>Clear</span>
+                    </button>
+                  </div>
+                ) : (
+                  <>
+                    <RefreshCw size={20} stroke="#16A34A" />
+                    <span className="font-medium text-base" style={{ color: '#111827' }}>
+                      Pending Requests {requests.length}
+                    </span>
+                  </>
+                )}
               </div>
 
-              {/* Right: Search + Add Member */}
+              {/* Right: Search */}
               <div className="ml-auto flex items-center gap-3">
                 <div className="relative w-[280px] flex items-center border rounded-full px-3 py-1 bg-white">
                   <Search className="text-gray-500 w-5 h-5 mr-2" />
@@ -172,39 +277,119 @@ export default function Document() {
                     className="flex-1 outline-none bg-transparent"
                     style={{ color: '#374151' }}
                   />
-                  <button onClick={() => setShowFilters(!showFilters)}>
+                  <button
+                    onClick={() => setShowFilters(f => !f)}
+                    aria-label="Toggle filters"
+                  >
                     <SlidersHorizontal className="text-gray-600 w-5 h-5" />
                   </button>
                 </div>
-                <button
-                  className="rounded-full px-4 py-2 font-semibold"
-                  style={{ backgroundColor: '#16A34A', color: '#FFFFFF' }}
-                >+ Add Member</button>
               </div>
             </div>
 
             {/* Pending List & Detail */}
             <div className="flex gap-4">
               {/* Left list */}
-              <div className="w-[300px] bg-white rounded-2xl border border-[#E5E7EB] shadow-sm overflow-hidden">
-                <div className="px-4 py-4">
+              <div
+                className="border border-[#E5E7EB] shadow-sm overflow-hidden w-[300px] role=list"
+                role="list"
+              >
+                <div className="px-4 py-4 relative" ref={recentDropdownRef}>
                   <button
-                    className="w-full flex items-center justify-between px-4 py-2 rounded-full border border-[#D1D5DB]"
-                    style={{ color: '#374151' }}
+                    className="w-full flex items-center justify-between px-4 py-2 rounded-full border border-[#D1D5DB] focus:outline-none"
+                    onClick={() => setRecentDropdownOpen(!recentDropdownOpen)}
+                    aria-haspopup="listbox"
+                    aria-expanded={recentDropdownOpen}
+                    aria-label="Sort options"
                   >
-                    <span className="flex items-center gap-1">⇅ Recent</span>
+                    <span className="flex items-center gap-1">
+                      {sortOrder === 'recent' && '⇅ Recent'}
+                      {sortOrder === 'atoz' && 'A → Z'}
+                      {sortOrder === 'ztoa' && 'Z → A'}
+                      {sortOrder === 'old' && '⇅ Old'}
+                    </span>
                     <ChevronDown size={16} />
                   </button>
+                  {recentDropdownOpen && (
+                    <ul
+                      role="listbox"
+                      tabIndex={-1}
+                      className="absolute z-50 bg-white border border-gray-300 rounded-md mt-1 w-full shadow-lg max-h-60 overflow-auto"
+                      aria-label="Sort options"
+                    >
+                      <li
+                        role="option"
+                        tabIndex={0}
+                        onClick={() => {
+                          setSortOrder('recent');
+                          setRecentDropdownOpen(false);
+                        }}
+                        onKeyDown={e => { if (e.key === 'Enter') { setSortOrder('recent'); setRecentDropdownOpen(false); } }}
+                        className={`px-4 py-2 cursor-pointer hover:bg-green-50 ${
+                          sortOrder === 'recent' ? 'font-semibold bg-green-100' : ''
+                        }`}
+                      >
+                        ⇅ Recent
+                      </li>
+                      <li
+                        role="option"
+                        tabIndex={0}
+                        onClick={() => {
+                          setSortOrder('old');
+                          setRecentDropdownOpen(false);
+                        }}
+                        onKeyDown={e => { if (e.key === 'Enter') { setSortOrder('old'); setRecentDropdownOpen(false); } }}
+                        className={`px-4 py-2 cursor-pointer hover:bg-green-50 ${
+                          sortOrder === 'old' ? 'font-semibold bg-green-100' : ''
+                        }`}
+                      >
+                        ⇅ Old
+                      </li>
+                      <li
+                        role="option"
+                        tabIndex={0}
+                        onClick={() => {
+                          setSortOrder('atoz');
+                          setRecentDropdownOpen(false);
+                        }}
+                        onKeyDown={e => { if (e.key === 'Enter') { setSortOrder('atoz'); setRecentDropdownOpen(false); } }}
+                        className={`px-4 py-2 cursor-pointer hover:bg-green-50 ${
+                          sortOrder === 'atoz' ? 'font-semibold bg-green-100' : ''
+                        }`}
+                      >
+                        A → Z
+                      </li>
+                      <li
+                        role="option"
+                        tabIndex={0}
+                        onClick={() => {
+                          setSortOrder('ztoa');
+                          setRecentDropdownOpen(false);
+                        }}
+                        onKeyDown={e => { if (e.key === 'Enter') { setSortOrder('ztoa'); setRecentDropdownOpen(false); } }}
+                        className={`px-4 py-2 cursor-pointer hover:bg-green-50 ${
+                          sortOrder === 'ztoa' ? 'font-semibold bg-green-100' : ''
+                        }`}
+                      >
+                        Z → A
+                      </li>
+                    </ul>
+                  )}
                 </div>
-                <div className="max-h-[550px] overflow-y-auto px-4 pb-4">
-                  <div className="space-y-3">
-                    {requests.map((req) => (
+                <div className="max-h-[550px] overflow-y-auto px-4 pb-4" role="list">
+                  {filteredSortedRequests.length === 0 ? (
+                    <p className="text-center text-gray-500">No requests found.</p>
+                  ) : (
+                    filteredSortedRequests.map((req) => (
                       <div
                         key={req.id}
-                        className={`flex items-center gap-3 p-2 rounded-lg cursor-pointer ${
-                          selectedRequest.id === req.id ? 'bg-[#F3F4F6]' : ''
+                        className={`flex items-center gap-3 p-2 rounded-lg cursor-pointer transition-colors duration-200 ${
+                          selectedRequest.id === req.id ? 'bg-[#F3F4F6]' : 'hover:bg-green-50'
                         }`}
                         onClick={() => setSelectedRequest(req)}
+                        role="listitem"
+                        tabIndex={0}
+                        onKeyDown={e => { if (e.key === 'Enter') setSelectedRequest(req); }}
                       >
                         <img src={req.avatar} alt={req.name} className="w-10 h-10 rounded-full" />
                         <div>
@@ -212,8 +397,8 @@ export default function Document() {
                           <div className="text-sm text-[#6B7280]">{req.listDate}</div>
                         </div>
                       </div>
-                    ))}
-                  </div>
+                    ))
+                  )}
                 </div>
               </div>
 
@@ -235,7 +420,7 @@ export default function Document() {
                       style={{
                         color: '#0066FF',
                         backgroundColor: '#E0F0FF',
-                        border: '2px solid #0066FF'
+                        border: '2px solid #0066FF',
                       }}
                     >
                       {selectedRequest.role}
@@ -254,21 +439,21 @@ export default function Document() {
                           selectedRequest.status === 'Pending'
                             ? '#92400E'
                             : selectedRequest.status === 'Approved'
-                              ? '#15803D'
-                              : '#DC2626',
+                            ? '#15803D'
+                            : '#DC2626',
                         backgroundColor:
                           selectedRequest.status === 'Pending'
                             ? '#FEF3C7'
                             : selectedRequest.status === 'Approved'
-                              ? '#D1FAE5'
-                              : '#FEE2E2',
+                            ? '#D1FAE5'
+                            : '#FEE2E2',
                         border: `1px solid ${
                           selectedRequest.status === 'Pending'
                             ? '#92400E'
                             : selectedRequest.status === 'Approved'
-                              ? '#15803D'
-                              : '#DC2626'
-                        }`
+                            ? '#15803D'
+                            : '#DC2626'
+                        }`,
                       }}
                     >
                       {selectedRequest.status}
@@ -336,14 +521,10 @@ export default function Document() {
                     className="flex-1 outline-none bg-transparent"
                     style={{ color: '#374151' }}
                   />
-                  <button onClick={() => setShowFilters(!showFilters)}>
+                  <button onClick={() => setShowFilters(f => !f)}>
                     <SlidersHorizontal className="text-gray-600 w-5 h-5" />
                   </button>
                 </div>
-                <button
-                  className="rounded-full px-4 py-2 font-semibold"
-                  style={{ backgroundColor: '#16A34A', color: '#FFFFFF' }}
-                >+ Add Member</button>
               </div>
             </div>
 
@@ -415,7 +596,7 @@ export default function Document() {
                             style={{
                               color: '#0066FF',
                               border: '2px solid #0066FF',
-                              backgroundColor: '#E0F0FF'
+                              backgroundColor: '#E0F0FF',
                             }}
                           >
                             {row.role}
@@ -430,30 +611,28 @@ export default function Document() {
                                 row.status === 'Pending'
                                   ? '#92400E'
                                   : row.status === 'Approved'
-                                    ? '#15803D'
-                                    : '#DC2626',
+                                  ? '#15803D'
+                                  : '#DC2626',
                               border: `1px solid ${
                                 row.status === 'Pending'
                                   ? '#92400E'
                                   : row.status === 'Approved'
-                                    ? '#15803D'
-                                    : '#DC2626'
+                                  ? '#15803D'
+                                  : '#DC2626'
                               }`,
                               backgroundColor:
                                 row.status === 'Pending'
                                   ? '#FEF3C7'
                                   : row.status === 'Approved'
-                                    ? '#D1FAE5'
-                                    : '#FEE2E2'
+                                  ? '#D1FAE5'
+                                  : '#FEE2E2',
                             }}
                           >
                             {row.status}
                           </span>
                         </td>
                         <td>{row.reason}</td>
-                        <td
-                          style={{ minWidth: 160 }}
-                        >
+                        <td style={{ minWidth: 160 }}>
                           {/* Marketplace-like sliding effect */}
                           <div className="group flex items-center gap-4 justify-end cursor-pointer relative">
                             <div className="relative flex items-center">
@@ -489,7 +668,9 @@ export default function Document() {
                     onClick={() => setHistoryPage(h => Math.max(1, h - 1))}
                     className="btn btn-sm"
                     disabled={historyPage === 1}
-                  >«</button>
+                  >
+                    «
+                  </button>
                   {[...Array(totalHistoryPages)].map((_, i) => {
                     const page = i + 1;
                     return (
@@ -497,14 +678,18 @@ export default function Document() {
                         key={page}
                         onClick={() => setHistoryPage(page)}
                         className={`btn btn-sm ${page === historyPage ? 'bg-gray-300 text-black' : 'btn-ghost text-gray-600'}`}
-                      >{page}</button>
+                      >
+                        {page}
+                      </button>
                     );
                   })}
                   <button
                     onClick={() => setHistoryPage(h => Math.min(totalHistoryPages, h + 1))}
                     className="btn btn-sm"
                     disabled={historyPage === totalHistoryPages}
-                  >»</button>
+                  >
+                    »
+                  </button>
                 </div>
               </div>
             </div>
