@@ -21,6 +21,7 @@ import Pencil from '../assets/Pencil.png';
 import PDF from '../assets/PDF.png';
 
 
+
 const currentMembersInitial = [
   {
     id: 1,
@@ -194,6 +195,9 @@ export default function MemberTabs() {
     street: '',
   });
 
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [isDeleteModalOpe, setIsDeleteModalOpe] = useState(false);
+
   const [showConfirmationModal, setShowConfirmationModal] = useState(false);
   const [showSuccessMessage, setShowSuccessMessage] = useState(false);
 
@@ -262,6 +266,24 @@ export default function MemberTabs() {
     } else {
       setSelectedMembers(filteredMembers.map(m => m.id));
     }
+  };
+
+  const calculateAge = (dob) => {
+    const birthDate = new Date(dob);
+    const today = new Date();
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const m = today.getMonth() - birthDate.getMonth();
+    if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+      age--;
+    }
+    return age;
+  };
+  
+  const getDaysAgo = (date) => {
+    const d = new Date(date);
+    const now = new Date();
+    const diff = Math.floor((now - d) / (1000 * 60 * 60 * 24));
+    return `${diff} day${diff !== 1 ? 's' : ''}`;
   };
   
   // Toggle select member by id
@@ -409,72 +431,83 @@ export default function MemberTabs() {
 
     
     <div className="p-0">
-       <div className="w-full bg-binhi-100 shadow-sm">
-      {/* Navbar with breadcrumbs and right icon */}
-      <div className="flex items-center justify-between px-6 py-3">
-        {/* Breadcrumbs */}
-        <div className="flex-1">
-          <div className="text-sm breadcrumbs font-inter text-base">
-            <ul>
-              <li><a className="text-binhigreen underline">Dashboard</a></li>
-              <li><a className="text-binhigreen underline">Membership Management</a></li>
-              <li><a className="text-binhigreen underline">Members</a></li>
-              <li className="text-gray-400">Current Members</li>
-            </ul>
-          </div>
-        </div>
-
-        {/* Dots Button */}
-        <button className="btn btn-square btn-binhi ml-4">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-            className="w-5 h-5"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="2"
-              d="M5 12h.01M12 12h.01M19 12h.01"
-            />
-          </svg>
-        </button>
-      </div>
-
-      {/* Page Title */}
-      <div className="px-6 pb-4 h-5 flex items-center">
-        <h1 className="text-[40px] font-bold text-gray-800">
-          Membership Management
-        </h1>
-      </div>
-    </div>
-      {/* Tabs Navigation */}
-      <div className="mb-4 border-b border-gray-200 dark:border-gray-700 relative">
-        <ul
-          className="flex flex-wrap -mb-px text-sm font-medium text-center"
-          role="tablist"
-        >
-          {["current", "pending", "rejected"].map((tab, index) => (
-            <li key={tab} className="mr-10" role="presentation">
-              <button
-                ref={(el) => (tabRefs.current[index] = el)}
-                className={`inline-block p-4 ${activeTab === tab ? "text-green-600" : "text-gray-500 hover:text-gray-600"}`}
-                onClick={() => setActiveTab(tab)}
-                role="tab"
-                aria-selected={activeTab === tab}
-              >
-                {tab === "current" ? "Current Members" : tab === "pending" ? "Pending Members" : "Rejected Members"}
-              </button>
+  {/* Header with Breadcrumbs */}
+  <div className="w-full bg-binhi-100 shadow-sm">
+    {/* Navbar with breadcrumbs and dots icon */}
+    <div className="flex items-center justify-between px-6 py-3">
+      <div className="flex-1">
+        <div className="text-sm breadcrumbs font-inter text-base">
+          <ul>
+            <li><a className="text-binhigreen underline">Dashboard</a></li>
+            <li><a className="text-binhigreen underline">Membership Management</a></li>
+            <li><a className="text-binhigreen underline">Members</a></li>
+            <li className="text-gray-400">
+              {activeTab === "current"
+                ? "Current Members"
+                : activeTab === "pending"
+                ? "Pending Members"
+                : "Rejected Members"}
             </li>
-          ))}
-        </ul>
-        <div
-          className="absolute bottom-0 h-0.5 bg-green-600 transition-all duration-300"
-          style={{ left: underlineStyle.left, width: underlineStyle.width }}
-        />
+          </ul>
+        </div>
       </div>
+
+      {/* Dots Button */}
+      <button className="btn btn-square btn-binhi ml-4">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+          className="w-5 h-5"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth="2"
+            d="M5 12h.01M12 12h.01M19 12h.01"
+          />
+        </svg>
+      </button>
+    </div>
+
+    {/* Page Title */}
+    <div className="px-6 pb-4 h-5 flex items-center">
+      <h1 className="text-[40px] font-bold text-gray-800">Membership Management</h1>
+    </div>
+  </div>
+
+  {/* Tabs Navigation */}
+  <div className="mb-4 border-b border-gray-200 dark:border-gray-700 relative">
+    <ul
+      className="flex flex-wrap -mb-px text-sm font-medium text-center"
+      role="tablist"
+    >
+      {["current", "pending", "rejected"].map((tab, index) => (
+        <li key={tab} className="mr-10" role="presentation">
+          <button
+            ref={(el) => (tabRefs.current[index] = el)}
+            className={`inline-block p-4 ${
+              activeTab === tab ? "text-green-600" : "text-gray-500 hover:text-gray-600"
+            }`}
+            onClick={() => setActiveTab(tab)}
+            role="tab"
+            aria-selected={activeTab === tab}
+          >
+            {tab === "current"
+              ? "Current Members"
+              : tab === "pending"
+              ? "Pending Members"
+              : "Rejected Members"}
+          </button>
+        </li>
+      ))}
+    </ul>
+    <div
+      className="absolute bottom-0 h-0.5 bg-green-600 transition-all duration-300"
+      style={{ left: underlineStyle.left, width: underlineStyle.width }}
+    />
+  </div>
 
       {/* Current Members Tab */}
       {activeTab === "current" && (
@@ -488,6 +521,7 @@ export default function MemberTabs() {
                 className="ml-5 mr-5 w-[20px] max-w-full object-contain"
               />
               <span className="text-[15.5px] text-lg font-semibold mr-2">All Members</span>
+              <span className="text-gray-400 font-normal text-xs">24</span>
             </div>
             
             {/* Right Side */}
@@ -559,7 +593,7 @@ export default function MemberTabs() {
             <div className="overflow-x-auto py-0">
             <table className="table w-full">
               <thead>
-                <tr className="text-left" style={{ backgroundColor: "#F4F4F4" }}>
+                <tr className="text-left text-sm text-black" style={{ backgroundColor: "#F4F4F4" }}>
                   <th className="p-4 rounded-tl-lg rounded-tr-lg">
                     <input
                       type="checkbox"
@@ -590,37 +624,54 @@ export default function MemberTabs() {
                         aria-label={`Select member ${member.firstName} ${member.lastName}`}
                       />
                     </td>
-                    <td className="p-4 flex items-center">
-                      <img
-                        src={Juan}
-                        alt={`${member.firstName} ${member.lastName}`}
-                        className="w-10 h-10 rounded-full object-cover mr-3"
-                      />
-                      <div>
-                        <div>{member.firstName} {member.lastName}</div>
-                        <div className="text-sm text-gray-600">{member.email}</div>
-                      </div>
-                    </td>
-                    <td className="p-4">
-                      <div
-                        className="text-center font-bold"
-                        style={{
-                          color: '#0038A8',
-                          borderRadius: '200px',
-                          border: '0.75px solid #0038A8',
-                          opacity: 0.75,
-                          background: '#C0D5FF',
-                          padding: '0px 8px',
-                          fontSize: '12px',
-                          display: 'inline-block',
-                        }}
-                      >
-                        {member.role}
-                      </div>
-                    </td>
-                    <td className="p-4">{member.address}</td>
-                    <td className="p-4">{member.dob}</td>
-                    <td className="p-4">{member.dateAdded}</td>
+  <td className="p-4 flex items-center">
+  <img
+    src={Juan}
+    alt={`${member.firstName} ${member.lastName}`}
+    className="w-10 h-10 rounded-full object-cover mr-3"
+  />
+  <div>
+    <div className="font-medium">{member.firstName} {member.lastName}</div>
+    <div className="text-xs text-gray-400 font-normal">{member.email}</div>
+  </div>
+</td>
+
+<td className="p-4">
+  <div
+    className="text-center font-medium"
+    style={{
+      color: '#0038A8',
+      borderRadius: '200px',
+      border: '0.75px solid #0038A8',
+      opacity: 0.75,
+      background: '#C0D5FF',
+      padding: '0px 8px',
+      fontSize: '12px',
+      display: 'inline-block',
+    }}
+  >
+    {member.role}
+  </div>
+</td>
+
+<td className="p-4">
+  <div className="font-medium">{member.address}</div>
+  <div className="text-xs text-gray-400 font-normal">Bulacan</div>
+</td>
+
+<td className="p-4">
+  <div className="font-medium">
+    {new Date(member.dob).toLocaleDateString('en-US', { day: '2-digit', month: 'short', year: 'numeric' })}
+  </div>
+  <div className="text-xs text-gray-400 font-normal">{calculateAge(member.dob)} Years Old</div>
+</td>
+
+<td className="p-4">
+  <div className="font-medium">
+    {new Date(member.dateAdded).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
+  </div>
+  <div className="text-xs text-gray-400 font-normal">{getDaysAgo(member.dateAdded)} ago</div>
+</td>
                     <td className="p-4 flex gap-2">
 
                     <span
@@ -632,9 +683,12 @@ export default function MemberTabs() {
                     </span>
 
 
-                    <span className="w-4 h-4 cursor-pointer hover:brightness-110 inline-block">
-                        <img src={edtIcon} alt="Trash" className="w-4 h-4" />
-                    </span>
+                    <span
+                className="w-4 h-4 cursor-pointer hover:brightness-110 inline-block"
+                onClick={() => setIsDeleteModalOpe(true)}
+              >
+                <img src={edtIcon} alt="Trash" className="w-4 h-4" />
+              </span>
                     </td>
                   </tr>
                 ))}
@@ -647,18 +701,32 @@ export default function MemberTabs() {
               </tbody>
             </table>
 
-            <div className="flex justify-center mt-10 mb-4">
-<div className="join space-x-10">
-  <button className="join-item btn bg-[#F8FCF8] text-[#909090] hover:bg-[#409943]">1</button>
-  <button className="join-item btn bg-[#F8FCF8] text-[#909090] hover:bg-[#409943]">2</button>
-  <button className="join-item btn bg-[#F8FCF8] text-[#909090] hover:bg-[#409943]">3</button>
-  <button className="join-item btn bg-[#F8FCF8] text-[#909090] hover:bg-[#409943]">4</button>
-  <button className="join-item btn bg-[#F8FCF8] text-[#909090] hover:bg-[#409943]">5</button>
-  <button className="join-item btn bg-[#F8FCF8] text-[#909090] hover:bg-[#409943]">...</button>
+                  {/* Pagination */}
+                  {/* Pagination */}
+     <div className="fixed bottom-0 left-0 w-full py-4">
+  <div className="flex justify-center">
+    <div className="flex items-center gap-1">
+      <button className="btn btn-sm hover:bg-[#D9D9D9] rounded">«</button>
+
+      {[1, 2, 3, 4, 5].map((page) => (
+        <button
+          key={page}
+          className={`btn btn-sm ${
+            page === 1
+              ? 'bg-gray-300 text-black'
+              : 'btn-ghost text-gray-600 hover:bg-[#D9D9D9] hover:text-black'
+          }`}
+        >
+          {page}
+        </button>
+      ))}
+
+      <button className="btn btn-sm hover:bg-[#D9D9D9] rounded">»</button>
+    </div>
+  </div>
+  </div>
 </div>
 </div>
-          </div>
-          </div>
         </>
       )}
 
@@ -676,6 +744,7 @@ export default function MemberTabs() {
         <span className="text-[15.5px] text-lg font-semibold mr-2">
           Pending Members
         </span>
+        <span className="text-gray-400 font-normal text-xs">24</span>
       </div>
 
       {/* Right Side */}
@@ -1162,6 +1231,7 @@ export default function MemberTabs() {
                 className="ml-5 mr-5 w-[20px] max-w-full object-contain"
               />
               <span className="text-[15.5px] text-lg font-semibold mr-2">Rejected Members</span>
+              <span className="text-gray-400 font-normal text-xs">24</span>
             </div>
             {/* Right Side */}
       <div className="flex items-center space-x-4">
@@ -1244,7 +1314,7 @@ export default function MemberTabs() {
          <div className="overflow-x-auto">
       <table className="table w-full">
         <thead className="bg-gray-50 text-gray-700 font-semibold">
-        <tr className="text-left" style={{ backgroundColor: "#F4F4F4" }}>
+        <tr className="text-left text-sm text-black" style={{ backgroundColor: "#F4F4F4" }}>
             <th className="p-4 rounded-tl-lg rounded-tr-lg">
               <input
                className="checkbox checkbox-sm rounded"
@@ -1282,11 +1352,11 @@ export default function MemberTabs() {
 
                 <div>
                   <div className="font-medium">{item.name}</div>
-                  <div className="text-sm text-gray-500 font-medium">{item.email}</div>
+                  <div className="text-sm text-gray-500 font-normal">{item.email}</div>
                 </div>
               </td>
               <td className="p-4">
-                <span className="text-center font-bold"
+                <span className="text-center font-medium"
                       style={{
                         color: '#0038A8',
                         borderRadius: '200px',
@@ -1302,7 +1372,7 @@ export default function MemberTabs() {
                 </span>
               </td>
               <td className="p-4">
-                <span className="text-center font-bold"
+                <span className="text-center font-medium"
                       style={{
                         color: '#A51B29',
                         borderRadius: '200px',
@@ -1325,7 +1395,7 @@ export default function MemberTabs() {
                 <div className="text-xs text-gray-400">Click to view</div>
               </td>
               <td className="p-4">
-                <div className="text-sm font-bold">{item.date}</div>
+                <div className="text-sm font-medium">{item.date}</div>
                 <div className="text-xs text-gray-400">{item.daysAgo}</div>
               </td>
               <td className="p-4 flex items-center gap-3">
@@ -1334,10 +1404,15 @@ export default function MemberTabs() {
                       onClick={() => setIsApplicationDetailsOpen(true)}
                     >
                       <img src={editIcon} alt="Edit" className="w-4 h-4" />
-                    </span>
-                <span className="w-4 h-4 cursor-pointer hover:brightness-110 inline-block">
-                    <img src={edtIcon} alt="Trash" className="w-4 h-4" />
-                </span>
+
+                      </span>
+                      <span
+                className="w-4 h-4 cursor-pointer hover:brightness-110 inline-block"
+                onClick={() => setIsDeleteModalOpe(true)}
+              >
+                <img src={edtIcon} alt="Trash" className="w-4 h-4" />
+              </span>
+                
               </td>
             </tr>
           ))}
@@ -1522,21 +1597,77 @@ export default function MemberTabs() {
         </tbody>
       </table>
 
-      {/* Pagination */}
-      <div className="flex justify-center mt-10 mb-4">
-<div className="join space-x-10">
-  <button className="join-item btn bg-[#F8FCF8] text-[#909090] hover:bg-[#409943]">1</button>
-  <button className="join-item btn bg-[#F8FCF8] text-[#909090] hover:bg-[#409943]">2</button>
-  <button className="join-item btn bg-[#F8FCF8] text-[#909090] hover:bg-[#409943]">3</button>
-  <button className="join-item btn bg-[#F8FCF8] text-[#909090] hover:bg-[#409943]">4</button>
-  <button className="join-item btn bg-[#F8FCF8] text-[#909090] hover:bg-[#409943]">5</button>
-  <button className="join-item btn bg-[#F8FCF8] text-[#909090] hover:bg-[#409943]">...</button>
+       {/* Pagination */}
+
+     <div className="fixed bottom-0 left-0 w-full py-4">
+  <div className="flex justify-center">
+    <div className="flex items-center gap-1">
+      <button className="btn btn-sm hover:bg-[#D9D9D9] rounded">«</button>
+
+      {[1, 2, 3, 4, 5].map((page) => (
+        <button
+          key={page}
+          className={`btn btn-sm ${
+            page === 1
+              ? 'bg-gray-300 text-black'
+              : 'btn-ghost text-gray-600 hover:bg-[#D9D9D9] hover:text-black'
+          }`}
+        >
+          {page}
+        </button>
+      ))}
+
+      <button className="btn btn-sm hover:bg-[#D9D9D9] rounded">»</button>
+    </div>
+  </div>
+  </div>
 </div>
 </div>
-    </div>
-    </div>
         </>
       )}
+
+{isDeleteModalOpe && (
+          <div className="fixed inset-0 z-50 bg-black bg-opacity-40 flex items-center justify-center">
+            <div className="bg-white rounded-3xl p-6 w-[400px] border border-black shadow-lg relative text-center">
+              <button
+                onClick={() => setIsDeleteModalOpe(false)}
+                className="absolute top-2 right-3 text-gray-400 hover:text-black"
+              >
+                &times;
+              </button>
+            
+              <div className="mb-4 flex justify-center items-center">
+                    <img src={Disregard} alt="Disregard.png" className="w-[80px] max-w-full object-contain" />
+                  </div>
+                <h2 className="text-2xl text-center font-bold mb-2">Confirm Deletion?</h2>
+                <p className="text-sm text-center text-gray-600">
+                  The selected equipment will be permanently removed from your records.
+                </p>
+                
+                <div className="flex justify-center gap-3 mt-6">
+                  <button
+                    onClick={() => setIsDeleteModalOpe(false)}
+                    className="px-7 py-2 bg-white text-[#E02A3B] border border-[#E02A3B] rounded-full hover:bg-[#E02A3B] hover:text-white text-sm font-medium"
+                    style={{ width: "130px", height: "39px" }}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={() => {
+                      // TODO: Add deletion logic here
+                      setIsDeleteModalOpe(false);
+                    }}
+                    className="px-4 py-2 rounded-3xl bg-[#FF3B4E] text-white hover:bg-[#E02A3B] text-sm"
+                    style={{ width: "130px", height: "39px" }}
+                  >
+                    Delete
+                  </button>
+                </div>
+              
+            </div>
+          </div>
+        )}
+
 
       {/* Add Member Modal */}
       {isAddMemberModalOpen && (
