@@ -1,18 +1,14 @@
 import React, { useState, useRef, useEffect } from 'react';
-import TabsHeader from './TabsHeader';
+import '../styles/Inventory.css';
 import EquipmentTab from './EquipmentTab';
 import RentHistoryTab from './RentHistoryTab';
 
 export default function EquipmentPage() {
   const [activeTab, setActiveTab] = useState('equipment');
-  const [searchCurrent, setSearchCurrent] = useState('');
-  const [showFilters, setShowFilters] = useState(false);
-  const [selectedRole, setSelectedRole] = useState('');
-
+  const [indicatorStyle, setIndicatorStyle] = useState({});
   const tabs = ['equipment', 'rentHistory'];
   const tabsRef = useRef([]);
   const containerRef = useRef();
-  const [indicatorStyle, setIndicatorStyle] = useState({});
 
   useEffect(() => {
     const activeIndex = tabs.indexOf(activeTab);
@@ -29,45 +25,48 @@ export default function EquipmentPage() {
     }
   }, [activeTab]);
 
-  const clearFilters = () => {
-    setSelectedRole('');
-  };
-
   return (
     <div className="p-0">
-      <TabsHeader
-        activeTab={activeTab}
-        setActiveTab={setActiveTab}
-        tabs={tabs}
-        tabsRef={tabsRef}
-        containerRef={containerRef}
-        indicatorStyle={indicatorStyle}
-      />
+      {/* Header */}
+      <div className="w-full bg-binhi-100 shadow-sm">
+        <div className="flex items-center justify-between px-6 py-3">
+          <div className="text-sm breadcrumbs font-inter text-base">
+            <ul>
+              <li><a className="text-binhigreen underline">Dashboard</a></li>
+              <li><a className="text-binhigreen underline">Inventory Management</a></li>
+              <li className="text-gray-400">{activeTab === 'equipment' ? 'Equipment' : 'Rent History'}</li>
+            </ul>
+          </div>
+        </div>
+        <div className="px-6 pb-4 h-5 flex items-center">
+          <h1 className="text-[40px] font-bold text-gray-800">Inventory Management</h1>
+        </div>
+      </div>
 
+      {/* Tabs */}
       <div className="p-6 bg-gray-50 min-h-screen text-sm font-sans">
-        {activeTab === 'equipment' && (
-          <EquipmentTab
-            searchCurrent={searchCurrent}
-            setSearchCurrent={setSearchCurrent}
-            showFilters={showFilters}
-            setShowFilters={setShowFilters}
-            selectedRole={selectedRole}
-            setSelectedRole={setSelectedRole}
-            clearFilters={clearFilters}
+        <div className="relative flex gap-20 border-b pb-2 mb-4" ref={containerRef}>
+          <span
+            className="absolute bottom-0 h-1 bg-[#4CAE4F] transition-all duration-300 rounded-full"
+            style={{ ...indicatorStyle }}
           />
-        )}
+          {tabs.map((tab, index) => (
+            <button
+              key={tab}
+              ref={el => (tabsRef.current[index] = el)}
+              onClick={() => setActiveTab(tab)}
+              className={`pb-2 transition-colors duration-200 ${
+                activeTab === tab ? 'text-green-600 font-semibold' : 'text-gray-500 font-semibold'
+              } ${index === 0 ? 'ml-7' : ''}`}
+            >
+              {tab === 'equipment' ? 'Equipment' : 'Rent History'}
+            </button>
+          ))}
+        </div>
 
-        {activeTab === 'rentHistory' && (
-          <RentHistoryTab
-            searchCurrent={searchCurrent}
-            setSearchCurrent={setSearchCurrent}
-            showFilters={showFilters}
-            setShowFilters={setShowFilters}
-            selectedRole={selectedRole}
-            setSelectedRole={setSelectedRole}
-            clearFilters={clearFilters}
-          />
-        )}
+        {/* Tab Content */}
+        {activeTab === 'equipment' && <EquipmentTab />}
+        {activeTab === 'rentHistory' && <RentHistoryTab />}
       </div>
     </div>
   );
