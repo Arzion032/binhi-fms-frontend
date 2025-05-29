@@ -168,7 +168,7 @@ export default function EquipmentPage() {
                   <Search className="text-gray-500 w-5 h-5 mr-2" />
                   <input
                     type="text"
-                    placeholder="Search Member"
+                    placeholder="Search Equipment"
                     className="flex-1 outline-none bg-white"
                     value={searchCurrent}
                     onChange={(e) => setSearchCurrent(e.target.value)}
@@ -1149,7 +1149,7 @@ export default function EquipmentPage() {
                 <Search className="text-gray-500 w-5 h-5 mr-2" />
                 <input
                   type="text"
-                  placeholder="Search Member"
+                  placeholder="Search Equipment"
                   className="flex-1 outline-none bg-white"
                   value={searchCurrent}
                   onChange={(e) => setSearchCurrent(e.target.value)}
