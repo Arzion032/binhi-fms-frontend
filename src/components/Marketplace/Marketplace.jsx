@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect, useCallback } from "react";
+import React, { useRef, useState, useCallback, useEffect } from "react";
 import ProductManagement from "./ProductManagement";
 import CustomerManagement from "./CustomerManagement";
 import OrderManagement from "./OrderManagement";
@@ -29,7 +29,6 @@ export default function Marketplace() {
       });
     }
   }, [activeTab, tabs]);
-
   useEffect(() => {
     updateIndicator();
     window.addEventListener("resize", updateIndicator);
@@ -102,7 +101,8 @@ export default function Marketplace() {
           />
         </div>
       </div>
-      {/* Tab Content */}
+
+      {/* Tab Panels */}
       {activeTab === "Product Management" && <ProductManagement />}
       {activeTab === "Customer Management" && <CustomerManagement />}
       {activeTab === "Order Management" && <OrderManagement />}
