@@ -1,12 +1,11 @@
 import React from "react";
 import Membership from './components/Membership';
-
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Layout from "./components/Layout/Layout";
 import Financial from "./components/FinancialTracker/Financial";
 import Document from "./components/DocumentProcessing/Document";
 import Marketplace from "./components/Marketplace/Marketplace";
-import Inventory from "./components/Inventory/index";
+import Inventory from './components/Inventory';
 
 function App() {
 
