@@ -1,7 +1,7 @@
 // EquipmentTable.jsx
 
 import React from 'react';
-import Rent from '../../assets/Rent.png';
+import Rent from './../../assets/Rent.png';
 import Pencil from '../../assets/Pencil.png';
 import Trash from '../../assets/Trash.png';
 

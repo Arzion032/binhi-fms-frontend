@@ -73,6 +73,14 @@ export default function Inventory() {
         </>
       )}
 
+{activeTab === 'rentHistory' && (
+  <RentHistoryTable
+    setIsReturnEquipmentOpen={setIsReturnEquipmentOpen}
+    setIsDetailsOpen={setIsDetailsOpen}
+    setIsDeleteModalOpen={setIsDeleteModalOpe}
+  />
+)}
+
       {/* Modals */}
       <AddEquipmentModal
         isModalOpen={isModalOpen}

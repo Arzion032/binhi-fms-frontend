@@ -2,8 +2,8 @@
 
 import React from 'react';
 import { X } from 'lucide-react';
-import Success from '../../assets/Success.png';
-import Disregard from '../../assets/Disregard.png';
+import Success from './../../../assets/Success.png';
+
 
 const RentEquipmentModal = ({
   isRentOpen,
