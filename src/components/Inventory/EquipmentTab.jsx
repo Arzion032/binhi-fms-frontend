@@ -2,10 +2,10 @@
 import React, { useState } from 'react';
 import { Search, SlidersHorizontal, X, PlusCircle } from 'lucide-react';
 import { FaPlus } from 'react-icons/fa';
-import loop from '../../assets/loop.png';
-import Rent from '../../assets/Rent.png';
-import Pencil from '../../assets/Pencil.png';
-import Trash from '../../assets/Trash.png';
+import loop from './../../assets/loop.png';
+import Rent from './../../assets/Rent.png';
+import Pencil from './../../assets/Pencil.png';
+import Trash from './../../assets/Trash.png';
 import InventoryModals from './InventoryModals';
 
 const EquipmentTab = () => {

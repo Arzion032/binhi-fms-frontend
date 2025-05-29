@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { Search, SlidersHorizontal, X } from 'lucide-react';
 import { FaPlus } from 'react-icons/fa';
-import loop from '../assets/loop.png';
+import loop from './../../assets/loop.png';
 
 const RentHistoryTab = () => {
   const [searchQuery, setSearchQuery] = useState('');

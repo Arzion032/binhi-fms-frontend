@@ -1,5 +1,4 @@
 import React, { useState, useRef, useEffect } from 'react';
-import '../styles/Inventory.css';
 import EquipmentTab from './EquipmentTab';
 import RentHistoryTab from './RentHistoryTab';
 
