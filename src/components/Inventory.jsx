@@ -822,19 +822,28 @@ export default function EquipmentPage() {
 
 
     {/* Pagination */}
-    <div className="flex justify-center items-center p-4 space-x-2 text-gray-500 text-sm">
-      <button className="px-2">&lt;</button>
-      {[1, 2, 3, 4, 5].map((num) => (
+    <div className="fixed bottom-0 left-0 w-full py-4">
+  <div className="flex justify-center">
+    <div className="flex items-center gap-1">
+      <button className="btn btn-sm hover:bg-[#D9D9D9] rounded">«</button>
+
+      {[1, 2, 3, 4, 5].map((page) => (
         <button
-          key={num}
-          className={`w-8 h-8 rounded ${num === 1 ? "bg-gray-300" : "hover:bg-gray-200"}`}
+          key={page}
+          className={`btn btn-sm ${
+            page === 1
+              ? 'bg-gray-300 text-black'
+              : 'btn-ghost text-gray-600 hover:bg-[#D9D9D9] hover:text-black'
+          }`}
         >
-          {num}
+          {page}
         </button>
       ))}
-      <span>...</span>
-      <button className="px-2">&gt;</button>
+
+      <button className="btn btn-sm hover:bg-[#D9D9D9] rounded">»</button>
     </div>
+  </div>
+  </div>
   </div>
 </div>
 
@@ -1207,7 +1216,7 @@ export default function EquipmentPage() {
     </thead>
     <tbody>
       {rows.map((row) => (
-        <tr key={row.id} className="bg-[#F8FCF8] border-b border-gray-200 text-center">
+        <tr key={row.id} className="bg-[#F8FCF8] border-gray-200 text-center">
           <td>
             <input type="checkbox" className="checkbox checkbox-sm rounded" />
           </td>
@@ -1650,21 +1659,29 @@ export default function EquipmentPage() {
 
             {/* Pagination */}
             
-      <nav className="flex justify-center bg-[#F8FCF8] items-center space-x-3 py-6 text-gray-500 text-sm select-none" aria-label="Pagination">
-        <button aria-label="Previous page" className="p-2 hover:text-gray-700">
-          <FontAwesomeIcon icon={faChevronLeft} />
+      {/* Pagination */}
+     <div className="fixed bottom-0 left-0 w-full py-4">
+  <div className="flex justify-center">
+    <div className="flex items-center gap-1">
+      <button className="btn btn-sm hover:bg-[#D9D9D9] rounded">«</button>
+
+      {[1, 2, 3, 4, 5].map((page) => (
+        <button
+          key={page}
+          className={`btn btn-sm ${
+            page === 1
+              ? 'bg-gray-300 text-black'
+              : 'btn-ghost text-gray-600 hover:bg-[#D9D9D9] hover:text-black'
+          }`}
+        >
+          {page}
         </button>
-        <button aria-current="page" className="bg-gray-300 rounded-md px-4 py-2 font-semibold text-black cursor-default">
-          1
-        </button>
-        {[2, 3, 4, 5].map((page) => (
-          <button key={page} className="px-4 py-2 rounded-md hover:bg-gray-200">{page}</button>
-        ))}
-        <span className="px-2 py-2">...</span>
-        <button aria-label="Next page" className="p-2 hover:text-gray-700">
-          <FontAwesomeIcon icon={faChevronRight} />
-        </button>
-      </nav>
+      ))}
+
+      <button className="btn btn-sm hover:bg-[#D9D9D9] rounded">»</button>
+    </div>
+  </div>
+  </div>
     </div>
     </div>
     </div>
