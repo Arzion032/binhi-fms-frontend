@@ -1,8 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Search, PlusCircle, SlidersHorizontal, X } from 'lucide-react';
 import { FaPlus } from 'react-icons/fa';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faChevronLeft, faChevronRight } from '@fortawesome/free-solid-svg-icons';
 import loop from '../assets/loop.png';
 import edtIcon from '../assets/Trash.png';
 import Pencil from '../assets/Pencil.png';
