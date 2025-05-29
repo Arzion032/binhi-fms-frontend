@@ -1,9 +1,11 @@
 // EquipmentTable.jsx
 
 import React from 'react';
-import Rent from './../../assets/Rent.png';
+import Rent from '../../assets/Rent.png';
 import Pencil from '../../assets/Pencil.png';
 import Trash from '../../assets/Trash.png';
+import { Search, SlidersHorizontal } from 'lucide-react';
+import { FaPlus } from 'react-icons/fa';
 
 const EquipmentTable = ({
   setIsRentOpen,
@@ -12,6 +14,33 @@ const EquipmentTable = ({
 }) => {
   return (
     <div className="w-full overflow-x-auto rounded-xl">
+      {/* Header Row: Rented Equipments + Search + Filter + Add */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 gap-4 px-2">
+        <div className="flex items-center">
+          <span className="text-[15.5px] text-lg font-semibold mr-2">Rented Equipments</span>
+          <span className="text-gray-400 font-normal text-xs">24</span>
+        </div>
+
+        <div className="flex items-center space-x-4">
+          <div className="relative w-[280px] h-[35px] flex items-center border rounded-full px-3 py-1 bg-white">
+            <Search className="text-gray-500 w-5 h-5 mr-2" />
+            <input
+              type="text"
+              placeholder="Search Equipment"
+              className="flex-1 outline-none bg-white"
+            />
+            <button>
+              <SlidersHorizontal className="text-gray-600 w-5 h-5" />
+            </button>
+          </div>
+
+          <button className="flex items-center justify-center gap-2 bg-app-primary hover:bg-app-primary/90 text-white rounded-full px-6 py-2">
+            <FaPlus className="w-4 h-4" />
+            <span className="font-semibold text-sm">Add Equipment</span>
+          </button>
+        </div>
+      </div>
+
       <table className="table w-full table-fixed">
         <thead>
           <tr className="bg-[#F4F4F4] text-center text-sm text-black">
