@@ -6,7 +6,7 @@ import Financial from "./components/FinancialTracker/Financial";
 import Document from "./components/DocumentProcessing/Document";
 import Marketplace from "./components/Marketplace/Marketplace";
 import Inventory from './components/Inventory';
-import Inventory from './components/SignUp/SignUpPage';
+import SignUp from './components/SignUp/SignUpPage';
 
 function App() {
 
@@ -20,6 +20,7 @@ function App() {
         <Route path="/document" element={<Layout><Document/></Layout>} />
         <Route path="/marketplace" element={<Layout><Marketplace/></Layout>} />
         <Route path="/inventory" element={<Layout><Inventory/></Layout>} />
+        <Route path="/signup" element={<Layout><SignUp/></Layout>} />
       </Routes>
     </Router>
     </div>
