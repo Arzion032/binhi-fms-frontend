@@ -6,6 +6,7 @@ import Financial from "./components/FinancialTracker/Financial";
 import Document from "./components/DocumentProcessing/Document";
 import Marketplace from "./components/Marketplace/Marketplace";
 import Inventory from './components/Inventory';
+import Inventory from './components/SignUp/SignUpPage';
 
 function App() {
 
