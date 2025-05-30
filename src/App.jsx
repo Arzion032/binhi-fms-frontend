@@ -7,6 +7,9 @@ import Document from "./components/DocumentProcessing/Document";
 import Marketplace from "./components/Marketplace/Marketplace";
 import Inventory from './components/Inventory';
 import SignUp from './components/SignUp/SignUpPage';
+import NextStep from './components/SignUp/NextStep';
+import SetPassword from './components/SignUp/SetPassword';
+import SetUp from './components/SignUp/SetUp';
 
 function App() {
 
@@ -20,7 +23,10 @@ function App() {
         <Route path="/document" element={<Layout><Document/></Layout>} />
         <Route path="/marketplace" element={<Layout><Marketplace/></Layout>} />
         <Route path="/inventory" element={<Layout><Inventory/></Layout>} />
-        <Route path="/signup" element={<Layout><SignUp/></Layout>} />
+        <Route path="/signup" element={<SignUp/>} />
+        <Route path="/verification" element={<NextStep />} />
+        <Route path="/password" element={<SetPassword />} />
+        <Route path="/setup" element={<SetUp />} />
       </Routes>
     </Router>
     </div>

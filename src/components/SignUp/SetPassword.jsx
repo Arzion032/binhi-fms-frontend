@@ -163,7 +163,7 @@ const SetPassword = () => {
           <div className="flex-grow"></div>
 
           <button
-            onClick={handleNext}
+            onClick={() => navigate("/setup")}
             className="w-[488px] h-[54px] bg-[#4CAE4F] text-white py-3 rounded-full hover:bg-green-700 transition mx-auto"
           >
             Next

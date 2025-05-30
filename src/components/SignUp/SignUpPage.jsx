@@ -1,131 +1,189 @@
-import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { Button } from "../Button";
-import { Card } from "../Card";
-import { Input } from "../Input"; 
+import React, { useState } from 'react';
+import Background from '../../assets/Background.jpg';
+import SignUpLogo from '../../assets/SignUpLogo.png';
+import SignUpLogo2 from '../../assets/SignUpLogo2.png';
+import Bukas from '../../assets/Bukas.png';
+import { Link } from 'react-router-dom';
 
 const SignUpPage = () => {
-  const navigate = useNavigate();
-  const [emailOrPhone, setEmailOrPhone] = useState("");
-  const [error, setError] = useState(""); // State to hold error message
+  const [contact, setContact] = useState('');
 
   const handleNext = () => {
-    // Regular expression for validating email
-    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-    // Regular expression for validating phone number (basic format)
-    const phoneRegex = /^[0-9]{10}$/;
-
-    // Check if input is either a valid email or phone number
-    if (!emailRegex.test(emailOrPhone) && !phoneRegex.test(emailOrPhone)) {
-      setError("Please enter correct Phone Number or Email format.");
-    } else {
-      setError(""); 
-      navigate("/next-step", { state: { email: emailOrPhone } });
-    }
+    alert(`Next clicked with input: ${contact}`);
   };
+
   return (
-    <div className="flex items-center justify-center px-5 py-10">
-      <div className="flex flex-col md:flex-row justify-between rounded-2xl overflow-hidden w-full max-w-7xl">
-        {/* Left Side */}
-        <div className="md:w-[40%] text-white flex flex-col items-center justify-center pb-9">
-          <img src="/Binhi Logo.png" alt="Binhi Logo" className="w-[220px] h-[220px] mb-4" />
-          <img src="/Binhi.png" alt="Binhi" className="w-[480px] h-[200px] mb-2" />
-          <p className="text-3xl mt-2">Ang Ugat sa Masaganang Bukas!</p>
+    <div
+      className="min-h-screen flex flex-col bg-center bg-cover"
+      style={{ backgroundImage: `url(${Background})` }}
+    >
+      {/* Header */}
+      <header className="flex justify-between items-center px-8 py-4 border-b border-gray-200 bg-white bg-opacity-80 z-10 relative">
+        <div className="flex items-center space-x-3">
+          <div className="w-10 h-10 rounded-md bg-green-600 flex justify-center items-center">
+            <svg
+              className="w-6 h-6 text-white"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth={2}
+              viewBox="0 0 24 24"
+              xmlns="http://www.w3.org/2000/svg"
+              aria-hidden="true"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M12 20v-6m0 0V4m0 10h6m-6 0H6"
+              />
+            </svg>
+          </div>
+          <h1 className="text-3xl font-serif text-green-700 select-none">Binhi</h1>
+          <span className="text-gray-400 font-semibold select-none">Sign Up</span>
         </div>
 
-        {/* Right Side */}
-        <div className="md:w-[60%] flex flex-col items-center justify-center p-4 ml-[100px] gap-4">
-       <Card className="w-full max-w-xl p-12 pt-2 rounded-3xl shadow-2xl bg-white">
-       <h2 className="pt-6 text-4xl font-bold text-center mb-3">Welcome to BINHI!</h2>
-      <p className="text-xl text-center mb-8">
-      Sign Up and don’t miss the opportunity to <br/>easily connect with BINHI!
-    </p>
+        <div className="flex items-center space-x-8">
+          <button className="flex items-center space-x-1 text-sm font-semibold text-gray-700 hover:text-gray-900">
+            <img
+              src="https://upload.wikimedia.org/wikipedia/commons/9/99/Flag_of_the_Philippines.svg"
+              alt="Philippine flag"
+              className="w-6 h-4 object-cover rounded-sm"
+            />
+            <span>Tagalog</span>
+            <svg
+              className="w-3 h-3"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth={2}
+              viewBox="0 0 24 24"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+            </svg>
+          </button>
 
-    <form className="mb-6" onSubmit={handleNext}>
-      <div>
-        <label className="label font-semibold text-md mb-1">Phone Number/Email</label>
-                 <Input
-                            type="text"
-                            placeholder="Enter your Phone Number or Email"
-                            value={emailOrPhone}
-                            onChange={(e) => setEmailOrPhone(e.target.value)}
-                            className={`input input-bordered w-full ${error ? "border-2 border-red-500" : ""}`}
-                          />
-                        </div>
+          <button className="text-gray-700 text-sm font-normal hover:text-gray-900">
+            Need Help?
+          </button>
+        </div>
+      </header>
 
-      <br />
-        {error && (
-          <p className="text-red-500 text-sm -mt-3 ml-3">{error}</p>
-        )}
-      <Button className="w-full rounded-full bg-green-500 text-white text-lg h-12
-          hover:bg-green-600 focus:outline-none focus:ring-0 transition duration-300 ease-in-out">
-        Next
-      </Button>
-    </form>
-
-    <div className="divider text-gray-500 my-6 text-sm">OR</div>
-
-        <div className="flex justify-center gap-2">
-           <Button variant="outline" className="flex items-center justify-center gap-3">
-           <img src="/google.png" alt="Google Icon" className="w-6 h-6" />
-          Sign Up with Google
-         </Button>
- 
-         {/* Facebook Button */}
-         <Button variant="outline" className="flex items-center justify-center gap-1">
-           <img src="/Facebook.png" alt="Facebook Icon" className="w-6 h-6" />
-           Sign Up with Facebook
-         </Button>
-             </div>
-
-    <p className="text-center text-base mt-8">
-      Already have an account?{" "}
-      <Link to="/login" className="text-green-600 font-semibold">
-        Log In
-      </Link>
-    </p>
-
-    <p className="text-center text-md mt-9 text-black">
-      By continuing, you agree to BINHI{" "}
-      <a href="#" className="underline font-bold">Terms of <br />Service</a> and{" "}
-      <a href="#" className="underline font-bold">Privacy Policy</a>.
-    </p>
-  </Card>
-
-  {/* Federation Card BELOW the main card */}
-  <Card className="w-full max-w-xl p-4 rounded-3xl shadow-md bg-white flex items-center justify-center gap-4">
-  <img
-    src="/farmer.png"
-    alt="Farmer Icon"
-    className="w-12 h-12 rounded-full"
-  />
-  <p className="text-xl">Federation Member?</p>
-  <a href="#" className="text-green-600 font-bold text-xl">
-    Click Here!
-  </a>
-{/* Help Icon with Hover Image */}
-<div className="relative group inline-block">
-  {/* Circle Help Icon */}
-  <img
-    src="/circle-help.png"
-    alt="Help Icon"
-    className="w-5 h-5 cursor-pointer"
-  />
-
-  {/* Custom Tooltip */}
-  <div className="absolute hidden group-hover:block top-full left-1/2 transform -translate-x-1/2 mt-2 z-50">
-    {/* Arrow */}
-    <div className="absolute top-0 left-1/2 transform -translate-x-1/2 -mt-1 w-2 h-2 bg-white border-t border-l border-black rotate-45"></div>
-
-    {/* Tooltip Box */}
-    <div className="bg-white border border-black text-black text-sm px-4 py-0 rounded-full shadow-lg w-max text-center">
-      Sign up here if you’re <br/>part of the federation!
-    </div>
+      {/* Main content */}
+      <div className="flex flex-1">
+        {/* Left side WITHOUT background image (background is on parent) */}
+        <div className="flex flex-col justify-center items-center flex-1">
+  <div className="rounded-3xl p-8 flex flex-col items-center max-w-xs shadow-lg">
+  <div className="rounded-3xl p-6 mb-4 flex justify-center items-center shadow-md">
+  <img src={SignUpLogo} alt="Sign Up Logo" className="w-[207px] h-[206px]" />
+</div>
+<img src={SignUpLogo2} alt="Binhi Logo" className="w-[428px] h-[172px]" />
+<img src={Bukas} alt="Bukas" className="w-[505px] h-[29px] select-none" />
   </div>
 </div>
 
-</Card>
-</div>
+        {/* Right side form card only */}
+        <div className="flex flex-col justify-center items-center flex-1 p-12 space-y-6">
+          {/* Sign Up Card */}
+          <div className="bg-white rounded-3xl shadow-lg p-8 w-full max-w-md">
+            <h1 className="text-2xl font-bold mb-2 text-center">Welcome to BINHI!</h1>
+            <p className="text-center text-gray-600 mb-6">
+              Sign Up and don’t miss the opportunity to easily connect with BINHI!
+            </p>
+
+            <label
+              htmlFor="contactInput"
+              className="block text-gray-900 font-semibold mb-1"
+            >
+              Phone Number/Email
+            </label>
+            <input
+              id="contactInput"
+              type="text"
+              placeholder="Enter your Phone Number or Email"
+              value={contact}
+              onChange={(e) => setContact(e.target.value)}
+              className="w-full border border-gray-400 rounded-full px-4 py-3 text-gray-400 placeholder-gray-400 focus:outline-none focus:border-green-600 mb-6"
+            />
+
+            <button
+              onClick={handleNext}
+              className="w-full bg-green-600 hover:bg-green-700 text-white rounded-full py-3 font-semibold mb-6"
+            >
+              Next
+            </button>
+
+            <div className="flex items-center text-gray-400 mb-6">
+              <hr className="flex-grow border-t border-gray-300" />
+              <span className="mx-4 text-sm">OR</span>
+              <hr className="flex-grow border-t border-gray-300" />
+            </div>
+
+            <div className="flex justify-between gap-4 mb-6">
+              <button className="flex items-center justify-center gap-2 border border-gray-400 rounded-full py-2 px-4 font-semibold hover:bg-gray-100 w-full text-xs">
+                <img
+                  src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg"
+                  alt="Google"
+                  className="w-5 h-5"
+                />
+                Sign Up with Google
+              </button>
+              <button className="w[px] flex items-center justify-center gap-2 border border-gray-400 rounded-full py-2 px-4 font-semibold hover:bg-gray-100 w-full text-xs">
+                <img
+                  src="https://upload.wikimedia.org/wikipedia/commons/0/05/Facebook_Logo_%282019%29.png"
+                  alt="Facebook"
+                  className="w-5 h-5"
+                />
+                Sign Up with Facebook
+              </button>
+            </div>
+
+            <p className="text-center text-gray-800 mb-6">
+              Already have an account?{' '}
+              <a href="/login" className="text-green-600 font-semibold hover:underline">
+                Log In
+              </a>
+            </p>
+
+            <p className="text-center text-gray-700 text-sm">
+              By continuing, you agree to BINHI{' '}
+              <strong>Terms of Service</strong> and <strong>Privacy Policy</strong>.
+            </p>
+          </div>
+
+          {/* Federation footer separate */}
+          <div className="w-full max-w-md bg-white rounded-full shadow-md px-6 py-3 flex items-center gap-4">
+            <img
+              src="https://randomuser.me/api/portraits/men/30.jpg"
+              alt="User"
+              className="w-10 h-10 rounded-full"
+            />
+            <span className="text-gray-700">
+                Marketplace Buyer?{' '}
+                <Link to="/verification" className="text-green-600 font-semibold hover:underline">
+                    Click Here!
+                </Link>
+                </span>
+            <button
+              aria-label="Info"
+              className="ml-auto text-gray-400 hover:text-gray-600"
+            >
+              <svg
+                className="w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth={2}
+                viewBox="0 0 24 24"
+                aria-hidden="true"
+              >
+                <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth={2} />
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M12 16v-4m0-4h.01"
+                  stroke="currentColor"
+                />
+              </svg>
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   );
