@@ -2,7 +2,7 @@
 import React, { useRef, useState } from 'react';
 import { Search, SlidersHorizontal, RefreshCw, ChevronDown } from 'lucide-react';
 
-export default function ProductRequests({
+export default function PendingRequests({
   showFilters,
   setShowFilters,
   searchQuery,
