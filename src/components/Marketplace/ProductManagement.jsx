@@ -1,319 +1,450 @@
-// src/components/ProductRequests.jsx
-import React, { useRef, useState } from 'react';
-import { Search, SlidersHorizontal, RefreshCw, ChevronDown } from 'lucide-react';
+import React, { useState, useEffect } from "react";
+import {
+  Search,
+  SlidersHorizontal,
+  RefreshCw,
+  Plus,
+  BookOpen,
+  Copy,
+  Pencil,
+  Trash2,
+} from "lucide-react";
+import AddCategoryModal from "./AddCategoryModal";
+import EditDetailsModal from "./EditDetailsModal";
 
-export default function ProductRequests({
-  showFilters,
-  setShowFilters,
-  searchQuery,
-  setSearchQuery,
-  selectedDocumentRequest,
-  setSelectedDocumentRequest,
-  selectedStatus,
-  setSelectedStatus,
-  requests,
-  setRequests,
-  selectedRequest,
-  setSelectedRequest,
-  handleApproveClick,
-  handleRejectClick,
-  clearFilters,
-  uniqueDocuments,
-}) {
-  const [sortOrder, setSortOrder] = useState('recent');
-  const [recentDropdownOpen, setRecentDropdownOpen] = useState(false);
-  const recentDropdownRef = useRef();
+const CATEGORIES_SUMMARY = [
+  { name: "Grains", count: 28 },
+  { name: "Vegetable", count: 35 },
+  { name: "Root Crops", count: 41 },
+  { name: "Milks & Dairy", count: 51 },
+  { name: "Meats", count: 60 },
+  { name: "Fruits", count: 75 },
+];
 
-  function parseDateString(dateStr) {
-    return new Date(dateStr);
-  }
+const BADGE_STYLES = {
+  Fruits: { color: "#7C3AED", background: "#F3E8FF", border: "#7C3AED" },
+  "Milks & Dairy": { color: "#3B82F6", background: "#DDECFF", border: "#3B82F6" },
+  Vegetable: { color: "#16A34A", background: "#D1FAE5", border: "#16A34A" },
+  Grains: { color: "#B79900", background: "#FFF8D4", border: "#B79900" },
+  "Root Crops": { color: "#F97316", background: "#FFEDD5", border: "#F97316" },
+  Meats: { color: "#DC2626", background: "#FEE2E2", border: "#DC2626" },
+};
 
-  // Filter + sort requests based on filter state and sortOrder
-  const filteredSortedRequests = React.useMemo(() => {
-    let filtered = requests.filter(r => {
-      return (
-        r.name.toLowerCase().includes(searchQuery.toLowerCase()) &&
-        (selectedDocumentRequest ? r.document === selectedDocumentRequest : true) &&
-        (selectedStatus ? r.status === selectedStatus : true)
-      );
-    });
+const INITIAL_PRODUCTS = [
+  { id: 1, name: "Premium Farm Fresh Sweet Corn", variation: "Yellow, White", avatar: "/Screenshot_195.png", price: 12999, category: "Fruits", stock: 25, status: "Approved" },
+  { id: 2, name: "Train Your Dragon's Treasure Exotic Fruit", variation: "Yellow, White", avatar: "/Screenshot_195.png", price: 12999, category: "Milks & Dairy", stock: 25, status: "Pending" },
+  { id: 3, name: "Ultra-Green Superfood Broccoli Hulk Flavored", variation: "Yellow, White", avatar: "/Screenshot_195.png", price: 12999, category: "Vegetable", stock: 25, status: "Approved" },
+  { id: 4, name: "HAAHAHA PANG SAMGYUP", variation: "Yellow, White", avatar: "/Screenshot_195.png", price: 12999, category: "Grains", stock: 25, status: "Pending" },
+  { id: 5, name: "Creamy Black Gold Avocado with Balut", variation: "Yellow, White", avatar: "/Screenshot_195.png", price: 12999, category: "Fruits", stock: 25, status: "Approved" },
+  { id: 6, name: "Organic Rainbow Carrots", variation: "Orange, Purple, White", avatar: "/Screenshot_195.png", price: 8999, category: "Root Crops", stock: 40, status: "Approved" },
+  { id: 7, name: "Premium Angus Beef Strips", variation: "Tenderloin, Ribeye", avatar: "/Screenshot_195.png", price: 35999, category: "Meats", stock: 15, status: "Approved" },
+  { id: 8, name: "Fresh Farm Milk Bottles", variation: "Whole, Low-fat", avatar: "/Screenshot_195.png", price: 4599, category: "Milks & Dairy", stock: 60, status: "Pending" },
+  { id: 9, name: "Heirloom Tomatoes Mix", variation: "Red, Green, Yellow", avatar: "/Screenshot_195.png", price: 15999, category: "Vegetable", stock: 30, status: "Approved" },
+  { id: 10, name: "Artisan Wheat Flour", variation: "All-purpose, Bread", avatar: "/Screenshot_195.png", price: 6999, category: "Grains", stock: 50, status: "Approved" },
+  { id: 11, name: "Tropical Mango Paradise", variation: "Manila, Carabao", avatar: "/Screenshot_195.png", price: 18999, category: "Fruits", stock: 20, status: "Pending" },
+  { id: 12, name: "Sweet Purple Yam", variation: "Large, Medium", avatar: "/Screenshot_195.png", price: 11999, category: "Root Crops", stock: 35, status: "Approved" },
+  { id: 13, name: "Farm Fresh Chicken Breast", variation: "Boneless, Bone-in", avatar: "/Screenshot_195.png", price: 24999, category: "Meats", stock: 25, status: "Approved" },
+  { id: 14, name: "Artisan Cheese Collection", variation: "Cheddar, Mozzarella", avatar: "/Screenshot_195.png", price: 28999, category: "Milks & Dairy", stock: 18, status: "Pending" },
+  { id: 15, name: "Crispy Lettuce Heads", variation: "Iceberg, Romaine", avatar: "/Screenshot_195.png", price: 7999, category: "Vegetable", stock: 45, status: "Approved" },
+];
 
-    switch (sortOrder) {
-      case 'atoz':
-        filtered.sort((a, b) => a.name.localeCompare(b.name));
-        break;
-      case 'ztoa':
-        filtered.sort((a, b) => b.name.localeCompare(a.name));
-        break;
-      case 'old':
-        filtered.sort((a, b) => parseDateString(a.listDate) - parseDateString(b.listDate));
-        break;
-      case 'recent':
-      default:
-        filtered.sort((a, b) => parseDateString(b.listDate) - parseDateString(a.listDate));
-        break;
-    }
+export default function ProductManagement() {
+  const [searchQuery, setSearchQuery] = useState("");
+  const [showFilters, setShowFilters] = useState(false);
+  const [products, setProducts] = useState(INITIAL_PRODUCTS);
+  const [selectedRows, setSelectedRows] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 7;
+  const filteredProducts = products.filter((p) =>
+    p.name.toLowerCase().includes(searchQuery.trim().toLowerCase())
+  );
+  const totalPages = Math.ceil(filteredProducts.length / itemsPerPage);
+  const visibleProducts = filteredProducts.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery]);
+  const handleDeleteSelected = () => {
+    if (!window.confirm("Delete selected products?")) return;
+    setProducts((prev) => prev.filter((p) => !selectedRows.includes(p.id)));
+    setSelectedRows([]);
+  };
 
-    return filtered;
-  }, [requests, searchQuery, selectedDocumentRequest, selectedStatus, sortOrder]);
+  // Modal State
+  const [showAddCategory, setShowAddCategory] = useState(false);
+  const [categoryModalMode, setCategoryModalMode] = useState("add");
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [editProduct, setEditProduct] = useState(null);
+  const [editModalMode, setEditModalMode] = useState("edit");
 
-  // Dropdown outside click
-  React.useEffect(() => {
-    function handleClickOutside(event) {
-      if (recentDropdownRef.current && !recentDropdownRef.current.contains(event.target)) {
-        setRecentDropdownOpen(false);
-      }
-    }
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
+  const closeEditModal = () => {
+    setShowEditModal(false);
+    setEditProduct(null);
+  };
+
+  const handleDetails = (product) => {
+    setEditProduct(product);
+    setEditModalMode("details");
+    setShowEditModal(true);
+  };
+  const handleEdit = (product) => {
+    setEditProduct(product);
+    setEditModalMode("edit");
+    setShowEditModal(true);
+  };
 
   return (
-    <>
-      {/* Pending Toolbar */}
-      <div className="flex items-center justify-between mb-2 px-4 pt-2">
-        <div className="flex items-center gap-2">
-          {showFilters ? (
-            <div className="flex items-center space-x-1 p-2 rounded-lg w-fit">
-              <div className="flex items-center space-x-1 border rounded-l-3xl px-3 py-1 cursor-pointer bg-white border-[#858585] h-[35px]">
-                <SlidersHorizontal className="w-4 h-4 text-[#3b82f6]" />
-                <span className="mr-2 p-2 text-sm text-[#3b82f6] font-medium">Active Filters</span>
-              </div>
-              <select
-                value={selectedDocumentRequest}
-                onChange={e => setSelectedDocumentRequest(e.target.value)}
-                className="border border-[#858585] h-[35px] text-sm bg-white text-[#858585] pl-2 pr-6"
-              >
-                <option value="">Document Request</option>
-                {uniqueDocuments.map(doc => (
-                  <option key={doc} value={doc}>{doc}</option>
-                ))}
-              </select>
-              <select
-                value={selectedStatus}
-                onChange={e => setSelectedStatus(e.target.value)}
-                className="border border-[#858585] h-[35px] text-sm bg-white text-[#858585] pl-2 pr-6"
-              >
-                <option value="">Status</option>
-                <option value="Pending">Pending</option>
-                <option value="Approved">Approved</option>
-                <option value="Rejected">Rejected</option>
-              </select>
-              <button
-                onClick={clearFilters}
-                className="flex items-center space-x-1 border rounded-r-3xl px-3 py-1 text-sm border-[#858585] h-[35px] bg-white text-[#858585]"
-                aria-label="Clear filters"
-              >
-                <span className="w-4 h-4">
-                  {/* X icon, can be replaced with Lucide X if imported */}
-                  <svg viewBox="0 0 16 16" fill="none" width="16" height="16">
-                    <path d="M4 4L12 12M12 4L4 12" stroke="#858585" strokeWidth="2" strokeLinecap="round" />
-                  </svg>
-                </span>
-                <span>Clear</span>
-              </button>
-            </div>
-          ) : (
-            <>
-              <RefreshCw size={20} stroke="#16A34A" />
-              <span className="font-medium text-base" style={{ color: '#111827' }}>
-                Pending Requests {requests.length}
-              </span>
-            </>
-          )}
-        </div>
+    <div className="px-6 pb-6">
+      {/* Toolbar */}
+      <div className="flex items-center justify-between py-4">
+        {selectedRows.length > 0 ? (
+          <div className="flex items-center gap-2">
+            <button
+              onClick={handleDeleteSelected}
+              className="flex items-center gap-2 border border-gray-200 rounded-2xl px-4 py-2 hover:bg-red-50"
+              style={{ color: "#dc2626" }}
+            >
+              <Trash2 size={18} stroke="#dc2626" />
+              Delete
+              <span className="text-gray-500 ml-1">{selectedRows.length} Selected</span>
+            </button>
+            <button
+              onClick={() => setSelectedRows([])}
+              className="flex items-center gap-1 border border-gray-200 rounded-2xl px-4 py-2 hover:bg-gray-100"
+            >
+              ✕ Clear
+            </button>
+          </div>
+        ) : (
+          <div className="flex items-center gap-2" style={{ color: "#374151" }}>
+            <RefreshCw size={20} style={{ color: "#16A34A" }} />
+            <span style={{ fontWeight: 500 }}>{`All Products ${products.length}`}</span>
+          </div>
+        )}
 
-        <div className="ml-auto flex items-center gap-3">
-          <div className="relative w-[280px] flex items-center border rounded-full px-3 py-1 bg-white">
-            <Search className="text-gray-500 w-5 h-5 mr-2" />
+        {/* Search, filters, add/manage categories */}
+        <div className="flex items-center gap-4">
+          <div className="relative" style={{ width: "240px" }}>
+            <Search
+              size={18}
+              style={{
+                position: "absolute",
+                left: "0.75rem",
+                top: "50%",
+                transform: "translateY(-50%)",
+                color: "#6B7280",
+              }}
+            />
             <input
               type="text"
-              placeholder="Search Document"
+              placeholder="Search Product"
               value={searchQuery}
-              onChange={e => setSearchQuery(e.target.value)}
-              className="flex-1 outline-none bg-transparent"
-              style={{ color: '#374151' }}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              style={{
+                width: "100%",
+                padding: "0.5rem 2.5rem 0.5rem 2.5rem",
+                border: "1px solid #D1D5DB",
+                borderRadius: "9999px",
+                outline: "none",
+              }}
             />
-            <button
-              onClick={() => setShowFilters(f => !f)}
-              aria-label="Toggle filters"
-            >
-              <SlidersHorizontal className="text-gray-600 w-5 h-5" />
-            </button>
+            <SlidersHorizontal
+              size={18}
+              onClick={() => setShowFilters((f) => !f)}
+              style={{
+                position: "absolute",
+                right: "0.75rem",
+                top: "50%",
+                transform: "translateY(-50%)",
+                color: "#6B7280",
+              }}
+            />
           </div>
+          <>
+            <button
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "0.5rem",
+                padding: "0.5rem 1.2rem",
+                backgroundColor: "#16A34A",
+                color: "#fff",
+                border: "none",
+                borderRadius: "9999px",
+                fontWeight: 600,
+                fontSize: "1rem",
+                cursor: "pointer",
+                boxShadow: "0 2px 8px 0 rgba(36,185,111,0.05)",
+              }}
+              onClick={() => {
+                setCategoryModalMode("add");
+                setShowAddCategory(true);
+              }}
+            >
+              <Plus size={18} /> Add Category
+            </button>
+            <button
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "0.5rem",
+                padding: "0.5rem 1.2rem",
+                backgroundColor: "#fff",
+                color: "#16A34A",
+                border: "1.5px solid #16A34A",
+                borderRadius: "9999px",
+                fontWeight: 600,
+                fontSize: "1rem",
+                cursor: "pointer",
+                boxShadow: "0 2px 8px 0 rgba(36,185,111,0.05)",
+              }}
+              onClick={() => {
+                setCategoryModalMode("manage");
+                setShowAddCategory(true);
+              }}
+            >
+              <BookOpen size={18} /> Manage Categories
+            </button>
+          </>
         </div>
       </div>
-
-      {/* Pending List & Detail */}
-      <div className="flex gap-4">
-        {/* Left list */}
-        <div className="border border-[#E5E7EB] shadow-sm overflow-hidden w-[300px] role=list" role="list">
-          <div className="px-4 py-4 relative" ref={recentDropdownRef}>
-            <button
-              className="w-full flex items-center justify-between px-4 py-2 rounded-full border border-[#D1D5DB] focus:outline-none"
-              onClick={() => setRecentDropdownOpen(!recentDropdownOpen)}
-              aria-haspopup="listbox"
-              aria-expanded={recentDropdownOpen}
-              aria-label="Sort options"
-            >
-              <span className="flex items-center gap-1">
-                {sortOrder === 'recent' && '⇅ Recent'}
-                {sortOrder === 'atoz' && 'A → Z'}
-                {sortOrder === 'ztoa' && 'Z → A'}
-                {sortOrder === 'old' && '⇅ Old'}
-              </span>
-              <ChevronDown size={16} />
-            </button>
-            {recentDropdownOpen && (
-              <ul
-                role="listbox"
-                tabIndex={-1}
-                className="absolute z-50 bg-white border border-gray-300 rounded-md mt-1 w-full shadow-lg max-h-60 overflow-auto"
-                aria-label="Sort options"
+      {/* CATEGORY SUMMARY */}
+      <div className="pb-4">
+        <div className="flex gap-4 overflow-x-auto">
+          {CATEGORIES_SUMMARY.map((cat) => {
+            const style = BADGE_STYLES[cat.name] || BADGE_STYLES["Grains"];
+            return (
+              <div
+                key={cat.name}
+                style={{
+                  position: "relative",
+                  border: "1px solid #858585",
+                  borderRadius: "1.6rem",
+                  minWidth: "150px",
+                  height: "80px",
+                  padding: "0 1.5rem",
+                  display: "flex",
+                  flexDirection: "column",
+                  justifyContent: "center",
+                  backgroundColor: "#FFFFFF",
+                  flex: "1",
+                  overflow: "hidden",
+                }}
               >
-                <li
-                  role="option"
-                  tabIndex={0}
-                  onClick={() => { setSortOrder('recent'); setRecentDropdownOpen(false); }}
-                  onKeyDown={e => { if (e.key === 'Enter') { setSortOrder('recent'); setRecentDropdownOpen(false); } }}
-                  className={`px-4 py-2 cursor-pointer hover:bg-green-50 ${sortOrder === 'recent' ? 'font-semibold bg-green-100' : ''}`}
-                >
-                  ⇅ Recent
-                </li>
-                <li
-                  role="option"
-                  tabIndex={0}
-                  onClick={() => { setSortOrder('old'); setRecentDropdownOpen(false); }}
-                  onKeyDown={e => { if (e.key === 'Enter') { setSortOrder('old'); setRecentDropdownOpen(false); } }}
-                  className={`px-4 py-2 cursor-pointer hover:bg-green-50 ${sortOrder === 'old' ? 'font-semibold bg-green-100' : ''}`}
-                >
-                  ⇅ Old
-                </li>
-                <li
-                  role="option"
-                  tabIndex={0}
-                  onClick={() => { setSortOrder('atoz'); setRecentDropdownOpen(false); }}
-                  onKeyDown={e => { if (e.key === 'Enter') { setSortOrder('atoz'); setRecentDropdownOpen(false); } }}
-                  className={`px-4 py-2 cursor-pointer hover:bg-green-50 ${sortOrder === 'atoz' ? 'font-semibold bg-green-100' : ''}`}
-                >
-                  A → Z
-                </li>
-                <li
-                  role="option"
-                  tabIndex={0}
-                  onClick={() => { setSortOrder('ztoa'); setRecentDropdownOpen(false); }}
-                  onKeyDown={e => { if (e.key === 'Enter') { setSortOrder('ztoa'); setRecentDropdownOpen(false); } }}
-                  className={`px-4 py-2 cursor-pointer hover:bg-green-50 ${sortOrder === 'ztoa' ? 'font-semibold bg-green-100' : ''}`}
-                >
-                  Z → A
-                </li>
-              </ul>
-            )}
-          </div>
-          <div className="max-h-[550px] overflow-y-auto px-4 pb-4" role="list">
-            {filteredSortedRequests.length === 0 ? (
-              <p className="text-center text-gray-500">No requests found.</p>
-            ) : (
-              filteredSortedRequests.map((req) => (
                 <div
-                  key={req.id}
-                  className={`flex items-center gap-3 p-2 rounded-lg cursor-pointer transition-colors duration-200 ${
-                    selectedRequest.id === req.id ? 'bg-[#F3F4F6]' : 'hover:bg-green-50'
-                  }`}
-                  onClick={() => setSelectedRequest(req)}
-                  role="listitem"
-                  tabIndex={0}
-                  onKeyDown={e => { if (e.key === 'Enter') setSelectedRequest(req); }}
-                >
-                  <img src={req.avatar} alt={req.name} className="w-10 h-10 rounded-full" />
-                  <div>
-                    <div className="font-semibold text-[#111827]">{req.name}</div>
-                    <div className="text-sm text-[#6B7280]">{req.listDate}</div>
-                  </div>
-                </div>
-              ))
-            )}
-          </div>
+                  style={{
+                    position: "absolute",
+                    left: "0",
+                    top: "0",
+                    bottom: "0",
+                    width: "20px",
+                    backgroundColor: style.background,
+                    borderRadius: "1.6rem 0 0 1.6rem",
+                  }}
+                />
+                <span style={{ fontSize: "0.875rem", color: "#9CA3AF", fontWeight: 500, marginLeft: "8px" }}>{cat.name}</span>
+                <span style={{ fontSize: "1.875rem", fontWeight: 900, color: "#000000", marginLeft: "8px" }}>{cat.count}</span>
+              </div>
+            );
+          })}
         </div>
-
-        {/* Right detail */}
-        <div className="flex-1 bg-white rounded-2xl border border-[#E5E7EB] p-6 shadow-sm flex flex-col">
-          <div className="flex items-center gap-4 mb-4">
-            <img src={selectedRequest.avatar} alt={selectedRequest.name} className="w-12 h-12 rounded-full" />
-            <div>
-              <div className="text-2xl font-bold text-[#111827]">{selectedRequest.name}</div>
-              <div className="text-sm text-[#6B7280]">{selectedRequest.email}</div>
-            </div>
-          </div>
-          <hr className="border-t border-[#E5E7EB] mb-6" />
-          <div className="space-y-4 flex-1">
-            <div>
-              <div className="text-sm text-[#6B7280] font-medium">Role</div>
-              <span
-                className="inline-block px-3 py-1 rounded-full text-xs font-medium"
-                style={{
-                  color: '#0066FF',
-                  backgroundColor: '#E0F0FF',
-                  border: '2px solid #0066FF',
-                }}
-              >
-                {selectedRequest.role}
-              </span>
-            </div>
-            <div>
-              <div className="text-sm text-[#6B7280] font-medium">Document Request</div>
-              <div className="text-base text-[#111827]">{selectedRequest.document}</div>
-            </div>
-            <div>
-              <div className="text-sm text-[#6B7280] font-medium">Status</div>
-              <span
-                className="inline-block px-3 py-1 rounded-full text-xs font-medium"
-                style={{
-                  color:
-                    selectedRequest.status === 'Pending'
-                      ? '#92400E'
-                      : selectedRequest.status === 'Approved'
-                      ? '#15803D'
-                      : '#DC2626',
-                  backgroundColor:
-                    selectedRequest.status === 'Pending'
-                      ? '#FEF3C7'
-                      : selectedRequest.status === 'Approved'
-                      ? '#D1FAE5'
-                      : '#FEE2E2',
-                  border: `1px solid ${
-                    selectedRequest.status === 'Pending'
-                      ? '#92400E'
-                      : selectedRequest.status === 'Approved'
-                      ? '#15803D'
-                      : '#DC2626'
-                  }`,
-                }}
-              >
-                {selectedRequest.status}
-              </span>
-            </div>
-            <div>
-              <div className="text-sm text-[#6B7280] font-medium">Requested on</div>
-              <div className="text-base text-[#111827]">{selectedRequest.requestedOn}</div>
-            </div>
-          </div>
-          <div className="mt-6 flex justify-end gap-4">
+      </div>
+      {/* TABLE */}
+      <div style={{ borderRadius: "1rem", overflow: "hidden", minHeight: 420 }}>
+        <h2 className="px-4 pt-4 text-xl font-bold text-gray-900">Product List</h2>
+        <table style={{ width: "100%", borderCollapse: "collapse" }}>
+          <thead style={{ backgroundColor: "#F7F7FB" }}>
+            <tr style={{ color: "#4B5563", fontSize: "0.875rem", fontWeight: 600 }}>
+              <th style={{ padding: "0.75rem" }}>
+                <input
+                  type="checkbox"
+                  className="checkbox checkbox-sm rounded"
+                  checked={selectedRows.length === visibleProducts.length && visibleProducts.length > 0}
+                  onChange={(e) =>
+                    setSelectedRows(
+                      e.target.checked ? visibleProducts.map((p) => p.id) : []
+                    )
+                  }
+                />
+              </th>
+              <th style={{ padding: "0.75rem", textAlign: "left" }}>Product</th>
+              <th style={{ padding: "0.75rem", textAlign: "left" }}>Price</th>
+              <th style={{ padding: "0.75rem", textAlign: "left" }}>Category</th>
+              <th style={{ padding: "0.75rem", textAlign: "left" }}>Stock</th>
+              <th style={{ padding: "0.75rem", textAlign: "left" }}>Status</th>
+              <th style={{ padding: "0.75rem", textAlign: "left" }}>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {visibleProducts.map((p) => {
+              const style = BADGE_STYLES[p.category] || BADGE_STYLES["Grains"];
+              const isSelected = selectedRows.includes(p.id);
+              return (
+                <tr
+                  key={p.id}
+                  style={{
+                    backgroundColor: isSelected ? "#F0FDFA" : "transparent",
+                    height: "49px",
+                  }}
+                >
+                  <td style={{ padding: "0.75rem" }}>
+                    <input
+                      type="checkbox"
+                      className="checkbox checkbox-sm rounded"
+                      checked={isSelected}
+                      onChange={(e) => {
+                        if (e.target.checked) {
+                          setSelectedRows([...selectedRows, p.id]);
+                        } else {
+                          setSelectedRows(selectedRows.filter((id) => id !== p.id));
+                        }
+                      }}
+                    />
+                  </td>
+                  <td style={{ padding: "0.75rem" }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
+                      <img
+                        src={p.avatar}
+                        alt={p.name}
+                        style={{ width: 32, height: 32, borderRadius: "50%" }}
+                      />
+                      <div>
+                        <div style={{ fontWeight: 600, color: "#111827" }}>{p.name}</div>
+                        <div style={{ fontSize: "0.75rem", color: "#6B7280" }}>
+                          Variation: {p.variation}
+                        </div>
+                      </div>
+                    </div>
+                  </td>
+                  <td style={{ padding: "0.75rem" }}>₱{Number(p.price).toLocaleString("en-PH", { minimumFractionDigits: 2 })}</td>
+                  <td style={{ padding: "0.75rem" }}>
+                    <span
+                      style={{
+                        display: "inline-block",
+                        padding: "0.25rem 0.75rem",
+                        fontSize: "0.75rem",
+                        fontWeight: 500,
+                        borderRadius: "9999px",
+                        color: style.color,
+                        backgroundColor: style.background,
+                        border: `1px solid ${style.border}`,
+                      }}
+                    >
+                      {p.category}
+                    </span>
+                  </td>
+                  <td style={{ padding: "0.75rem" }}>{p.stock}</td>
+                  <td style={{ padding: "0.75rem" }}>
+                    <span
+                      style={{
+                        display: "inline-block",
+                        padding: "0.25rem 0.75rem",
+                        fontSize: "0.75rem",
+                        fontWeight: 500,
+                        borderRadius: "9999px",
+                        color:
+                          p.status === "Pending"
+                            ? "#92400E"
+                            : p.status === "Approved"
+                            ? "#15803D"
+                            : "#DC2626",
+                        backgroundColor:
+                          p.status === "Pending"
+                            ? "#FEF3C7"
+                            : p.status === "Approved"
+                            ? "#D1FAE5"
+                            : "#FEE2E2",
+                        border: `1px solid ${
+                          p.status === "Pending"
+                            ? "#92400E"
+                            : p.status === "Approved"
+                            ? "#15803D"
+                            : "#DC2626"
+                        }`,
+                      }}
+                    >
+                      {p.status}
+                    </span>
+                  </td>
+                  <td style={{ padding: "0.75rem", textAlign: "left", minWidth: 160 }}>
+                    <div className="group flex items-center gap-4">
+                      {p.status === "Pending" ? (
+                        <div className="relative flex items-center" style={{ cursor: "pointer" }} onClick={() => handleDetails(p)}>
+                          <Copy size={20} stroke="#16A34A" className="transition-transform duration-200 group-hover:-translate-x-2" />
+                          <span className="absolute left-5 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 text-[#16A34A] text-sm font-medium transition-opacity duration-200 whitespace-nowrap" style={{ minWidth: 50 }}>
+                            Details
+                          </span>
+                        </div>
+                      ) : (
+                        <div className="relative flex items-center" style={{ cursor: "pointer" }}>
+                          <Pencil size={20} stroke="#3B82F6" className="cursor-pointer transition-transform duration-200 group-hover:-translate-x-1" onClick={() => handleEdit(p)} />
+                          <span className="absolute left-7 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 text-[#3B82F6] text-sm font-medium transition-opacity duration-200 whitespace-nowrap" style={{ minWidth: 40 }}>
+                            Edit
+                          </span>
+                        </div>
+                      )}
+                      <Trash2 size={20} stroke="#EF4444" className="cursor-pointer transition-transform duration-200 group-hover:translate-x-8" />
+                    </div>
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+        {/* PAGINATION */}
+        <div className="flex justify-center my-6">
+          <div className="flex items-center gap-1">
             <button
-              onClick={handleRejectClick}
-              className="px-6 py-2 rounded-full font-semibold bg-[#EF4444] text-white hover:bg-[#DC2626] transition"
+              onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+              className="btn btn-sm"
+              disabled={currentPage === 1}
             >
-              Reject
+              «
             </button>
+            {[...Array(totalPages)].map((_, i) => {
+              const page = i + 1;
+              return (
+                <button
+                  key={page}
+                  onClick={() => setCurrentPage(page)}
+                  className={`btn btn-sm ${page === currentPage ? "bg-gray-300 text-black" : "btn-ghost text-gray-600"}`}
+                >
+                  {page}
+                </button>
+              );
+            })}
             <button
-              onClick={handleApproveClick}
-              className="px-6 py-2 rounded-full font-semibold bg-[#16A34A] text-white hover:bg-green-600 transition"
+              onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+              className="btn btn-sm"
+              disabled={currentPage === totalPages}
             >
-              Approve
+              »
             </button>
           </div>
         </div>
       </div>
-    </>
+      {/* MODALS */}
+      <AddCategoryModal
+        isOpen={showAddCategory}
+        mode={categoryModalMode}
+        onClose={() => setShowAddCategory(false)}
+        onSwitchMode={(mode) => setCategoryModalMode(mode)}
+      />
+      <EditDetailsModal
+        isOpen={showEditModal}
+        onClose={closeEditModal}
+        product={editProduct}
+        onConfirm={(updatedProduct) => {
+          setProducts((prev) =>
+            prev.map((p) =>
+              p.id === updatedProduct.id ? { ...p, ...updatedProduct } : p
+            )
+          );
+        }}
+        mode={editModalMode}Add commentMore actions
+      />
+    </div>
   );
 }
