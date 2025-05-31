@@ -6,13 +6,17 @@ import StepFlow from "../../assets/StepFlow.png";
 import Back from "../../assets/Back.png";
 import Header from '../../assets/Header.png';
 import Upload from '../../assets/Upload.png';
+import Success from '../../assets/Success.png';
+import Federation from '../../assets/Federation.png';
+import Farmer from '../../assets/Farmer.png';
 import Uploadfiles from '../../assets/Uploadfiles.png';
+import UploadDocument from '../../assets/UploadDocument.png';
 import { X } from "lucide-react";
 
-
-const SetUp = () => {
+  const SetUp = () => {
   const navigate = useNavigate();
-
+  const truncateText = (text, maxLength) =>
+    text.length > maxLength ? text.slice(0, maxLength - 3) + "..." : text;
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [role, setRole] = useState("");
@@ -22,13 +26,32 @@ const SetUp = () => {
   const [uploadedFile, setUploadedFile] = useState(null);
   const [selectedDoc, setSelectedDoc] = useState("");
   const [barangay, setBarangay] = useState("");
+  const [countdown, setCountdown] = useState(3);
+  const email = "juandelacruz@gmail.com";
+  useEffect(() => {
+    if (showSuccess) {
+      // Countdown interval
+      const intervalId = setInterval(() => {
+        setCountdown((prev) => prev - 1);
+      }, 1000);
 
-// Automatically clear association when barangay changes
+      // Redirect timeout
+      const timeoutId = setTimeout(() => {
+        navigate("/signup"); // redirect after 3 seconds
+      }, 3000);
+
+      // Cleanup on unmount or when modal closes
+      return () => {
+        clearInterval(intervalId);
+        clearTimeout(timeoutId);
+        setCountdown(3); // reset countdown for next time
+      };
+    }
+  }, [showSuccess, navigate]);
+
 useEffect(() => {
   setAssociation("");
 }, [barangay]);
-
-
 
   const barangayToAssociations = {
     Calumpang: [
@@ -86,15 +109,6 @@ useEffect(() => {
   const filteredAssociations = barangay
   ? barangayToAssociations[barangay] || []
   : [];
-
-  // Function to show success modal and redirect after 3 seconds
-  const handleShowSuccess = () => {
-    setShowSuccess(true);
-    setTimeout(() => {
-      setShowSuccess(false);
-      navigate("/login"); // Redirect to login page after success
-    }, 3000);
-  };
 
   return (
     
@@ -211,23 +225,30 @@ useEffect(() => {
 
             {/* First & Last Name */}
             <div className="flex justify-center">
-  <div className="flex gap-2 mb-1" style={{ width: "550px" }}>
-    <div className="w-[264px]">
-      <label className="block mb-1 font-semibold text-gray-700 text-left text-sm">First Name</label>
+  <div
+    className="flex gap-2 flex-wrap"
+    style={{ width: "430px" }}
+  >
+    <div className="w-[210px]">
+      <label className="block mb-1 font-semibold text-gray-700 text-left text-sm">
+        First Name
+      </label>
       <input
         type="text"
-        className="input input-bordered rounded-full border border-gray-300 w-[264px] h-10 text-[#858585] placeholder-gray-400 text-sm px-4"
+        className="input input-bordered rounded-full border border-gray-300 w-full h-10 text-[#858585] placeholder-gray-400 text-sm px-4"
         placeholder="Ex. Juan"
         value={firstName}
         onChange={(e) => setFirstName(e.target.value)}
       />
     </div>
 
-    <div className="w-[264px]">
-      <label className="block mb-1 font-semibold text-gray-700 text-left text-sm">Last Name</label>
+    <div className="w-[210px]">
+      <label className="block mb-1 font-semibold text-gray-700 text-left text-sm">
+        Last Name
+      </label>
       <input
         type="text"
-        className="input input-bordered rounded-full border border-gray-300 w-[264px] h-10 text-gray-500 placeholder-gray-400 text-sm px-4"
+        className="input input-bordered rounded-full border border-gray-300 w-full h-10 text-gray-500 placeholder-gray-400 text-sm px-4"
         placeholder="Ex. Dela Cruz"
         value={lastName}
         onChange={(e) => setLastName(e.target.value)}
@@ -236,107 +257,119 @@ useEffect(() => {
   </div>
 </div>
 
+
 {/* Address & Association side by side */}
 <div className="flex justify-center mb-4">
-    <div className="flex gap-2" style={{ width: "550px" }}>
-      {/* Address */}
-      <div className="w-[264px]">
-        <label className="block mb-1 font-semibold text-gray-700 text-left text-sm">
-          Address
-        </label>
-        <div className="relative">
-          <select
-            className="input input-bordered rounded-full border border-gray-300 w-full h-10 text-[#858585] text-sm px-4 pr-10 cursor-pointer"
-            value={barangay}
-            onChange={(e) => setBarangay(e.target.value)}
-          >
-            <option value="" disabled>
-              Barangay
+  <div className="flex gap-2" style={{ width: "430px" }}>
+    {/* Address */}
+    <div className="w-[264px]">
+      <label className="block mb-1 font-semibold text-gray-700 text-left text-sm">
+        Address
+      </label>
+      <div className="relative">
+        <select
+          className="input input-bordered rounded-full border border-gray-300 w-full h-10 text-[#858585] text-sm px-4 pr-10 cursor-pointer"
+          value={barangay}
+          onChange={(e) => setBarangay(e.target.value)}
+        >
+          <option value="" disabled>
+            Barangay
+          </option>
+          {barangaysBinangonan.map((bgy) => (
+            <option key={bgy} value={bgy}>
+              {bgy}
             </option>
-            {barangaysBinangonan.map((bgy) => (
-              <option key={bgy} value={bgy}>
-                {bgy}
-              </option>
-            ))}
-          </select>
-          <div className="pointer-events-none absolute right-3 top-1/2 transform -translate-y-1/2 text-black">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-4 w-4"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              strokeWidth={2}
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M19 9l-7 7-7-7"
-              />
-            </svg>
-          </div>
-        </div>
-      </div>
-
-      {/* Association */}
-      <div className="w-[264px]">
-        <label className="block mb-1 font-semibold text-gray-700 text-left text-sm">
-          Association
-        </label>
-        <div className="relative">
-          <select
-            className="input input-bordered rounded-full border border-gray-300 w-full h-10 text-[#858585] text-sm px-4 pr-10 cursor-pointer"
-            value={association}
-            onChange={(e) => setAssociation(e.target.value)}
-            disabled={!barangay}
+          ))}
+        </select>
+        <div className="pointer-events-none absolute right-3 top-1/2 transform -translate-y-1/2 text-black">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="h-4 w-4"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            strokeWidth={2}
           >
-            <option value="" disabled>
-              {barangay ? "Select your Association" : "Select Barangay first"}
-            </option>
-            {filteredAssociations.map((assoc) => (
-              <option key={assoc} value={assoc}>
-                {assoc}
-              </option>
-            ))}
-          </select>
-          <div className="pointer-events-none absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-4 w-4"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              strokeWidth={2}
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M19 9l-7 7-7-7"
-              />
-            </svg>
-          </div>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+          </svg>
         </div>
       </div>
     </div>
+
+    {/* Association with truncated selected display */}
+    <div className="w-[264px] relative">
+      <label className="block mb-1 font-semibold text-gray-700 text-left text-sm">
+        Association
+      </label>
+
+      {/* Visible truncated text (fake select display) */}
+      <div
+        className="input input-bordered rounded-full border border-gray-300 w-full h-10 text-[#858585] text-sm px-4 pr-10 cursor-pointer flex items-center"
+        tabIndex={0}
+        onClick={() => document.getElementById("assoc-select").focus()}
+        role="button"
+        aria-haspopup="listbox"
+      >
+        {association
+          ? truncateText(association, 15)
+          : barangay
+          ? "Select your Association"
+          : "Select Barangay first"}
+      </div>
+
+      {/* Actual select (invisible, but functional) */}
+      <select
+        id="assoc-select"
+        className="absolute inset-0 opacity-0 cursor-pointer"
+        value={association}
+        onChange={(e) => setAssociation(e.target.value)}
+        disabled={!barangay}
+        size={1}
+      >
+        <option value="" disabled>
+          {barangay ? "Select your Association" : "Select Barangay first"}
+        </option>
+        {filteredAssociations.map((assoc) => (
+          <option key={assoc} value={assoc}>
+            {assoc}
+          </option>
+        ))}
+      </select>
+
+      {/* Dropdown arrow */}
+      <div className="pointer-events-none absolute right-3 top-1/2 transform -translate-y- text-gray-400">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          className="h-4 w-4"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+          strokeWidth={2}
+        >
+          <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+        </svg>
+      </div>
+    </div>
   </div>
+</div>
 
 {/* Upload Document */}
 <div>
   {/* Trigger Button */}
   <div className="flex justify-center mb-6">
-  <div className="w-[700px]">
+  <div className="w-[450px]">
     <label className="block mb-1 font-semibold text-gray-800 text-sm text-left">
       Document
     </label>
     <button
       onClick={() => setShowModal(true)}
-      className="bg-white text-[#858585] border border-gray px-6 py-2 rounded-full hover:border-green-600 hover:bg-green-50 transition w-full"
+      className="bg-white text-[#858585] border border-gray px-6 py-2 rounded-full hover:border-green-600 hover:bg-green-50 transition w-full flex items-center justify-center gap-2"
     >
+      <img src={UploadDocument} alt="Upload Icon" className="w-5 h-5" />
       Upload a Document
     </button>
   </div>
 </div>
-
 
   {/* Modal */}
   {showModal && (
@@ -429,66 +462,45 @@ useEffect(() => {
 
     {/* Button pills in flex */}
     <div className="flex gap-2">
-      <label
-        className={`flex items-center gap-2 cursor-pointer rounded-full border border-gray py-0 px-4 w-1/2 text-gray-700 text-sm hover:border-green-600 hover:bg-green-50 ${
-          role === "Federation Farmer" ? "border-green-600 bg-green-50" : ""
-        }`}
-        style={{ height: "45px" }}
-        onClick={() => setRole("Federation Farmer")}
-      >
-        <input
-          type="radio"
-          name="role"
-          value="Federation Farmer"
-          checked={role === "Federation Farmer"}
-          readOnly
-          className="hidden"
-        />
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          className="h-4 w-4 text-green-600"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-          strokeWidth={2}
-        >
-          <path d="M12 20l9-5-9-5-9 5 9 5z" />
-          <path d="M12 12V4" />
-          <path d="M9 12h6" />
-        </svg>
-        Federation Farmer
-      </label>
 
-      <label
-        className={`flex items-center gap-2 cursor-pointer rounded-full border border-gray py-0 px-4 w-1/2 text-gray-700 text-sm hover:border-green-600 hover:bg-green-50 ${
-          role === "Federation Member" ? "border-green-600 bg-green-50" : ""
-        }`}
-        style={{ height: "45px" }}
-        onClick={() => setRole("Federation Member")}
-      >
-        <input
-          type="radio"
-          name="role"
-          value="Federation Member"
-          checked={role === "Federation Member"}
-          readOnly
-          className="hidden"
-        />
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          className="h-4 w-4 text-green-600"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-          strokeWidth={2}
-        >
-          <rect width="26" height="10" x="4" y="7" rx="2" ry="2" />
-          <path d="M12 7v6" />
-          <path d="M8 7v6" />
-          <path d="M16 7v6" />
-        </svg>
-        Federation Member
-      </label>
+<label
+  className={`flex items-center gap-2 cursor-pointer rounded-full border border-gray py-0 px-4 w-1/2 text-gray-700 text-sm hover:border-green-600 hover:bg-green-50 ${
+    role === "Federation Farmer" ? "border-green-600 bg-green-50" : ""
+  }`}
+  style={{ height: "45px" }}
+  onClick={() => setRole("Federation Farmer")}
+>
+  <input
+    type="radio"
+    name="role"
+    value="Federation Farmer"
+    checked={role === "Federation Farmer"}
+    readOnly
+    className="hidden"
+  />
+  <img src={Farmer} alt="Farmer Icon" className="w-4 h-4" />
+  Federation Farmer
+</label>
+
+
+<label
+  className={`flex items-center gap-2 cursor-pointer rounded-full border border-gray py-0 px-4 w-1/2 text-gray-700 text-sm hover:border-green-600 hover:bg-green-50 ${
+    role === "Federation Member" ? "border-green-600 bg-green-50" : ""
+  }`}
+  style={{ height: "45px" }}
+  onClick={() => setRole("Federation Member")}
+>
+  <input
+    type="radio"
+    name="role"
+    value="Federation Member"
+    checked={role === "Federation Member"}
+    readOnly
+    className="hidden"
+  />
+  <img src={Federation} alt="Federation Icon" className="w-4 h-4" />
+  Federation Member
+</label>
     </div>
   </div>
 </div>
@@ -496,8 +508,8 @@ useEffect(() => {
 
           <div className="flex-grow"></div>
           <button
-            className="mt-[15px] w-full bg-[#4CAE4F] text-white py-3 rounded-full hover:bg-green-700 transition mx-auto"
-            onClick={handleShowSuccess}
+            className="mt-[1px] w-full bg-[#4CAE4F] text-white py-3 rounded-full hover:bg-green-700 transition mx-auto w-[488px] h-[54px]"
+            onClick={() => setShowSuccess(true)} 
           >
             Finish
           </button>
@@ -507,19 +519,22 @@ useEffect(() => {
       {/* Success Modal */}
       {showSuccess && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-3xl p-11 w-[620px] h-[460px] shadow-xl">
+          <div className="bg-white rounded-3xl p-11 w-[620px] h-[430px] shadow-xl">
             <div className="flex flex-col items-center text-center">
-              <h3 className="text-3xl font-bold mb-4">
-                Account Created Successfully
-              </h3>
-              <img src="/Checkpass.png" alt="Success" className="w-18 h-18 mb-4" />
+            <h3 className="text-3xl font-bold mb-4">Account Created Successfully</h3>
+            <img
+                src={Success}
+                alt="Success.png"
+                className="w-[80px] max-w-full object-contain"
+              />
               <p className="text-base text-gray-600 mb-3">
-                You have successfully created your account with <br /> the email{" "}
-                <span className="font-medium">{email}</span>.
-              </p>{" "}
-              <br /> <br />
+                You have successfully created your account with <br />
+                the email <span className="font-medium">{email}</span>.
+              </p>
+              <br />
+              <br />
               <p className="text-sm text-gray-500 mb-4">
-                You will be redirected to Login Page in <br /> 3 seconds.
+                You will be redirected to Login Page in <br /> {countdown} second{countdown !== 1 ? "s" : ""}.
               </p>
               <button
                 className="w-full mt-1 bg-[#4CAE4F] text-white py-3 rounded-full hover:bg-green-700 transition mx-auto"
