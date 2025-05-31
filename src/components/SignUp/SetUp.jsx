@@ -5,6 +5,9 @@ import Lock from "../../assets/Lock.png";
 import StepFlow from "../../assets/StepFlow.png";
 import Back from "../../assets/Back.png";
 import Header from '../../assets/Header.png';
+import Upload from '../../assets/Upload.png';
+import Uploadfiles from '../../assets/Uploadfiles.png';
+import { X } from "lucide-react";
 
 
 const SetUp = () => {
@@ -12,33 +15,77 @@ const SetUp = () => {
 
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
-  const [completeAddress, setCompleteAddress] = useState("");
-  const [addressError, setAddressError] = useState("");
-  const [showAddressModal, setShowAddressModal] = useState(false);
-  const [barangay, setBarangay] = useState("");
-  const [uploadedFile, setUploadedFile] = useState(null);
   const [role, setRole] = useState("");
   const [showSuccess, setShowSuccess] = useState(false);
-  const [email, setEmail] = useState("user@example.com"); // Replace with actual email if available
   const [association, setAssociation] = useState("");
+  const [showModal, setShowModal] = useState(false);
+  const [uploadedFile, setUploadedFile] = useState(null);
+  const [selectedDoc, setSelectedDoc] = useState("");
+  const [barangay, setBarangay] = useState("");
+
+// Automatically clear association when barangay changes
+useEffect(() => {
+  setAssociation("");
+}, [barangay]);
+
+
+
+  const barangayToAssociations = {
+    Calumpang: [
+      "Calumpang Vegetable Farmers Association",
+      "Calumpang Farmers Association",
+    ],
+    Darangan: [
+      "Darangan Vegetable Farmers Association",
+      "Pugad St. Monique Vegetable Farmers Association",
+      "Halang Integrated Farmers Association",
+      "Hulo, Darangan Farmers Association",
+      "Pugad St. Monique Farmers Association",
+      "Samahang Magsasaka ng Darangan",
+      "Tabing-Dagat Farmers Association",
+    ],
+    Pantok: [
+      "Pantok-Palangoy Vegetable F.A.",
+      "Pantok Farmers Association",
+      "Kaysapon Farmers Association",
+      "Kaykansa Farmers Association",
+      "Kaymaputi Farmers Association",
+    ],
+    Bilibiran: [
+      "Bilibiran Vegetable Farmers Association",
+      "Bilibiran Farmers Association",
+    ],
+    Macamot: [
+      "Macamot Organic Vegetable Farmers Association",
+      "Pulong Parang Organic Vegetable Farmers Association",
+      "Sitio Halang Vegetable Farmers Association",
+      "Macamot Farmers Association",
+      "Halang, Macamot Farmers Association",
+    ],
+    Mambog: ["Layunan Organic Vegetable Farmers Association"],
+    "Pila-Pila": ["Pila-Pila Farmers Association"],
+    Tagpos: [
+      "Tagpos Vegetable Farmers Association",
+      "Tagpos Farmers Association",
+    ],
+    Tatala: ["Tatala Farmers Association"],
+  };
 
   const barangaysBinangonan = [
-    "Batingan",
     "Calumpang",
     "Darangan",
-    "Mahabang Parang",
     "Pantok",
+    "Bilibiran",
+    "Macamot",
+    "Mambog",
+    "Pila-Pila",
+    "Tagpos",
+    "Tatala",
   ];
 
-  const associations = ["Association 1", "Association 2", "Association 3"];
-
-  useEffect(() => {
-    // Update completeAddress when barangay changes
-    if (barangay) {
-      setCompleteAddress(barangay);
-      setAddressError("");
-    }
-  }, [barangay]);
+  const filteredAssociations = barangay
+  ? barangayToAssociations[barangay] || []
+  : [];
 
   // Function to show success modal and redirect after 3 seconds
   const handleShowSuccess = () => {
@@ -169,7 +216,7 @@ const SetUp = () => {
       <label className="block mb-1 font-semibold text-gray-700 text-left text-sm">First Name</label>
       <input
         type="text"
-        className="input input-bordered rounded-full border border-gray-300 w-[264px] h-10 text-gray-500 placeholder-gray-400 text-sm px-4"
+        className="input input-bordered rounded-full border border-gray-300 w-[264px] h-10 text-[#858585] placeholder-gray-400 text-sm px-4"
         placeholder="Ex. Juan"
         value={firstName}
         onChange={(e) => setFirstName(e.target.value)}
@@ -191,154 +238,258 @@ const SetUp = () => {
 
 {/* Address & Association side by side */}
 <div className="flex justify-center mb-4">
-  <div className="flex gap-4" style={{ width: "550px" }}>
-    {/* Address */}
-    <div className="w-[264px]">
-      <label className="block mb-1 font-semibold text-gray-700 text-left text-sm">
-        Address
-      </label>
-      <div className="relative">
-        <select
-          className="input input-bordered rounded-full border border-gray-300 w-full h-10 text-gray-500 text-sm px-4 pr-10 cursor-pointer"
-          value={barangay}
-          onChange={(e) => setBarangay(e.target.value)}
-        >
-          <option value="" disabled>
-            Barangay
-          </option>
-          {barangaysBinangonan.map((bgy) => (
-            <option key={bgy} value={bgy}>
-              {bgy}
-            </option>
-          ))}
-        </select>
-        <div className="pointer-events-none absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className="h-4 w-4"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-            strokeWidth={2}
+    <div className="flex gap-2" style={{ width: "550px" }}>
+      {/* Address */}
+      <div className="w-[264px]">
+        <label className="block mb-1 font-semibold text-gray-700 text-left text-sm">
+          Address
+        </label>
+        <div className="relative">
+          <select
+            className="input input-bordered rounded-full border border-gray-300 w-full h-10 text-[#858585] text-sm px-4 pr-10 cursor-pointer"
+            value={barangay}
+            onChange={(e) => setBarangay(e.target.value)}
           >
-            <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
-          </svg>
+            <option value="" disabled>
+              Barangay
+            </option>
+            {barangaysBinangonan.map((bgy) => (
+              <option key={bgy} value={bgy}>
+                {bgy}
+              </option>
+            ))}
+          </select>
+          <div className="pointer-events-none absolute right-3 top-1/2 transform -translate-y-1/2 text-black">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-4 w-4"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth={2}
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M19 9l-7 7-7-7"
+              />
+            </svg>
+          </div>
         </div>
       </div>
-    </div>
 
-    {/* Association */}
-    <div className="w-[264px]">
-      <label className="block mb-1 font-semibold text-gray-700 text-left text-sm">
-        Association
-      </label>
-      <div className="relative">
-        <select
-          className="input input-bordered rounded-full border border-gray-300 w-full h-10 text-gray-500 text-sm px-4 pr-10 cursor-pointer"
-          value={association}
-          onChange={(e) => setAssociation(e.target.value)}
-        >
-          <option value="" disabled>
-            Select your Association
-          </option>
-          {associations.map((assoc) => (
-            <option key={assoc} value={assoc}>
-              {assoc}
-            </option>
-          ))}
-        </select>
-        <div className="pointer-events-none absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className="h-4 w-4"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-            strokeWidth={2}
+      {/* Association */}
+      <div className="w-[264px]">
+        <label className="block mb-1 font-semibold text-gray-700 text-left text-sm">
+          Association
+        </label>
+        <div className="relative">
+          <select
+            className="input input-bordered rounded-full border border-gray-300 w-full h-10 text-[#858585] text-sm px-4 pr-10 cursor-pointer"
+            value={association}
+            onChange={(e) => setAssociation(e.target.value)}
+            disabled={!barangay}
           >
-            <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
-          </svg>
+            <option value="" disabled>
+              {barangay ? "Select your Association" : "Select Barangay first"}
+            </option>
+            {filteredAssociations.map((assoc) => (
+              <option key={assoc} value={assoc}>
+                {assoc}
+              </option>
+            ))}
+          </select>
+          <div className="pointer-events-none absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-4 w-4"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth={2}
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M19 9l-7 7-7-7"
+              />
+            </svg>
+          </div>
         </div>
       </div>
     </div>
   </div>
-</div>
 
 {/* Upload Document */}
-<div className="flex justify-center mb-6">
-  <div className="w-[550px]">
-    <label className="block mb-1 font-semibold text-gray-700 text-left text-sm">
-      Upload a Document
+<div>
+  {/* Trigger Button */}
+  <div className="flex justify-center mb-6">
+  <div className="w-[700px]">
+    <label className="block mb-1 font-semibold text-gray-800 text-sm text-left">
+      Document
     </label>
-    <input
-      className="w-full rounded-full border border-gray text-gray-600 text-sm cursor-pointer py-2 px-4"
-    />
+    <button
+      onClick={() => setShowModal(true)}
+      className="bg-white text-[#858585] border border-gray px-6 py-2 rounded-full hover:border-green-600 hover:bg-green-50 transition w-full"
+    >
+      Upload a Document
+    </button>
   </div>
 </div>
 
+
+  {/* Modal */}
+  {showModal && (
+    <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+      <div className="bg-white rounded-2xl p-6 w-[400px] relative shadow-lg transition-all duration-300">
+        {/* Close Button */}
+        <button
+          onClick={() => {
+            setShowModal(false);
+            setSelectedDoc("");
+            setUploadedFile(null);
+          }}
+          className="absolute top-4 right-4 text-gray-500 hover:text-gray-700"
+        >
+          <X />
+        </button>
+
+        {/* Modal Header */}
+        <div className="flex items-center gap-4 mb-2">
+          <div className="w-12 h-12 border rounded-full flex items-center justify-center">
+          <img src={Uploadfiles} alt="Uploadfiles" className="w-6 h-6" />
+          </div>
+          <div>
+            <h2 className="text-xl font-bold">Upload Files</h2>
+            <p className="text-gray-500 text-sm">
+              Select and upload the file do you need
+            </p>
+          </div>
+        </div>
+
+        <hr className="my-4" />
+
+        {/* Dropdown */}
+        <div className="mb-6">
+          <label className="block font-semibold mb-1 text-sm text-gray-800">
+            Select your Document
+          </label>
+          <select
+            className="w-full rounded-full border border-gray-300 text-sm px-4 py-2 text-gray-500"
+            value={selectedDoc}
+            onChange={(e) => setSelectedDoc(e.target.value)}
+          >
+            <option value="">-- Select Document --</option>
+            <option value="barangay-clearance">Barangay Clearance</option>
+            <option value="valid-id">Valid ID</option>
+          </select>
+        </div>
+
+        {/* Conditional Upload Box with Animation */}
+        <div
+          className={`transition-all duration-500 ${
+            selectedDoc ? "opacity-100 max-h-[300px] mb-4" : "opacity-0 max-h-0 overflow-hidden"
+          }`}
+        >
+          <div className="border-2 border-dashed border-gray-300 rounded-xl p-6 text-center w-[350px] mx-auto">
+          <div className="flex justify-center mb-3">
+              <img src={Upload} alt="Upload Icon" className="w-6 h-6" />
+            </div>
+            <p className="font-semibold text-sm mb-1">
+              Choose a file or{" "}
+              <span className="text-green-600">drag & drop it here</span>
+            </p>
+            <p className="text-gray-500 text-xs mb-4">
+              JPEG, PNG, PDF, and XLXS formats, up to 5 MB
+            </p>
+
+            <label className="inline-block bg-green-600 text-white text-sm font-medium px-6 py-2 rounded-full cursor-pointer hover:bg-green-700">
+              Browse File
+              <input
+                type="file"
+                className="hidden"
+                onChange={(e) => setUploadedFile(e.target.files[0])}
+              />
+            </label>
+          </div>
+        </div>
+      </div>
+    </div>
+  )}
+</div>
+
+
 {/* Role Selection Pills - centered and same width */}
-<div className="flex justify-center mb-6">
-  <div className="flex gap-4" style={{ width: "650px" }}>
-    <label
-      className={`flex items-center gap-2 cursor-pointer rounded-full border border-gray py-0 px-4 w-1/2 text-gray-700 text-sm hover:border-green-600 hover:bg-green-50 ${
-        role === "Federation Farmer" ? "border-green-600 bg-green-50" : ""
-      }`}
-      style={{ height: "45px" }}
-      onClick={() => setRole("Federation Farmer")}
-    >
-      <input
-        type="radio"
-        name="role"
-        value="Federation Farmer"
-        checked={role === "Federation Farmer"}
-        readOnly
-        className="hidden"
-      />
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        className="h-4 w-4 text-green-600"
-        fill="none"
-        viewBox="0 0 24 24"
-        stroke="currentColor"
-        strokeWidth={2}
-      >
-        <path d="M12 20l9-5-9-5-9 5 9 5z" />
-        <path d="M12 12V4" />
-        <path d="M9 12h6" />
-      </svg>
-      Federation Farmer
+<div className="flex justify-center mb-0">
+  <div style={{ width: "650px" }}>
+    {/* Label on top, left-aligned */}
+    <label className="block mb-1 font-semibold text-gray-800 text-sm text-left">
+      Select your Role
     </label>
 
-    <label
-      className={`flex items-center gap-2 cursor-pointer rounded-full border border-gray py-0 px-4 w-1/2 text-gray-700 text-sm hover:border-green-600 hover:bg-green-50 ${
-        role === "Federation Member" ? "border-green-600 bg-green-50" : ""
-      }`}
-      style={{ height: "45px" }}
-      onClick={() => setRole("Federation Member")}
-    >
-      <input
-        type="radio"
-        name="role"
-        value="Federation Member"
-        checked={role === "Federation Member"}
-        readOnly
-        className="hidden"
-      />
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        className="h-4 w-4 text-green-600"
-        fill="none"
-        viewBox="0 0 24 24"
-        stroke="currentColor"
-        strokeWidth={2}
+    {/* Button pills in flex */}
+    <div className="flex gap-2">
+      <label
+        className={`flex items-center gap-2 cursor-pointer rounded-full border border-gray py-0 px-4 w-1/2 text-gray-700 text-sm hover:border-green-600 hover:bg-green-50 ${
+          role === "Federation Farmer" ? "border-green-600 bg-green-50" : ""
+        }`}
+        style={{ height: "45px" }}
+        onClick={() => setRole("Federation Farmer")}
       >
-        <rect width="26" height="10" x="4" y="7" rx="2" ry="2" />
-        <path d="M12 7v6" />
-        <path d="M8 7v6" />
-        <path d="M16 7v6" />
-      </svg>
-      Federation Member
-    </label>
+        <input
+          type="radio"
+          name="role"
+          value="Federation Farmer"
+          checked={role === "Federation Farmer"}
+          readOnly
+          className="hidden"
+        />
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          className="h-4 w-4 text-green-600"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+          strokeWidth={2}
+        >
+          <path d="M12 20l9-5-9-5-9 5 9 5z" />
+          <path d="M12 12V4" />
+          <path d="M9 12h6" />
+        </svg>
+        Federation Farmer
+      </label>
+
+      <label
+        className={`flex items-center gap-2 cursor-pointer rounded-full border border-gray py-0 px-4 w-1/2 text-gray-700 text-sm hover:border-green-600 hover:bg-green-50 ${
+          role === "Federation Member" ? "border-green-600 bg-green-50" : ""
+        }`}
+        style={{ height: "45px" }}
+        onClick={() => setRole("Federation Member")}
+      >
+        <input
+          type="radio"
+          name="role"
+          value="Federation Member"
+          checked={role === "Federation Member"}
+          readOnly
+          className="hidden"
+        />
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          className="h-4 w-4 text-green-600"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+          strokeWidth={2}
+        >
+          <rect width="26" height="10" x="4" y="7" rx="2" ry="2" />
+          <path d="M12 7v6" />
+          <path d="M8 7v6" />
+          <path d="M16 7v6" />
+        </svg>
+        Federation Member
+      </label>
+    </div>
   </div>
 </div>
 </div>

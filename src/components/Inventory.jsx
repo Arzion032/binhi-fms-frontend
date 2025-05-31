@@ -1210,7 +1210,7 @@ export default function EquipmentPage() {
         <th className="w-[12%] px-3 py-3">Rent Rate</th>
         <th className="w-[14%] px-3 py-3">Date Rented <span className="inline-block">↓</span></th>
         <th className="w-[14%] px-3 py-3">Due/Date Returned</th>
-        <th className="w-[10%] px-3 py-3">Status</th>
+        <th className="w-[10%] px-3 py-3">Renter</th>
         <th className="w-[20%] px-3 py-3">Actions</th>
       </tr>
     </thead>
