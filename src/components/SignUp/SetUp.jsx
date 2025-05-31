@@ -235,7 +235,7 @@ useEffect(() => {
       </label>
       <input
         type="text"
-        className="input input-bordered rounded-full border border-gray-300 w-full h-10 text-[#858585] placeholder-gray-400 text-sm px-4"
+        className="input input-bordered rounded-full border border-gray-300 w-full h-10 text-[#858585] placeholder-gray-400 text-sm px-4 focus:outline-none focus:ring-2 focus:ring-green-500"
         placeholder="Ex. Juan"
         value={firstName}
         onChange={(e) => setFirstName(e.target.value)}
@@ -248,7 +248,7 @@ useEffect(() => {
       </label>
       <input
         type="text"
-        className="input input-bordered rounded-full border border-gray-300 w-full h-10 text-gray-500 placeholder-gray-400 text-sm px-4"
+        className="input input-bordered rounded-full border border-gray-300 w-full h-10 text-gray-500 placeholder-gray-400 text-sm px-4 focus:outline-none focus:ring-2 focus:ring-green-500"
         placeholder="Ex. Dela Cruz"
         value={lastName}
         onChange={(e) => setLastName(e.target.value)}
@@ -268,7 +268,7 @@ useEffect(() => {
       </label>
       <div className="relative">
         <select
-          className="input input-bordered rounded-full border border-gray-300 w-full h-10 text-[#858585] text-sm px-4 pr-10 cursor-pointer"
+          className="input input-bordered rounded-full border border-gray-300 w-full h-10 text-[#858585] text-sm px-4 pr-10 cursor-pointer focus:outline-none focus:ring-2 focus:ring-green-500"
           value={barangay}
           onChange={(e) => setBarangay(e.target.value)}
         >
@@ -304,7 +304,7 @@ useEffect(() => {
 
       {/* Visible truncated text (fake select display) */}
       <div
-        className="input input-bordered rounded-full border border-gray-300 w-full h-10 text-[#858585] text-sm px-4 pr-10 cursor-pointer flex items-center"
+        className="input input-bordered rounded-full border border-gray-300 w-full h-10 text-[#858585] text-sm px-4 pr-10 cursor-pointer flex items-center "
         tabIndex={0}
         onClick={() => document.getElementById("assoc-select").focus()}
         role="button"
@@ -320,7 +320,7 @@ useEffect(() => {
       {/* Actual select (invisible, but functional) */}
       <select
         id="assoc-select"
-        className="absolute inset-0 opacity-0 cursor-pointer"
+        className="absolute inset-0 opacity-0 cursor-pointer "
         value={association}
         onChange={(e) => setAssociation(e.target.value)}
         disabled={!barangay}

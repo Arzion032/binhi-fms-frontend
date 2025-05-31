@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import Background from '../../assets/Background.jpg';
 import SignUpLogo from '../../assets/SignUpLogo.png';
+import Google from '../../assets/Google.png';
 import Header from '../../assets/Header.png';
 import { Link } from 'react-router-dom';
 import { useNavigate } from "react-router-dom";
@@ -108,14 +109,15 @@ const SignUpPage = () => {
             </div>
 
             <div className="flex justify-between gap-4 mb-6">
-              <button className="flex items-center justify-center gap-2 border border-gray-400 rounded-full py-2 px-4 font-semibold hover:bg-gray-100 w-full text-xs">
+            <button className="flex items-center justify-center gap-2 border border-gray-400 rounded-full py-2 px-4 font-semibold hover:bg-gray-100 w-full text-xs">
                 <img
-                  src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg"
+                  src={Google}
                   alt="Google"
                   className="w-5 h-5"
                 />
                 Sign Up with Google
               </button>
+
               <button className="w[px] flex items-center justify-center gap-2 border border-gray-400 rounded-full py-2 px-4 font-semibold hover:bg-gray-100 w-full text-xs">
                 <img
                   src="https://upload.wikimedia.org/wikipedia/commons/0/05/Facebook_Logo_%282019%29.png"
