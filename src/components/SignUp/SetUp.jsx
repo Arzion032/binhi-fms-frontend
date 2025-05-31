@@ -4,6 +4,8 @@ import Background from "../../assets/Background.jpg";
 import Lock from "../../assets/Lock.png";
 import StepFlow from "../../assets/StepFlow.png";
 import Back from "../../assets/Back.png";
+import Header from '../../assets/Header.png';
+
 
 const SetUp = () => {
   const navigate = useNavigate();
@@ -54,27 +56,19 @@ const SetUp = () => {
       style={{ backgroundImage: `url(${Background})` }}
     >
       {/* Header */}
-      <header className="flex justify-between items-center px-8 py-4 border-b border-gray-200 bg-white bg-opacity-80 z-10 relative">
+      <header className="flex justify-between items-center px-9 py-1 bg-white bg-opacity-80 z-10 relative">
         <div className="flex items-center space-x-3">
-          <div className="w-10 h-10 rounded-md bg-green-600 flex justify-center items-center">
-            <svg
-              className="w-6 h-6 text-white"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth={2}
-              viewBox="0 0 24 24"
-              xmlns="http://www.w3.org/2000/svg"
-              aria-hidden="true"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M12 20v-6m0 0V4m0 10h6m-6 0H6"
-              />
-            </svg>
-          </div>
-          <h1 className="text-3xl font-serif text-green-700 select-none">Binhi</h1>
-          <span className="text-gray-400 font-semibold select-none">Sign Up</span>
+         
+          <div className="flex items-center space-x-3">
+    <div className="rounded-md flex justify-center items-center">
+    <img
+        src={Header}
+        alt="Header"
+        className="h-[45px] w-[165px] object-contain"
+      />
+          <span className="text-xl p-5 font-semibold select-none text-gray">Sign Up</span>
+        </div>
+        </div>
         </div>
 
         <div className="flex items-center space-x-8">
@@ -106,18 +100,18 @@ const SetUp = () => {
             {/* Main */}
       <div className="flex-grow flex items-center justify-center">
   <div
-    className="bg-white rounded-3xl shadow-lg w-[1400px] p-10 relative"
+    className="bg-white rounded-3xl shadow-lg w-[1400px] h-[750px] relative"
       >
         {/* Back Button */}
         <button
           className="absolute top-6 left-6 flex items-center text-gray-600 hover:text-black"
-          onClick={() => navigate("/next-step")}
+          onClick={() => navigate("/password")}
         >
           <img src={Back} alt="Back" className="w-20 h-10" />
         </button>
 
         {/* Step Indicator */}
-        <div className="flex justify-center mb-3">
+        <div className="flex justify-center p-10">
           <div className="flex items-center gap-4">
             <div className="flex flex-col items-center">
               <div className="font-bold text-3xl bg-[#4CAE4F] text-white w-[66px] h-[66px] flex items-center justify-center rounded-2xl">
@@ -160,7 +154,7 @@ const SetUp = () => {
               className="mt-2 inline w-[55px] h-[65px]"
             />
 
-          <div className="max-w-md mx-auto p-6">
+          <div className="max-w-md mx-auto p-2">
             <h2 className="text-3xl font-bold mb-2 mt-2 text-center">
               Finish your Set Up!
             </h2>
@@ -277,9 +271,7 @@ const SetUp = () => {
       Upload a Document
     </label>
     <input
-      type="file"
       className="w-full rounded-full border border-gray text-gray-600 text-sm cursor-pointer py-2 px-4"
-      onChange={(e) => setUploadedFile(e.target.files[0])}
     />
   </div>
 </div>

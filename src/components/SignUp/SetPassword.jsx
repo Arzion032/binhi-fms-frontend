@@ -1,5 +1,10 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import Header from '../../assets/Header.png';
+import Background from '../../assets/Background.jpg';
+import Back from "../../assets/Back.png";
+import Lock from "../../assets/Lock.png";
+import StepFlow from "../../assets/StepFlow.png";
 
 const SetPassword = () => {
   const navigate = useNavigate();
@@ -34,19 +39,67 @@ const SetPassword = () => {
   };
 
   return (
-    <div className="bg-fixed min-h-screen bg-cover bg-center bg-no-repeat flex items-center justify-center font-inter px-4" style={{ backgroundImage: 'url("/background.jpg")' }}>
-      <div className="bg-white rounded-3xl shadow-lg w-[1412px] h-[745px] p-10 relative flex flex-col" style={{ marginTop: '5px' }}>
+    <div
+      className="min-h-screen flex flex-col bg-center bg-cover "
+      style={{ backgroundImage: `url(${Background})` }}
+    >
+      {/* Header */}
+      <header className="flex justify-between items-center px-9 py-1 bg-white bg-opacity-80 z-10 relative">
+        <div className="flex items-center space-x-3">
+         
+          <div className="flex items-center space-x-3">
+    <div className="rounded-md flex justify-center items-center">
+    <img
+        src={Header}
+        alt="Header"
+        className="h-[45px] w-[165px] object-contain"
+      />
+          <span className="text-xl p-5 font-semibold select-none text-gray">Sign Up</span>
+        </div>
+        </div>
+        </div>
+     
 
+        <div className="flex items-center space-x-8">
+          <button className="flex items-center space-x-1 text-sm font-semibold text-gray-700 hover:text-gray-900">
+            <img
+              src="https://upload.wikimedia.org/wikipedia/commons/9/99/Flag_of_the_Philippines.svg"
+              alt="Philippine flag"
+              className="w-6 h-4 object-cover rounded-sm"
+            />
+            <span>Tagalog</span>
+            <svg
+              className="w-3 h-3"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth={2}
+              viewBox="0 0 24 24"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+            </svg>
+          </button>
+
+          <button className="text-gray-700 text-sm font-normal hover:text-gray-900">
+            Need Help?
+          </button>
+        </div>
+      </header>
+      
+     {/* Main */}
+     <div className="flex-grow flex items-center justify-center">
+  <div
+    className="bg-white rounded-3xl shadow-lg w-[1400px] h-[750px] relative"
+      >
         {/* Back Button */}
         <button
           className="absolute top-6 left-6 flex items-center text-gray-600 hover:text-black"
-          onClick={() => navigate("/next-step")}
+          onClick={() => navigate("/verification")}
         >
-          <img src="/arrow-left-s-line.png" alt="Back" className="w-20 h-10" />
+          <img src={Back} alt="Back" className="w-20 h-10" />
         </button>
 
         {/* Step Indicator */}
-        <div className="flex justify-center mb-3">
+        <div className="flex justify-center p-5">
           <div className="flex items-center gap-4">
             <div className="flex flex-col items-center">
               <div className="font-bold text-3xl bg-[#4CAE4F] text-white w-[66px] h-[66px] flex items-center justify-center rounded-2xl">
@@ -55,7 +108,10 @@ const SetPassword = () => {
               <span className="text-green-600 mt-2">Verification</span>
             </div>
 
-            <img src="/dotgreen.png" alt="Step Flow" className="relative -top-3" />
+            <img
+              src={StepFlow}
+              alt="StepFlow"
+              className="relative -top-3" />
 
             <div className="flex flex-col items-center">
               <div className="font-bold text-3xl bg-[#4CAE4F] text-white w-[66px] h-[66px] flex items-center justify-center rounded-2xl shadow-lg shadow-green-700/60">
@@ -64,7 +120,10 @@ const SetPassword = () => {
               <span className="font-bold text-green-600 mt-2">Password</span>
             </div>
 
-            <img src="/dotgreen.png" alt="Step Flow" className="relative -top-3" />
+            <img
+              src={StepFlow}
+              alt="StepFlow"
+              className="relative -top-3" />
 
             <div className="flex flex-col items-center">
               <div className="font-bold text-3xl text-[#D9D9D9] border-[2px] border-[#D9D9D9] w-[66px] h-[66px] flex items-center justify-center rounded-2xl">
@@ -78,7 +137,11 @@ const SetPassword = () => {
         {/* Main Content */}
         <div className="text-center mt-5 flex-grow flex flex-col">
           <div className="text-green-600 text-4xl mb-2">
-            <img src="/lock-password-fill.png" alt="Lock Icon" className="inline w-[65px] h-[66px]" />
+          <img
+              src={Lock}
+              alt="Lock"
+              className="mt-2 inline w-[55px] h-[65px]"
+            />
           </div>
 
           <h2 className="text-3xl font-bold mb-1">Set Your Password</h2>
@@ -170,6 +233,7 @@ const SetPassword = () => {
           </button>
         </div>
       </div>
+    </div>
     </div>
   );
 };

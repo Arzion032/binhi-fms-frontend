@@ -1,16 +1,14 @@
 import React, { useState } from 'react';
 import Background from '../../assets/Background.jpg';
 import SignUpLogo from '../../assets/SignUpLogo.png';
-import SignUpLogo2 from '../../assets/SignUpLogo2.png';
-import Bukas from '../../assets/Bukas.png';
+import Header from '../../assets/Header.png';
 import { Link } from 'react-router-dom';
+import { useNavigate } from "react-router-dom";
 
 const SignUpPage = () => {
   const [contact, setContact] = useState('');
-
-  const handleNext = () => {
-    alert(`Next clicked with input: ${contact}`);
-  };
+  const navigate = useNavigate();
+  
 
   return (
     <div
@@ -18,28 +16,21 @@ const SignUpPage = () => {
       style={{ backgroundImage: `url(${Background})` }}
     >
       {/* Header */}
-      <header className="flex justify-between items-center px-8 py-4 border-b border-gray-200 bg-white bg-opacity-80 z-10 relative">
+      <header className="flex justify-between items-center px-9 py-1 bg-white bg-opacity-80 z-10 relative">
         <div className="flex items-center space-x-3">
-          <div className="w-10 h-10 rounded-md bg-green-600 flex justify-center items-center">
-            <svg
-              className="w-6 h-6 text-white"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth={2}
-              viewBox="0 0 24 24"
-              xmlns="http://www.w3.org/2000/svg"
-              aria-hidden="true"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M12 20v-6m0 0V4m0 10h6m-6 0H6"
-              />
-            </svg>
-          </div>
-          <h1 className="text-3xl font-serif text-green-700 select-none">Binhi</h1>
-          <span className="text-gray-400 font-semibold select-none">Sign Up</span>
+         
+          <div className="flex items-center space-x-3">
+    <div className="rounded-md flex justify-center items-center">
+    <img
+        src={Header}
+        alt="Header"
+        className="h-[45px] w-[165px] object-contain"
+      />
+          <span className="text-xl p-5 font-semibold select-none text-gray">Sign Up</span>
         </div>
+        </div>
+        </div>
+     
 
         <div className="flex items-center space-x-8">
           <button className="flex items-center space-x-1 text-sm font-semibold text-gray-700 hover:text-gray-900">
@@ -67,17 +58,17 @@ const SignUpPage = () => {
       </header>
 
       {/* Main content */}
-      <div className="flex flex-1">
-        {/* Left side WITHOUT background image (background is on parent) */}
-        <div className="flex flex-col justify-center items-center flex-1">
-  <div className="rounded-3xl p-8 flex flex-col items-center max-w-xs shadow-lg">
-  <div className="rounded-3xl p-6 mb-4 flex justify-center items-center shadow-md">
-  <img src={SignUpLogo} alt="Sign Up Logo" className="w-[207px] h-[206px]" />
-</div>
-<img src={SignUpLogo2} alt="Binhi Logo" className="w-[428px] h-[172px]" />
-<img src={Bukas} alt="Bukas" className="w-[505px] h-[29px] select-none" />
+      <div className="flex flex-1"> 
+  {/* Left side WITHOUT background image (background is on parent) */}
+  <div className="flex flex-col justify-center items-center flex-1">
+    <div className="rounded-3xl flex flex-col items-center max-w shadow-lg">
+      <div className="rounded-3xl mb-4 flex flex-col justify-center items-center shadow-md">
+        <img src={SignUpLogo} alt="Sign Up Logo" className="w-[500px] h-[400px]" />
+        <p className="mt-2 text-xl text-center text-white">Ang Ugat sa Masaganang Bukas!</p>
+      </div>
+    </div>
   </div>
-</div>
+
 
         {/* Right side form card only */}
         <div className="flex flex-col justify-center items-center flex-1 p-12 space-y-6">
@@ -104,7 +95,7 @@ const SignUpPage = () => {
             />
 
             <button
-              onClick={handleNext}
+              onClick={() => navigate("/verification")}
               className="w-full bg-green-600 hover:bg-green-700 text-white rounded-full py-3 font-semibold mb-6"
             >
               Next
