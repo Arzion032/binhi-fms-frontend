@@ -1,16 +1,14 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Search, PlusCircle, SlidersHorizontal, X } from 'lucide-react';
 import { FaPlus } from 'react-icons/fa';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faChevronLeft, faChevronRight } from '@fortawesome/free-solid-svg-icons';
 import loop from '../assets/loop.png';
 import edtIcon from '../assets/Trash.png';
-import Pencil from '../assets/Pencil.png';
 import Disregard from '../assets/Disregard.png';
 import Success from '../assets/Success.png';
 import Rent from '../assets/Rent.png';
 import Return from '../assets/Return.png';
 import Details from '../assets/Details.png';
+import Select from 'react-select';
 
 
 export default function EquipmentPage() {
@@ -67,7 +65,7 @@ export default function EquipmentPage() {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isDeleteModalOpe, setIsDeleteModalOpe] = useState(false);
   const [isSuccessRentOpe, setIsSuccessRentOpe] = useState(false);
-
+  const [selectedEquipment, setSelectedEquipment] = useState('');
 
   const handleConfirm = (e) => {
     e.preventDefault();
@@ -94,6 +92,82 @@ export default function EquipmentPage() {
     dueIn: index === 2 ? '5 days left' : index < 3 ? '4 days left' : '6 days ago',
     renter: 'Kaye Arroyo'
   }));
+
+  const groupedOptions = [
+    {
+      label: "Bilibiran, Binangonan, Rizal",
+      options: [
+        { value: "bilibiran_veg", label: "Bilibiran Vegetable Farmers Association" },
+        { value: "bilibiran", label: "Bilibiran Farmers Association" }
+      ]
+    },
+    {
+      label: "Calumpang, Binangonan, Rizal",
+      options: [
+        { value: "calumpang_veg", label: "Calumpang Vegetable Farmers Association" },
+        { value: "calumpang", label: "Calumpang Farmers Association" }
+      ]
+    },
+    {
+      label: "Darangan, Binangonan, Rizal",
+      options: [
+        { value: "darangan_veg", label: "Darangan Vegetable Farmers Association" },
+        { value: "pugad_monique_veg", label: "Pugad St. Monique Vegetable Farmers Association (Vegetable)" },
+        { value: "halang_integrated", label: "Halang Integrated Farmers Association" },
+        { value: "hulo_darangan", label: "Hulo, Darangan Farmers Association" },
+        { value: "pugad_monique_rice", label: "Pugad St. Monique Farmers Association (Rice)" },
+        { value: "samahang_darangan", label: "Samahang Magsasaka ng Darangan" },
+        { value: "tabing_dagat", label: "Tabing-Dagat Farmers Association" }
+      ]
+    },
+    {
+      label: "Macamot, Binangonan, Rizal",
+      options: [
+        { value: "macamot_organic", label: "Macamot Organic Vegetable Farmers Association" },
+        { value: "pulong_parang", label: "Pulong Parang Organic Vegetable Farmers Association" },
+        { value: "sitio_halang", label: "Sitio Halang Vegetable Farmers Association" },
+        { value: "macamot", label: "Macamot Farmers Association" },
+        { value: "halang_macamot", label: "Halang, Macamot Farmers Association" }
+      ]
+    },
+    {
+      label: "Mambog, Binangonan, Rizal",
+      options: [
+        { value: "layunan_organic", label: "Layunan Organic Vegetable Farmers Association" }
+      ]
+    },
+    {
+      label: "Pantok / Pantok-Palangoy, Binangonan, Rizal",
+      options: [
+        { value: "pantok_pal_fa", label: "Pantok-Palangoy Vegetable F.A." },
+        { value: "pantok_fa", label: "Pantok Farmers Association" },
+        { value: "kaysapon", label: "Kaysapon Farmers Association" },
+        { value: "kaykansa", label: "Kaykansa Farmers Association" },
+        { value: "kaymaputi", label: "Kaymaputi Farmers Association" }
+      ]
+    },
+    {
+      label: "Pila-Pila, Binangonan, Rizal",
+      options: [
+        { value: "pilapila", label: "Pila-Pila Farmers Association" }
+      ]
+    },
+    {
+      label: "Tagpos, Binangonan, Rizal",
+      options: [
+        { value: "tagpos_veg", label: "Tagpos Vegetable Farmers Association" },
+        { value: "tagpos", label: "Tagpos Farmers Association" }
+      ]
+    },
+    {
+      label: "Tatala, Binangonan, Rizal",
+      options: [
+        { value: "tatala", label: "Tatala Farmers Association" }
+      ]
+    }
+  ];
+  
+  
 
   return (
     <div className="p-0">
@@ -698,7 +772,7 @@ export default function EquipmentPage() {
 
   
 
-              {/* Table */}
+              {/* Table 1 */}
               <div className="w-full overflow-x-auto rounded-xl">
   <table className="table w-full table-fixed">
     <thead>
@@ -706,27 +780,39 @@ export default function EquipmentPage() {
         <th className="w-[5%]">
           <input type="checkbox" className="checkbox checkbox-sm rounded" />
         </th>
-        <th className="w-[15%]">Equipment</th>
-        <th className="w-[12%]">Quantity</th>
-        <th className="w-[12%]">Available</th>
-        <th className="w-[12%]">Rented</th>
-        <th className="w-[14%]">Repair Needed</th>
+        <th className="w-[20%]">Machinery</th>
+        <th className="w-[15%]">Model</th>
+        <th className="w-[15%]">Rental Price</th>
+        <th className="w-[15%]">Status</th>
         <th className="w-[30%]">Actions</th>
       </tr>
     </thead>
     <tbody>
-      {Array.from({ length: 7 }).map((_, index) => (
-        <tr key={index} className="bg-gray-100 text-center">
+      {[
+        { name: "Utility Tractor 1", model: "Kubota L4028" },
+        { name: "Utility Tractor 2", model: "Kubota L4028" },
+        { name: "Combine Harvester", model: "Kubota DC-35 PRO PH" },
+        { name: "Multi-tiller", model: "Stihl MH 710" },
+      ].map((item, index) => (
+        <tr key={index} className=" text-center border-t">
           <td>
             <input type="checkbox" className="checkbox checkbox-sm rounded" />
           </td>
-          <td>Utility Tractor</td>
-          <td>6</td>
-          <td>2</td>
-          <td>2</td>
-          <td>2</td>
+          <td className="font-medium">{item.name}</td>
+          <td>{item.model}</td>
           <td>
-            <div className="flex justify-center items-center gap-2">
+            <div className="leading-tight">
+              <div className="font-semibold">₱1,500</div>
+              <div className="text-xs text-gray-500">per hectares</div>
+            </div>
+          </td>
+          <td>
+            <span className="bg-green-100 text-green-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
+              Available
+            </span>
+          </td>
+          <td>
+            <div className="flex justify-center items-center gap-3">
               {/* Rent */}
               <div className="group flex items-center transition-all duration-200 ease-in-out">
                 <div className="flex items-center w-[20px] group-hover:w-[80px] transition-all duration-200 overflow-hidden">
@@ -738,19 +824,22 @@ export default function EquipmentPage() {
                   />
                   <span
                     className="opacity-0 group-hover:opacity-100 text-green-600 text-sm font-medium transition-opacity duration-200 whitespace-nowrap"
-                    onClick={() => setIsRentOpen(true)}
+                    onClick={() => {
+                      setSelectedEquipment(item.name);  // Set current equipment
+                      setIsRentOpen(true);
+                    }}
                   >
                     Rent?
                   </span>
                 </div>
               </div>
 
-              {/* Edit */}
+              {/* Details */}
               <div className="group flex items-center transition-all duration-200 ease-in-out">
                 <div className="flex items-center w-[20px] group-hover:w-[80px] transition-all duration-200 overflow-hidden">
                   <img
-                    src={Pencil}
-                    alt="Edit"
+                    src={Details}
+                    alt="Details"
                     className="w-4 h-4 mr-1"
                     onClick={() => setIsEditOpen(true)}
                   />
@@ -758,7 +847,7 @@ export default function EquipmentPage() {
                     className="opacity-0 group-hover:opacity-100 text-blue text-sm font-medium transition-opacity duration-200 whitespace-nowrap"
                     onClick={() => setIsEditOpen(true)}
                   >
-                    Edit?
+                    Details
                   </span>
                 </div>
               </div>
@@ -958,7 +1047,7 @@ export default function EquipmentPage() {
             {/* Header */}
             <div className="flex justify-between items-center mb-2">
               <div>
-                <h2 className="text-lg font-bold text-gray-800">Rent Equipment</h2>
+                <h2 className="text-lg font-bold text-gray-800">Rent Machinery</h2>
                 <p className="text-sm text-gray-500">Please provide the information.</p>
               </div>
               <button onClick={() => setIsRentOpen(false)}>
@@ -967,49 +1056,79 @@ export default function EquipmentPage() {
             </div>
             <div className="border-b border-gray-300 my-4"></div>
             {/* Form */}
+            
             <form className="space-y-4 mt-4" onSubmit={handleConfirm}>
               <div>
-                <label className="block text-sm font-medium text-gray-700">Equipment</label>
+                <label className="block text-sm font-medium text-gray-700">Equipment <span className="text-red">*</span></label>
                 <input
                   type="text"
-                  value="Utility Tractor"
+                  value={selectedEquipment}
                   disabled
-                  className="w-full px-4 py-2 border rounded-full text-sm bg-gray-100"
+                  className="w-full px-4 py-2 border rounded-full text-sm bg-gray-100 "
                 />
               </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700">
-                  Renter Name <span className="text-red-500">*</span>
+              <div className="w-full">
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Association <span className="text-red">*</span>
                 </label>
-                <input
-                  type="text"
-                  placeholder="Enter the Renter Name"
-                  className="w-full px-4 py-2 border rounded-full text-sm"
-                  required
-                />
+                <Select
+                options={groupedOptions}
+                placeholder="Choose Association"
+                className="w-[350px] text-sm"
+                styles={{
+                  control: (base, state) => ({
+                    ...base,
+                    borderRadius: '9999px',
+                    minHeight: '32px',
+                    height: '40px',
+                    fontSize: '0.95rem',
+                    borderColor: 'black',
+                    boxShadow: state.isFocused ? '0 0 0 2px #22c55e' : 'none', // Tailwind green-500
+                    '&:hover': {
+                      borderColor: 'black',
+                      boxShadow: '0 0 0 2px #22c55e'
+                    }
+                  }),
+                  
+                  valueContainer: (base) => ({
+                    ...base,
+                    padding: '0 8px',
+                  }),
+                  input: (base) => ({
+                    ...base,
+                    margin: 0,
+                    padding: 0,
+                  }),
+                  option: (base, state) => ({
+                    ...base,
+                    paddingTop: 4,
+                    paddingBottom: 4,
+                    fontSize: '0.75rem',
+                    backgroundColor: state.isSelected
+                      ? '#22c55e'
+                      : state.isFocused
+                      ? '#bbf7d0'
+                      : 'white',
+                    color: state.isSelected || state.isFocused ? 'black' : 'inherit',
+                    cursor: 'pointer',
+                  }),
+                  menu: (base) => ({
+                    ...base,
+                    fontSize: '0.75rem',
+                  }),
+                }}
+              />
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-gray-700">
-                  Contact Number <span className="text-red-500">*</span>
+                  Association Name <span className="text-red">*</span>
                 </label>
                 <input
                   type="tel"
-                  placeholder="+63 | Enter the Contact Number"
-                  className="w-full px-4 py-2 border rounded-full text-sm"
-                  required
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700">
-                  Quantity <span className="text-red-500">*</span>
-                </label>
-                <input
-                  type="number"
-                  placeholder="Enter the Quantity"
-                  className="w-full px-4 py-2 border rounded-full text-sm"
+                  placeholder="Enter the Renter Name"
+                  className="w-full px-4 py-2 border rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
                   required
                 />
               </div>
@@ -1196,7 +1315,7 @@ export default function EquipmentPage() {
 
                 
      
-      {/* Table */}
+      {/* Table 2 */}
       <div className="w-full overflow-x-auto rounded-xl">
   <table className="table w-full table-fixed">
     <thead>

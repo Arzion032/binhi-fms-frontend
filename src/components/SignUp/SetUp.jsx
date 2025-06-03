@@ -393,7 +393,7 @@ useEffect(() => {
           <img src={Uploadfiles} alt="Uploadfiles" className="w-6 h-6" />
           </div>
           <div>
-            <h2 className="text-xl font-bold">Upload Files</h2>
+            <h2 className="text-xl font-bold text-left">Upload Files</h2>
             <p className="text-gray-500 text-sm">
               Select and upload the file do you need
             </p>
