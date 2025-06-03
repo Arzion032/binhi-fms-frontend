@@ -14,6 +14,7 @@ import UploadDocument from "../assets/UploadDocument.png";
 import Uploadfiles from "../assets/UploadFiles.png";
 import Upload from "../assets/Upload.png";
 
+
 export default function EquipmentPage() {
   const [activeTab, setActiveTab] = useState('equipment');
   const [searchCurrent, setSearchCurrent] = useState('');
@@ -72,6 +73,9 @@ export default function EquipmentPage() {
   const [showModal, setShowModal] = useState(false);
   const [selectedDoc, setSelectedDoc] = useState("");
   const [uploadedFile, setUploadedFile] = useState(null);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [selectedItem, setSelectedItem] = useState(null);
+
 
   const handleConfirm = (e) => {
     e.preventDefault();
@@ -100,6 +104,13 @@ export default function EquipmentPage() {
     dueIn: index === 2 ? '5 days left' : index < 3 ? '4 days left' : '6 days ago',
     renter: 'Kaye Arroyo'
   }));
+
+  const machineryList = [
+    { name: 'Utility Tractor 1', model: 'Kubota L4028', price: '₱1,500', unit: 'Per Hectares', status: 'Available' },
+    { name: 'Utility Tractor 2', model: 'Kubota L4028', price: '₱1,500', unit: 'Per Hectares', status: 'Available' },
+    { name: 'Combine Harvester', model: 'Kubota DC-35 PRO PH', price: '₱1,500', unit: 'Per Hectares', status: 'Available' },
+    { name: 'Multi-tiller', model: 'Stihl MH 710', price: '₱1,500', unit: 'Per Hectares', status: 'Available' }
+  ];
 
   const groupedOptions = [
     {
@@ -822,43 +833,47 @@ export default function EquipmentPage() {
           <td>
             <div className="flex justify-center items-center gap-3">
               {/* Rent */}
-              <div className="group flex items-center transition-all duration-200 ease-in-out">
-                <div className="flex items-center w-[20px] group-hover:w-[80px] transition-all duration-200 overflow-hidden">
-                  <img
-                    src={Rent}
-                    alt="Rent"
-                    className="w-4 h-4 mr-1"
-                    onClick={() => setIsRentOpen(true)}
-                  />
-                  <span
-                    className="opacity-0 group-hover:opacity-100 text-green-600 text-sm font-medium transition-opacity duration-200 whitespace-nowrap"
-                    onClick={() => {
-                      setSelectedEquipment(item.name);  // Set current equipment
-                      setIsRentOpen(true);
-                    }}
-                  >
-                    Rent?
-                  </span>
-                </div>
-              </div>
+              <div
+            className="group flex items-center transition-all duration-200 ease-in-out cursor-pointer"
+            onClick={() => {
+              if (item?.name) {
+                setSelectedEquipment(item.name);
+              } else {
+                setSelectedEquipment(''); // fallback
+              }
+              setIsRentOpen(true);
+            }}
+          >
+            <div className="flex items-center w-[20px] group-hover:w-[80px] transition-all duration-200 overflow-hidden">
+              <img
+                src={Rent}
+                alt="Rent"
+                className="w-4 h-4 mr-1"
+              />
+              <span
+                className="opacity-0 group-hover:opacity-100 text-green-600 text-sm font-medium transition-opacity duration-200 whitespace-nowrap"
+              >
+                Rent?
+              </span>
+            </div>
+          </div>
+
 
               {/* Details */}
-              <div className="group flex items-center transition-all duration-200 ease-in-out">
-                <div className="flex items-center w-[20px] group-hover:w-[80px] transition-all duration-200 overflow-hidden">
-                  <img
-                    src={Details}
-                    alt="Details"
-                    className="w-4 h-4 mr-1"
-                    onClick={() => setIsEditOpen(true)}
-                  />
-                  <span
-                    className="opacity-0 group-hover:opacity-100 text-blue text-sm font-medium transition-opacity duration-200 whitespace-nowrap"
-                    onClick={() => setIsEditOpen(true)}
-                  >
-                    Details
-                  </span>
+                 <div 
+                   onClick={() => {
+                    setSelectedItem(item);
+                    setShowEditModal(true);
+                  }}
+                  className="cursor-pointer group flex items-center justify-center transition-all duration-200 ease-in-out"
+                >
+                  <div className="flex items-center w-[20px] group-hover:w-[80px] transition-all duration-200 overflow-hidden">
+                    <img src={Details} alt="Details" className="w-4 h-4 mr-1" />
+                    <span className="opacity-0 group-hover:opacity-100 text-blue text-sm font-medium transition-opacity duration-200 whitespace-nowrap">
+                      Details
+                    </span>
+                  </div>
                 </div>
-              </div>
 
               {/* Delete */}
               <span
@@ -868,11 +883,25 @@ export default function EquipmentPage() {
                 <img src={edtIcon} alt="Trash" className="w-4 h-4" />
               </span>
             </div>
+
+            <InventoryModal
+        showEditModal={showEditModal}
+        setShowEditModal={setShowEditModal}
+        selectedItem={selectedItem}
+        isEditOpen={isEditOpen}
+        setIsEditOpen={setIsEditOpen}
+        setShowSuccess={setShowSuccess}
+        setShowConfirmDiscard={setShowConfirmDiscard}
+        setActiveTab={setActiveTab}
+        
+
+      />
           </td>
         </tr>
       ))}
     </tbody>
   </table>
+  
 
 
     {isDeleteModalOpe && (
@@ -944,72 +973,6 @@ export default function EquipmentPage() {
   </div>
 </div>
 
-   {/* Edit Modal */}
-   {isEditOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-30 z-40 flex justify-center items-center">
-          <div className="bg-white rounded-3xl p-6 w-[360px] max-w-full border border-black shadow-lg relative">
-            <button onClick={() => setIsEditOpen(false)} className="absolute top-4 right-4 text-gray-400">
-              <X className="w-5 h-5" />
-            </button>
-
-            <h2 className="text-lg font-bold mb-1">Edit Equipment</h2>
-            <p className="text-sm text-gray-500 mb-4">Please edit the equipment.</p>
-            <div className="border-b border-gray-300 my-4"></div>
-            <form
-              onSubmit={(e) => {
-                e.preventDefault();
-                setIsEditOpen(false);
-                setShowSuccess(true);
-              }}
-              className="space-y-3"
-            >
-              <div>
-                <label className="block text-sm font-medium">Equipment *</label>
-                <input type="text" defaultValue="Utility Tractor" className="w-full rounded-full border px-4 py-2" />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium">Total Quantity *</label>
-                <input type="number" defaultValue={6} className="w-full rounded-full border px-4 py-2" />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium">Repair Needed</label>
-                <input type="number" defaultValue={2} className="w-full rounded-full border px-4 py-2" />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium">Rental Price</label>
-                <input type="text" defaultValue="₱ 1,500" className="w-full rounded-full border px-4 py-2" />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium">Remarks/Notes</label>
-                <textarea className="w-full rounded-xl border px-4 py-2" rows="3" placeholder="Remarks or Notes" />
-              </div>
-
-              <div className="flex justify-center gap-3 mt-6">
-                <button
-                  type="button"
-                  onClick={() => setShowConfirmDiscard(true)}
-                  className="px-4 py-2 rounded-3xl bg-[#FF3B4E] text-white hover:bg-[#E02A3B] text-sm"
-                style={{ width: "130px", height: "39px" }}
-                >
-                  Disregard
-                </button>
-                <button
-                  type="submit"
-                  className="px-10 py-2 bg-[#4CAE4F] text-white rounded-full hover:bg-green-600"
-                >
-                  Confirm
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
-      
       {/* Success Modal */}
       {showSuccess && (
         <div className="fixed inset-0 bg-black bg-opacity-30 z-50 flex justify-center items-center">
@@ -1560,45 +1523,7 @@ export default function EquipmentPage() {
         </div>
       )}
 
-      {/* ❗️DISREGARD CONFIRMATION MODAL */}
-      {showDiscardModal && (
-        <div className="fixed inset-0 z-50 bg-black bg-opacity-50 flex items-center justify-center">
-          <div className="bg-white rounded-3xl w-[450px] h-[330px] p-10 shadow-lg relative border border-black">
-            <div className="flex justify-end">
-              <button onClick={() => setShowDiscardModal(false)}>
-                <X className="w-5 h-5 text-gray-400" />
-              </button>
-            </div>
-            <div className="flex flex-col items-center">
-            <div className="mb-4 flex justify-center items-center">
-                    <img src={Disregard} alt="Disregard.png" className="w-[80px] max-w-full object-contain" />
-                  </div>
-                  <h2 className="text-2xl text-center font-bold mb-2">Disregard added equipment?</h2>
-                  <p className="text-sm text-center text-gray-600">
-                This action cannot be undone. <br />
-                The equipment details will be lost.
-              </p>
-              <div className="flex justify-center gap-3 mt-6">
-                <button
-                  onClick={() => setShowDiscardModal(false)}
-                  
-                className="px-4 py-2 rounded-3xl bg-[#FF3B4E] text-white hover:bg-[#E02A3B] text-sm"
-                style={{ width: "130px", height: "39px" }}
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={handleCloseAll}
-                  className="px-7 py-2 bg-white text-[#E02A3B] border border-[#E02A3B] rounded-full hover:bg-[#E02A3B] hover:text-white text-sm font-medium"
-                style={{ width: "130px", height: "39px" }}
-                >
-                  Disregard
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+     
 
                   {/*Add Equipment Modal */}
          {isModalOpen && (
@@ -1677,6 +1602,46 @@ export default function EquipmentPage() {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+       {/* DISREGARD CONFIRMATION MODAL */}
+      {showDiscardModal && (
+        <div className="fixed inset-0 z-50 bg-black bg-opacity-50 flex items-center justify-center">
+          <div className="bg-white rounded-3xl w-[450px] h-[330px] p-10 shadow-lg relative border border-black">
+            <div className="flex justify-end">
+              <button onClick={() => setShowDiscardModal(false)}>
+                <X className="w-5 h-5 text-gray-400" />
+              </button>
+            </div>
+            <div className="flex flex-col items-center">
+            <div className="mb-4 flex justify-center items-center">
+                    <img src={Disregard} alt="Disregard.png" className="w-[80px] max-w-full object-contain" />
+                  </div>
+                  <h2 className="text-2xl text-center font-bold mb-2">Disregard added equipment?</h2>
+                  <p className="text-sm text-center text-gray-600">
+                This action cannot be undone. <br />
+                The equipment details will be lost.
+              </p>
+              <div className="flex justify-center gap-3 mt-6">
+                <button
+                  onClick={() => setShowDiscardModal(false)}
+                  
+                className="px-4 py-2 rounded-3xl bg-[#FF3B4E] text-white hover:bg-[#E02A3B] text-sm"
+                style={{ width: "130px", height: "39px" }}
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleCloseAll}
+                  className="px-7 py-2 bg-white text-[#E02A3B] border border-[#E02A3B] rounded-full hover:bg-[#E02A3B] hover:text-white text-sm font-medium"
+                style={{ width: "130px", height: "39px" }}
+                >
+                  Disregard
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       )}
