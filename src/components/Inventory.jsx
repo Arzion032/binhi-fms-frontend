@@ -9,7 +9,7 @@ import Rent from '../assets/Rent.png';
 import Return from '../assets/Return.png';
 import Details from '../assets/Details.png';
 import Select from 'react-select';
-import InventoryModal from "./InventoryModal";
+import InventoryModal from "./InventoryModal.jsx";
 import UploadDocument from "../assets/UploadDocument.png";
 import Uploadfiles from "../assets/UploadFiles.png";
 import Upload from "../assets/Upload.png";
@@ -388,45 +388,7 @@ export default function EquipmentPage() {
                     </div>
                   )}
 
-      {/* DISREGARD CONFIRMATION MODAL */}
-      {showDiscardModal && (
-        <div className="fixed inset-0 z-50 bg-black bg-opacity-50 flex items-center justify-center">
-          <div className="bg-white rounded-3xl w-[450px] h-[330px] p-10 shadow-lg relative border border-black">
-            <div className="flex justify-end">
-              <button onClick={() => setShowDiscardModal(false)}>
-                <X className="w-5 h-5 text-gray-400" />
-              </button>
-            </div>
-            <div className="flex flex-col items-center">
-            <div className="mb-4 flex justify-center items-center">
-                    <img src={Disregard} alt="Disregard.png" className="w-[80px] max-w-full object-contain" />
-                  </div>
-                  <h2 className="text-2xl text-center font-bold mb-2">Disregard added equipment?</h2>
-                  <p className="text-sm text-center text-gray-600">
-                This action cannot be undone. <br />
-                The equipment details will be lost.
-              </p>
-              <div className="flex justify-center gap-3 mt-6">
-                <button
-                  onClick={() => setShowDiscardModal(false)}
-                  
-                className="px-4 py-2 rounded-3xl bg-[#FF3B4E] text-white hover:bg-[#E02A3B] text-sm"
-                style={{ width: "130px", height: "39px" }}
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={handleCloseAll}
-                  className="px-7 py-2 bg-white text-[#E02A3B] border border-[#E02A3B] rounded-full hover:bg-[#E02A3B] hover:text-white text-sm font-medium"
-                style={{ width: "130px", height: "39px" }}
-                >
-                  Disregard
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+      
 
       {/* ✅ SUCCESS MODAL */}
       {showAddedModal && (
@@ -885,14 +847,7 @@ export default function EquipmentPage() {
             </div>
 
             <InventoryModal
-        showEditModal={showEditModal}
-        setShowEditModal={setShowEditModal}
-        selectedItem={selectedItem}
-        isEditOpen={isEditOpen}
-        setIsEditOpen={setIsEditOpen}
-        setShowSuccess={setShowSuccess}
-        setShowConfirmDiscard={setShowConfirmDiscard}
-        setActiveTab={setActiveTab}
+        
         
 
       />
@@ -1131,6 +1086,14 @@ export default function EquipmentPage() {
                     setUploadedFile={setUploadedFile}
                     Upload={Upload}
                     Uploadfiles={Uploadfiles}
+                    showEditModal={showEditModal}
+                    setShowEditModal={setShowEditModal}
+                    selectedItem={selectedItem}
+                    isEditOpen={isEditOpen}
+                    setIsEditOpen={setIsEditOpen}
+                    setShowSuccess={setShowSuccess}
+                    setShowConfirmDiscard={setShowConfirmDiscard}
+                    setActiveTab={setActiveTab}
                   />
                 </div>
 
@@ -1401,6 +1364,7 @@ export default function EquipmentPage() {
       ))}
     </tbody>
   </table>
+ 
  
       
                     {/* Return Modal */}
@@ -1879,7 +1843,45 @@ export default function EquipmentPage() {
                 )}
 
 
-          
+          {/* DISREGARD CONFIRMATION MODAL */}
+      {showDiscardModal && (
+        <div className="fixed inset-0 z-50 bg-black bg-opacity-50 flex items-center justify-center">
+          <div className="bg-white rounded-3xl w-[450px] h-[330px] p-10 shadow-lg relative border border-black">
+            <div className="flex justify-end">
+              <button onClick={() => setShowDiscardModal(false)}>
+                <X className="w-5 h-5 text-gray-400" />
+              </button>
+            </div>
+            <div className="flex flex-col items-center">
+            <div className="mb-4 flex justify-center items-center">
+                    <img src={Disregard} alt="Disregard.png" className="w-[80px] max-w-full object-contain" />
+                  </div>
+                  <h2 className="text-2xl text-center font-bold mb-2">Disregard added equipment?</h2>
+                  <p className="text-sm text-center text-gray-600">
+                This action cannot be undone. <br />
+                The equipment details will be lost.
+              </p>
+              <div className="flex justify-center gap-3 mt-6">
+                <button
+                  onClick={() => setShowDiscardModal(false)}
+                  
+                className="px-4 py-2 rounded-3xl bg-[#FF3B4E] text-white hover:bg-[#E02A3B] text-sm"
+                style={{ width: "130px", height: "39px" }}
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleCloseAll}
+                  className="px-7 py-2 bg-white text-[#E02A3B] border border-[#E02A3B] rounded-full hover:bg-[#E02A3B] hover:text-white text-sm font-medium"
+                style={{ width: "130px", height: "39px" }}
+                >
+                  Disregard
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
           
 
                 {/* Disregard Confirmation Modal */}

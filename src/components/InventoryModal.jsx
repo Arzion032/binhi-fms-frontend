@@ -18,12 +18,12 @@ const InventoryModal = ({
     showEditModal,
     setShowEditModal,
     selectedItem,
-    setActiveTab={setActiveTab}
+    setActiveTab,
   }) => {
     if (!showModal && !isEditOpen && (!showEditModal || !selectedItem)) return null;
 
 
-const { name, model, price, unit, status } = selectedItem;
+
 
   return (
     <>
