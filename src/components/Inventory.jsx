@@ -9,7 +9,10 @@ import Rent from '../assets/Rent.png';
 import Return from '../assets/Return.png';
 import Details from '../assets/Details.png';
 import Select from 'react-select';
-
+import InventoryModal from "./InventoryModal";
+import UploadDocument from "../assets/UploadDocument.png";
+import Uploadfiles from "../assets/UploadFiles.png";
+import Upload from "../assets/Upload.png";
 
 export default function EquipmentPage() {
   const [activeTab, setActiveTab] = useState('equipment');
@@ -66,6 +69,9 @@ export default function EquipmentPage() {
   const [isDeleteModalOpe, setIsDeleteModalOpe] = useState(false);
   const [isSuccessRentOpe, setIsSuccessRentOpe] = useState(false);
   const [selectedEquipment, setSelectedEquipment] = useState('');
+  const [showModal, setShowModal] = useState(false);
+  const [selectedDoc, setSelectedDoc] = useState("");
+  const [uploadedFile, setUploadedFile] = useState(null);
 
   const handleConfirm = (e) => {
     e.preventDefault();
@@ -79,6 +85,8 @@ export default function EquipmentPage() {
     setShowAddedModal(false);
     setIsModalOpen(false);
   };
+
+  
 
   const rows = Array.from({ length: 8 }, (_, index) => ({
     id: index + 1,
@@ -1134,12 +1142,34 @@ export default function EquipmentPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700">Agreement Receipt</label>
-                <input
-                  type="file"
-                  className="w-full px-4 py-2 border rounded-full text-sm"
-                />
-              </div>
+                  {/* Trigger Button */}
+                  <div className="flex justify-center mb-6">
+                    <div className="w-[450px]">
+                      <label className="block mb-1 font-semibold text-gray-800 text-sm text-left">
+                        Agreement Receipt
+                      </label>
+                      <button
+                        onClick={() => setShowModal(true)}
+                        className="bg-white text-[#858585] border border-black px-6 py-2 rounded-full hover:border-green-600 hover:bg-green-50 transition w-full flex items-center justify-center gap-2"
+                      >
+                        <img src={UploadDocument} alt="Upload Icon" className="w-5 h-5" />
+                        Upload Agreement Receipt
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Modal Component */}
+                  <InventoryModal
+                    showModal={showModal}
+                    setShowModal={setShowModal}
+                    selectedDoc={selectedDoc}
+                    setSelectedDoc={setSelectedDoc}
+                    uploadedFile={uploadedFile}
+                    setUploadedFile={setUploadedFile}
+                    Upload={Upload}
+                    Uploadfiles={Uploadfiles}
+                  />
+                </div>
 
               {/* Buttons */}
               <div className="flex justify-center gap-3 mt-6">
