@@ -162,7 +162,7 @@ const Sidebar = () => {
             <summary className="flex cursor-pointer items-center justify-between rounded-lg px-3 py-1.5 text-gray-500 hover:bg-gray-100 hover:text-gray-700">
             <Link to="/inventory" className="flex items-center space-x-2">
               <img src={Inventory} alt="Inventory" className="w-5 h-5" />
-                <span className="text-sm font-Inter font-bold">Inventory</span>
+                <span className="text-sm font-Inter font-bold">Machineries</span>
               </Link>
               <span className="shrink-0 transition duration-300 group-open:-rotate-180">
                 <svg

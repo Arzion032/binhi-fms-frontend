@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Search, PlusCircle, SlidersHorizontal, X } from 'lucide-react';
+import { Search, SlidersHorizontal, X } from 'lucide-react';
 import { FaPlus } from 'react-icons/fa';
 import loop from '../assets/loop.png';
 import edtIcon from '../assets/Trash.png';
@@ -16,7 +16,7 @@ import Upload from "../assets/Upload.png";
 
 
 export default function EquipmentPage() {
-  const [activeTab, setActiveTab] = useState('equipment');
+  const [activeTab, setActiveTab] = useState('machineries');
   const [searchCurrent, setSearchCurrent] = useState('');
   const [showFilters, setShowFilters] = useState(false);
   const [selectedRole, setSelectedRole] = useState('');
@@ -24,7 +24,7 @@ export default function EquipmentPage() {
   const tabsRef = useRef([]);
   const containerRef = useRef();
 
-  const tabs = ['equipment', 'rentHistory'];
+  const tabs = ['machineries', 'rentHistory'];
 
   useEffect(() => {
     const activeIndex = tabs.indexOf(activeTab);
@@ -43,9 +43,23 @@ export default function EquipmentPage() {
     }
   }, [activeTab]);
 
-  const [showRepairButton, setShowRepairButton] = useState(false);
-  const [repaired, setRepaired] = useState(false);
+  const [selectedStatus, setSelectedStatus] = useState("Operational");
+  const [itemStatuses, setItemStatuses] = useState({});
 
+  const getStatusBadgeClass = (status) => {
+    switch (status) {
+      case 'Operational':
+        return 'text-green-700 bg-green-100 border border-green-500';
+      case 'Non-operational':
+        return 'text-[#A51B29] bg-[#FFDADE] border border-[#A51B29]';
+      case 'Need Maintenance':
+        return 'text-yellow-800 bg-yellow-100 border border-yellow-500';
+      default:
+        return 'text-gray-700 bg-gray-100 border border-gray-300';
+    }
+  };
+  
+  
 
   const clearFilters = () => {
     setSelectedRole('');
@@ -63,7 +77,6 @@ export default function EquipmentPage() {
   const [isReturnEquipmentOpen, setIsReturnEquipmentOpen] = useState(false);
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
-  const [showFixModal, setShowFixModal] = useState(false);
   const [showDisregardModal, setShowDisregardModal] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -75,6 +88,9 @@ export default function EquipmentPage() {
   const [uploadedFile, setUploadedFile] = useState(null);
   const [showEditModal, setShowEditModal] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null);
+  const [isHistoryOpen, setIsHistoryOpen] = useState(false);
+  const [selectedMachineryName, setSelectedMachineryName] = useState("");
+  const [historyData, setHistoryData] = useState([]);
 
 
   const handleConfirm = (e) => {
@@ -105,11 +121,11 @@ export default function EquipmentPage() {
     renter: 'Kaye Arroyo'
   }));
 
-  const machineryList = [
-    { name: 'Utility Tractor 1', model: 'Kubota L4028', price: '₱1,500', unit: 'Per Hectares', status: 'Available' },
-    { name: 'Utility Tractor 2', model: 'Kubota L4028', price: '₱1,500', unit: 'Per Hectares', status: 'Available' },
-    { name: 'Combine Harvester', model: 'Kubota DC-35 PRO PH', price: '₱1,500', unit: 'Per Hectares', status: 'Available' },
-    { name: 'Multi-tiller', model: 'Stihl MH 710', price: '₱1,500', unit: 'Per Hectares', status: 'Available' }
+  const items = [
+    { id: 1, name: "Utility Tractor 1", model: "Kubota L4028", status: "Operational" },
+    { id: 2, name: "Utility Tractor 2", model: "Kubota L4028", status: "Non-operational" },
+    { id: 3, name: "Combine Harvester", model: "Kubota DC-35 PRO PH", status: "Need Maintenance" },
+    { id: 4, name: "Multi-tiller", model: "Stihl MH 710", status: "Operational" },
   ];
 
   const groupedOptions = [
@@ -197,16 +213,16 @@ export default function EquipmentPage() {
         <div className="text-sm breadcrumbs font-inter text-base">
           <ul>
             <li><a className="text-binhigreen underline">Dashboard</a></li>
-            <li><a className="text-binhigreen underline">Inventory Management</a></li>
+            <li><a className="text-binhigreen underline">Machineries Management</a></li>
             <li className="text-gray-400">
-              {activeTab === 'equipment' ? 'Equipment' : 'Rent History'}
+              {activeTab === 'machineries' ? 'Machineries' : 'Rent Schedule'}
             </li>
           </ul>
         </div>
       </div>
     </div>
     <div className="px-6 pb-4 h-5 flex items-center">
-      <h1 className="text-[40px] font-bold text-gray-800">Inventory Management</h1>
+      <h1 className="text-[40px] font-bold text-gray-800">Machineries Management</h1>
     </div>
   </div>
 
@@ -233,12 +249,12 @@ export default function EquipmentPage() {
               : 'text-gray-500 font-semibold'
           } ${index === 0 ? 'ml-7' : ''}`}
         >
-          {tab === 'equipment' ? 'Equipment' : 'Rent History'}
+          {tab === 'machineries' ? 'Machineries' : 'Rent Schedule'}
         </button>
       ))}
     </div>
 
-        {activeTab === "equipment" && (
+        {activeTab === "machineries" && (
           <>
               <div className="flex flex-col gap-4 w-full">
               {/* Header and Tools in One Row */}
@@ -250,8 +266,8 @@ export default function EquipmentPage() {
                     alt="loop"
                     className="ml-5 mr-5 w-[20px] max-w-full object-contain"
                   />
-                  <span className="text-[15.5px] text-lg font-semibold mr-2">All Equipments</span>
-                  <span className="text-gray-400 font-normal">24</span>
+                  <span className="text-[15.5px] text-lg font-semibold mr-2">All Machineries</span>
+                  <span className="text-gray-400 font-normal">4</span>
                 </div>
 
                 {/* Right side: Search + Filter */}
@@ -261,7 +277,7 @@ export default function EquipmentPage() {
                   <Search className="text-gray-500 w-5 h-5 mr-2" />
                   <input
                     type="text"
-                    placeholder="Search Equipment"
+                    placeholder="Search Machinery"
                     className="flex-1 outline-none bg-white"
                     value={searchCurrent}
                     onChange={(e) => setSearchCurrent(e.target.value)}
@@ -303,415 +319,25 @@ export default function EquipmentPage() {
                   className="flex items-center justify-center gap-2 bg-app-primary hover:bg-app-primary/90 text-white rounded-full px-6 py-2"
                 >
                   <FaPlus className="w-5 h-5" />
-                  <span className="font-semibold text-[16px]">Add Equipment</span>
+                  <span className="font-semibold text-[16px]">Add Machinery</span>
                 </button>
               </div>
 
-              {/*Add Equipment Modal */}
-              {isModalOpen && (
-                    <div className="fixed inset-0 flex items-center justify-center bg-black  bg-opacity-40 z-50">
-                      <div className="bg-white rounded-2xl w-[400px] p-6 border border-black relative shadow-xl">
-                        <div className="flex justify-between items-center mb-2">
-                          <div>
-                            <h2 className="text-lg font-bold text-gray-800">Add Equipment</h2>
-                            <p className="text-sm text-gray-500">Please enter the new equipment.</p>
-                          </div>
-                          
-                          <button onClick={() => setIsModalOpen(false)}>
-                            <X className="w-5 h-5 text-gray-600" />
-                          </button>
-                        </div>
-                        <div className="border-b border-gray-300 my-4"></div>
-                        <form className="space-y-4 mt-4" onSubmit={handleConfirm}>
-                          <div>
-                            <label className="block text-sm font-semibold">
-                              Equipment <span className="text-red-500">*</span>
-                            </label>
-                            <input
-                              type="text"
-                              placeholder="Enter the Equipment"
-                              className="w-full px-3 py-2 rounded-full border border-gray-300 focus:outline-none"
-                            />
-                          </div>
-
-                          <div>
-                            <label className="block text-sm font-semibold">
-                              Quantity <span className="text-red-500">*</span>
-                            </label>
-                            <input
-                              type="number"
-                              placeholder="Enter the Quantity"
-                              className="w-full px-3 py-2 rounded-full border border-gray-300 focus:outline-none"
-                            />
-                          </div>
-
-                          <div>
-                            <label className="block text-sm font-semibold">Rental Price</label>
-                            <div className="flex items-center border border-gray-300 rounded-full px-3">
-                              <span className="text-gray-500 text-sm">₱</span>
-                              <input
-                                type="number"
-                                placeholder="Enter the Rental Price"
-                                className="w-full px-2 py-2 bg-transparent focus:outline-none"
-                              />
-                            </div>
-                          </div>
-
-                          <div>
-                            <label className="block text-sm font-semibold">Remarks/Notes</label>
-                            <textarea
-                              placeholder="Remarks or Notes"
-                              className="w-full px-3 py-2 border border-gray-300 rounded-xl focus:outline-none"
-                              rows="3"
-                            />
-                          </div>
-
-                          <div className="flex justify-center gap-3 mt-6">
-                            <button
-                              type="button"
-                              onClick={() => setShowDiscardModal(true)}
-                              className="px-4 py-2 rounded-3xl bg-[#FF3B4E] text-white hover:bg-[#E02A3B] text-sm"
-                              style={{ width: "160px", height: "39px" }}
-                            >
-                              Disregard
-                            </button>
-                            <button
-                              type="submit"
-                            
-                              className="px-14 py-2 bg-[#4CAE4F] text-white border border-[#4CAE4F] rounded-full hover:bg-[dark green] hover:text-white"
-                            >
-                              Confirm
-                            </button>
-                          </div>
-                        </form>
-                      </div>
-                    </div>
-                  )}
-
-      
-
-      {/* ✅ SUCCESS MODAL */}
-      {showAddedModal && (
-        <div className="fixed inset-0 z-50 bg-black bg-opacity-50 flex items-center justify-center">
-          <div className="bg-white p-8 w-[500px] h-[300px] rounded-3xl shadow-md w-96 text-center relative border border-black">
-            <div className="flex justify-end">
-              <button onClick={handleCloseAll}>
-                <X className="w-5 h-5 text-gray-400" />
-              </button>
-            </div>
-            <div className="flex flex-col items-center">
-            <div className="mb-4 flex justify-center items-center">
-              <img
-                src={Success}
-                alt="Success.png"
-                className="w-[80px] max-w-full object-contain"
+              
+            {/* Modal Component */}
+          <InventoryModal
+                isModalOpen={isModalOpen}
+                setIsModalOpen={setIsModalOpen}
+                handleConfirm={handleConfirm}
+                showAddedModal={showAddedModal}
+                setShowAddedModal={setShowAddedModal}
+                handleCloseAll={handleCloseAll}
+                showDisregardModal={showDisregardModal}
+                setShowDisregardModal={setShowDisregardModal}
+                Success={Success}
+                Disregard={Disregard}
               />
-            </div>
-            <h2 className="text-3xl font-bold mb-2">Equipment added successfully!</h2>
-            <p className="text-sm text-gray-600 mb-6">
-                Everything’s set. Feel free to check your equipment!
-              </p>
-              <div className="flex justify-center gap-4">
-                <button
-                  onClick={() => setShowAddedModal(false)}
-                  className="px-4 py-2 bg-white text-[#4CAE4F] border border-[#4CAE4F] rounded-full hover:bg-[#4CAE4F] hover:text-white text-sm font-medium"
-                style={{ width: "130px", height: "39px" }}
-                >
-                  Back
-                </button>
-                <button
-                  onClick={handleCloseAll}
-                  className="px-4 py-2 rounded-3xl bg-[#4CAE4F] text-white hover:bg-green-600 text-sm"
-                style={{ width: "130px", height: "39px" }}
-                >
-                  Done
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-   {/* Top Section */}
-   <div className="flex flex-wrap justify-center gap-4">
-          {/* CARD 1 */}
-          <div className="relative group bg-white rounded-2xl border border-gray-300 flex flex-col justify-between h-[80px] w-[506px] shadow-sm cursor-pointer">
-  {/* Side Accent */}
-  <div className="absolute left-0 top-0 h-full w-3 rounded-tl-3xl rounded-bl-3xl bg-[#4caf50]" />
-
-  {/* Button Area */}
-  <div className="absolute top-2 right-2 z-20">
-    {/* Plus Button (default) */}
-    <div className="group-hover:hidden">
-      <button
-        onClick={(e) => {
-          e.stopPropagation();
-          setShowRepairButton(true);
-        }}
-        className="flex items-center justify-center w-[32px] h-[32px] text-[#4caf50] rounded-full hover:bg-[#4caf50] hover:text-white transition-all"
-      >
-        <PlusCircle className="w-[20px] h-[20px]" />
-      </button>
-    </div>
-
-    {/* Add Button (expand on hover) */}
-    <div className="hidden group-hover:inline-flex overflow-hidden transition-all duration-300 ease-in-out">
-      <button
-        onClick={(e) => {
-          e.stopPropagation();
-          setRepaired(true);
-          setIsModalOpen(true);
-        }}
-        className={`flex items-center gap-1 pl-3 pr-4 py-[2px] h-[28px] rounded-full text-sm font-semibold transition-all duration-300 whitespace-nowrap ${
-          repaired
-            ? "bg-[#4caf50] text-white"
-            : "text-[#4caf50] border border-[#4caf50] bg-white hover:bg-[#4caf50] hover:text-white"
-        }`}
-        style={{ width: 'auto', maxWidth: '150px' }}
-      >
-        <PlusCircle className="w-[16px] h-[16px] shrink-0" />
-        <span className="ml-1">Add Equipment</span>
-      </button>
-    </div>
-  </div>
-
-  {/* Card Content */}
-  <div className="flex flex-col justify-center px-6 h-full">
-    <span className="text-sm text-gray-500">Available</span>
-    <span className="text-3xl font-bold text-black leading-tight">15</span>
-  </div>
-</div>
-
-          {/* CARD 2 */}
-          <div className="relative group bg-white rounded-2xl border border-gray-300 flex flex-col justify-between h-[80px] w-[506px] shadow-sm cursor-pointer">
-  {/* Side Accent */}
-  <div className="absolute left-0 top-0 h-full w-3 rounded-tl-2xl rounded-bl-2xl bg-[#FF3B4E]" />
-
-  {/* Button Area */}
-  <div className="absolute top-2 right-2 z-20">
-    {/* Plus Button (default) */}
-    <div className="group-hover:hidden">
-      <button
-        onClick={(e) => {
-          e.stopPropagation();
-          setIsRentOpen(true);
-        }}
-        className="flex items-center justify-center w-[32px] h-[32px] text-[#FF3B4E] rounded-full hover:bg-[#FF3B4E] hover:text-white transition-all"
-      >
-        <PlusCircle className="w-[20px] h-[20px]" />
-      </button>
-    </div>
-
-    {/* Add Button (expand on hover) */}
-    <div className="hidden group-hover:inline-flex overflow-hidden transition-all duration-300 ease-in-out">
-      <button
-        onClick={(e) => {
-          e.stopPropagation();
-          setRepaired(true);
-          setIsRentOpen(true);
-        }}
-        className={`flex items-center gap-1 pl-3 pr-4 py-[2px] h-[28px] rounded-full text-sm font-semibold transition-all duration-300 whitespace-nowrap ${
-          repaired
-            ? "bg-[#FF3B4E] text-white"
-            : "text-[#FF3B4E] border border-[#FF3B4E] bg-white hover:bg-[#FF3B4E] hover:text-white"
-        }`}
-        style={{ width: 'auto', maxWidth: '150px' }}
-      >
-        <PlusCircle className="w-[16px] h-[16px] shrink-0" />
-        <span className="ml-1">Add Rented</span>
-      </button>
-    </div>
-  </div>
-
-  {/* Card Content */}
-  <div className="flex flex-col justify-center px-6 h-full">
-    <span className="text-sm text-gray-500">Rented</span>
-    <span className="text-3xl font-bold text-black leading-tight">15</span>
-  </div>
-</div>
-
-          {/* CARD 3 */}
-          <div className="relative group bg-white rounded-2xl border border-gray-300 flex flex-col justify-between h-[80px] w-[506px] shadow-sm cursor-pointer">
-  {/* Side Accent */}
-  <div className="absolute left-0 top-0 h-full w-3 rounded-tl-2xl rounded-bl-2xl bg-[#D1A157]" />
-
-  {/* Button Area */}
-  <div className="absolute top-2 right-2 z-20">
-    {/* Plus Button (default) */}
-    <div className="group-hover:hidden">
-      <button
-        onClick={(e) => {
-          e.stopPropagation();
-          setShowRepairButton(true);
-        }}
-        className="flex items-center justify-center w-[32px] h-[32px] text-[#D1A157] rounded-full hover:bg-[#D1A157] hover:text-white transition-all"
-      >
-        <PlusCircle className="w-[20px] h-[20px]" />
-      </button>
-    </div>
-
-    {/* Add Repair Button (expand on hover) */}
-    <div className="hidden group-hover:inline-flex overflow-hidden transition-all duration-300 ease-in-out">
-            <button
-          onClick={(e) => {
-            e.stopPropagation();
-            setRepaired(true);
-            setShowFixModal(true);
-          }}
-          className={`flex items-center gap-1 pl-3 pr-4 py-[2px] h-[28px] rounded-full text-sm font-semibold transition-all duration-300 whitespace-nowrap ${
-            repaired
-              ? "bg-[#D1A157] text-white"
-              : "bg-white text-[#D1A157] border border-[#D1A157] hover:bg-[#D1A157] hover:text-white"
-          }`}
-          style={{ width: 'auto', maxWidth: '150px' }}
-        >
-          <PlusCircle className="w-[16px] h-[16px] shrink-0" />
-          <span className="ml-1">Add Repair</span>
-        </button>
-
-    </div>
-  </div>
-
-  {/* Card Content */}
-  <div className="flex flex-col justify-center px-6 h-full">
-    <span className="text-sm text-gray-500">Repair Needed</span>
-    <span className="text-3xl font-bold text-black leading-tight">15</span>
-  </div>
-</div>
-</div>
-
-{showFixModal && (
-  <div className="fixed inset-0 z-50 bg-black bg-opacity-30 flex items-center justify-center">
-    <div className="bg-white rounded-3xl border border-black w-[400px] p-6 shadow-lg">
-      <div className="flex justify-between items-start mb-4">
-        <div>
-          <h2 className="text-2xl font-bold">Fix Equipment</h2>
-          <p className="text-sm text-gray-500">Please provide the information.</p>
-        </div>
-        <button
-          onClick={() => setShowFixModal(false)}
-          className="text-gray-500 hover:text-black text-xl font-bold"
-        >
-          &times;
-        </button>
-      </div>
-
-      <div className="border-b border-gray-300 my-4"></div>
-
-      {/* Form Fields */}
-      <div className="space-y-4">
-        <div>
-          <label className="text-sm font-medium">Equipment</label>
-          <input
-            type="text"
-            value="Utility Tractor"
-            className="w-full rounded-full border px-4 py-2 text-sm mt-1"
-            readOnly
-          />
-        </div>
-        <div>
-          <label className="text-sm font-medium">
-            Reported by <span className="text-red-500">*</span>
-          </label>
-          <input
-            type="text"
-            placeholder="Enter Renter Name"
-            className="w-full rounded-full border px-4 py-2 text-sm mt-1"
-          />
-        </div>
-        <div className="flex gap-2">
-          <div className="flex-1">
-            <label className="text-sm font-medium">
-              Repair Start Date <span className="text-red-500">*</span>
-            </label>
-            <input
-              type="date"
-              className="w-full rounded-full border px-4 py-2 text-sm mt-1"
-            />
-          </div>
-          <div className="flex-1">
-            <label className="text-sm font-medium">
-              Estimated Completion <span className="text-red-500">*</span>
-            </label>
-            <input
-              type="date"
-              className="w-full rounded-full border px-4 py-2 text-sm mt-1"
-            />
-          </div>
-        </div>
-        <div>
-          <label className="text-sm font-medium">Remarks/Notes</label>
-          <textarea
-            className="w-full rounded-xl border px-4 py-2 text-sm mt-1"
-            rows={4}
-            placeholder="Remarks or Notes"
-          />
-        </div>
-      </div>
-
-      {/* Footer Buttons */}
-                <div className="flex justify-end gap-2 mt-6">
-            <button
-              onClick={() => {
-                setShowFixModal(false);
-                setShowDisregardModal(true);
-              }}
-              className="px-4 py-2 rounded-3xl bg-[#FF3B4E] text-white hover:bg-[#E02A3B] text-sm"
-                style={{ width: "170px", height: "39px" }}
-            >
-              Disregard
-            </button>
-            <button
-              onClick={() => {
-                setShowFixModal(false);
-                setShowSuccessModal(true); // success modal only from Confirm
-              }}
-              className="px-10 py-2 bg-[#4CAE4F] text-white rounded-full hover:bg-green-600"
-              style={{ width: "170px", height: "39px" }}
-            >
-              Confirm
-            </button>
-      </div>
-    </div>
-  </div>
-)}
-
-          {showDisregardModal && (
-            <div className="fixed inset-0 z-50 bg-black bg-opacity-30 flex  items-center justify-center">
-              <div className="bg-white rounded-3xl w-[400px] p-6 shadow-lg border border-black text-center">
-              <div className="flex justify-end">
-                        <button onClick={handleCloseAll}>
-                          <X className="w-5 h-5 text-gray-400" />
-                        </button>
-                      </div>
-              <div className="mb-4 flex justify-center items-center">
-                  <img src={Disregard} alt="Disregard.png" className="w-[80px] max-w-full object-contain" />
-              </div>
-                  <h2 className="text-2xl text-center font-bold mb-2">Disregard editing?</h2>
-                  <p className="text-sm text-center text-gray-600">This action cannot be undone.<br />The changes will be lost.</p>
-
-                <div className="flex justify-center gap-3 mt-6 ">
-                  <button
-                    onClick={() => setShowDisregardModal(false)}
-                    className="px-4 py-2 rounded-3xl bg-[#FF3B4E] text-white hover:bg-[#E02A3B] text-sm"
-                          style={{ width: "130px", height: "39px" }}
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    onClick={() => {
-                      setShowDisregardModal(false); // no success modal here
-                    }}
-                    className="px-7 py-2 bg-white text-[#E02A3B] border border-[#E02A3B] rounded-full hover:bg-[#E02A3B] hover:text-white text-sm font-medium"
-                          style={{ width: "130px", height: "39px" }}
-                  >
-                    Disregard
-                  </button>
-                </div>
-              </div>
-            </div>
-          )}
-
+              
           {showSuccessModal && (
             <div className="fixed inset-0 z-50 bg-black bg-opacity-30 flex items-center justify-center">
               <div className="bg-white rounded-3xl w-[430px] h-[320px] p-6 shadow-lg border border-black text-center">
@@ -727,8 +353,8 @@ export default function EquipmentPage() {
                           className="w-[80px] max-w-full object-contain"
                         />
                       </div>
-                <h2 className="text-3xl font-bold mb-2">Equipment now available!</h2>
-                <p className="text-sm text-gray-600 mb-6">Everything’s set. Feel free to check your equipment!</p>
+                <h2 className="text-3xl font-bold mb-2">Machinery now available!</h2>
+                <p className="text-sm text-gray-600 mb-6">Everything’s set. Feel free to check your Machinery!</p>
 
                 <div className="flex justify-center gap-4 mt-11">
                   <button
@@ -756,42 +382,39 @@ export default function EquipmentPage() {
               {/* Table 1 */}
               <div className="w-full overflow-x-auto rounded-xl">
   <table className="table w-full table-fixed">
-    <thead>
-      <tr className="bg-[#F4F4F4] text-center text-sm text-black">
-        <th className="w-[5%]">
-          <input type="checkbox" className="checkbox checkbox-sm rounded" />
-        </th>
-        <th className="w-[20%]">Machinery</th>
-        <th className="w-[15%]">Model</th>
-        <th className="w-[15%]">Rental Price</th>
-        <th className="w-[15%]">Status</th>
-        <th className="w-[30%]">Actions</th>
-      </tr>
-    </thead>
-    <tbody>
-      {[
-        { name: "Utility Tractor 1", model: "Kubota L4028" },
-        { name: "Utility Tractor 2", model: "Kubota L4028" },
-        { name: "Combine Harvester", model: "Kubota DC-35 PRO PH" },
-        { name: "Multi-tiller", model: "Stihl MH 710" },
-      ].map((item, index) => (
-        <tr key={index} className=" text-center border-t">
-          <td>
-            <input type="checkbox" className="checkbox checkbox-sm rounded" />
+  <thead>
+  <tr className="bg-[#F4F4F4] text-center text-sm text-black">
+    <th className="w-[5%]">
+      <input type="checkbox" className="checkbox checkbox-sm rounded" />
+    </th>
+    <th className="w-[20%]">Machinery</th>
+    <th className="w-[15%]">Model</th>
+    <th className="w-[15%]">Rental Price</th>
+    <th className="w-[15%]">Status</th>
+    <th className="w-[30%]">Actions</th>
+  </tr>
+</thead>
+<tbody>
+  {items.map((item) => (
+    <tr key={item.id} className="text-center border-t">
+      <td>
+        <input type="checkbox" className="checkbox checkbox-sm rounded" />
+      </td>
+      <td className="font-medium">{item.name}</td>
+      <td>{item.model}</td>
+      <td>
+        <div className="leading-tight">
+          <div className="font-semibold">₱1,500</div>
+          <div className="text-xs text-gray-500">per hectares</div>
+        </div>
+      </td>
+      <td>
+        <span className={`text-xs font-semibold px-3 py-1 rounded-full ${getStatusBadgeClass(itemStatuses[item.id] || item.status)}`}>
+          {itemStatuses[item.id] || item.status}
+        </span>
+
           </td>
-          <td className="font-medium">{item.name}</td>
-          <td>{item.model}</td>
-          <td>
-            <div className="leading-tight">
-              <div className="font-semibold">₱1,500</div>
-              <div className="text-xs text-gray-500">per hectares</div>
-            </div>
-          </td>
-          <td>
-            <span className="bg-green-100 text-green-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
-              Available
-            </span>
-          </td>
+
           <td>
             <div className="flex justify-center items-center gap-3">
               {/* Rent */}
@@ -815,7 +438,7 @@ export default function EquipmentPage() {
               <span
                 className="opacity-0 group-hover:opacity-100 text-green-600 text-sm font-medium transition-opacity duration-200 whitespace-nowrap"
               >
-                Rent?
+                Rent out?
               </span>
             </div>
           </div>
@@ -848,7 +471,26 @@ export default function EquipmentPage() {
 
             <InventoryModal
         
-        
+                    showEditModal={showEditModal}
+                    setShowEditModal={setShowEditModal}
+                    selectedItem={selectedItem}
+                    isEditOpen={isEditOpen}
+                    setIsEditOpen={setIsEditOpen}
+                    setShowSuccess={setShowSuccess}
+                    setShowConfirmDiscard={setShowConfirmDiscard}
+                    setActiveTab={setActiveTab}
+                    isHistoryOpen={isHistoryOpen}
+                    setIsHistoryOpen={setIsHistoryOpen}
+                    historyData={historyData}
+                    setHistoryData={setHistoryData}
+                    selectedMachineryName={selectedMachineryName}
+                    setSelectedMachineryName={setSelectedMachineryName}
+                    onStatusChange={(id, status) => {
+                      setItemStatuses((prev) => ({
+                        ...prev,
+                        [id]: status,
+                      }));
+                    }}
 
       />
           </td>
@@ -874,7 +516,7 @@ export default function EquipmentPage() {
                   </div>
                 <h2 className="text-2xl text-center font-bold mb-2">Confirm Deletion?</h2>
                 <p className="text-sm text-center text-gray-600">
-                  The selected equipment will be permanently removed from your records.
+                  The selected machinery will be permanently removed from your records.
                 </p>
                 
                 <div className="flex justify-center gap-3 mt-6">
@@ -908,7 +550,7 @@ export default function EquipmentPage() {
     <div className="flex items-center gap-1">
       <button className="btn btn-sm hover:bg-[#D9D9D9] rounded">«</button>
 
-      {[1, 2, 3, 4, 5].map((page) => (
+      {[1].map((page) => (
         <button
           key={page}
           className={`btn btn-sm ${
@@ -943,8 +585,8 @@ export default function EquipmentPage() {
                 className="w-[80px] max-w-full object-contain"
               />
             </div>
-            <h2 className="text-2xl font-bold mb-2">Equipment updated successfully!</h2>
-            <p className="text-sm text-gray-600 mb-6">Everything’s set. Feel free to check your equipment!</p>
+            <h2 className="text-2xl font-bold mb-2">Machinery updated successfully!</h2>
+            <p className="text-sm text-gray-600 mb-6">Everything’s set. Feel free to check your machinery!</p>
 
             <div className="flex justify-center gap-4">
               <button
@@ -985,7 +627,7 @@ export default function EquipmentPage() {
             
             <form className="space-y-4 mt-4" onSubmit={handleConfirm}>
               <div>
-                <label className="block text-sm font-medium text-gray-700">Equipment <span className="text-red">*</span></label>
+                <label className="block text-sm font-medium text-gray-700">Machinery <span className="text-red">*</span></label>
                 <input
                   type="text"
                   value={selectedEquipment}
@@ -996,11 +638,11 @@ export default function EquipmentPage() {
 
               <div className="w-full">
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Association <span className="text-red">*</span>
+                  Association Name <span className="text-red">*</span>
                 </label>
                 <Select
                 options={groupedOptions}
-                placeholder="Choose Association"
+                placeholder="Choose Association Name"
                 className="w-[350px] text-sm"
                 styles={{
                   control: (base, state) => ({
@@ -1047,17 +689,34 @@ export default function EquipmentPage() {
               />
               </div>
 
-              <div>
+              <div className="flex gap-4">
+              {/* Schedule Time */}
+              <div className="w-1/2">
                 <label className="block text-sm font-medium text-gray-700">
-                  Association Name <span className="text-red">*</span>
+                  Schedule Time <span className="text-red-500">*</span>
                 </label>
                 <input
-                  type="tel"
-                  placeholder="Enter the Renter Name"
-                  className="w-full px-4 py-2 border rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+                  type="time"
+                  placeholder="Schedule Time"
+                  className="w-full px-4 py-2 border rounded-full text-sm text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500"
                   required
                 />
               </div>
+
+              {/* Schedule Date */}
+              <div className="w-1/2">
+                <label className="block text-sm font-medium text-gray-700">
+                  Schedule Date <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="date"
+                  placeholder="Schedule Date"
+                  className="w-full px-4 py-2 border rounded-full text-sm text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500"
+                  required
+                />
+              </div>
+            </div>
+
 
               <div>
                   {/* Trigger Button */}
@@ -1086,19 +745,13 @@ export default function EquipmentPage() {
                     setUploadedFile={setUploadedFile}
                     Upload={Upload}
                     Uploadfiles={Uploadfiles}
-                    showEditModal={showEditModal}
-                    setShowEditModal={setShowEditModal}
-                    selectedItem={selectedItem}
-                    isEditOpen={isEditOpen}
-                    setIsEditOpen={setIsEditOpen}
-                    setShowSuccess={setShowSuccess}
-                    setShowConfirmDiscard={setShowConfirmDiscard}
-                    setActiveTab={setActiveTab}
+                    onStatusChange={setSelectedStatus}
+                    
                   />
                 </div>
 
               {/* Buttons */}
-              <div className="flex justify-center gap-3 mt-6">
+              <div className="flex justify-center gap-3 mt-6 pt-20">
                 <button
                   type="button"
                   onClick={() => setShowConfirmDiscard(true)}
@@ -1137,8 +790,8 @@ export default function EquipmentPage() {
                           className="w-[80px] max-w-full object-contain"
                         />
                       </div>
-                      <h3 className="text-2xl font-bold mb-2">Equipment rented successfully!</h3>
-                      <p className="text-gray-600 mb-6">Everything’s set. Feel free to check your equipment!</p>
+                      <h3 className="text-2xl font-bold mb-2">Machinery rented successfully!</h3>
+                      <p className="text-gray-600 mb-6">Everything’s set. Feel free to check your machinery!</p>
                       <div className="flex justify-center gap-4">
                         <button
                           onClick={() => setIsSuccessRentOpe(false)}
@@ -1708,7 +1361,7 @@ export default function EquipmentPage() {
                   </div>
                 <h2 className="text-2xl text-center font-bold mb-2">Confirm Deletion?</h2>
                 <p className="text-sm text-center text-gray-600">
-                  The selected equipment will be permanently removed from your records.
+                  The selected machinery will be permanently removed from your records.
                 </p>
                 
                 <div className="flex justify-center gap-3 mt-6">
@@ -1743,7 +1396,7 @@ export default function EquipmentPage() {
     <div className="flex items-center gap-1">
       <button className="btn btn-sm hover:bg-[#D9D9D9] rounded">«</button>
 
-      {[1, 2, 3, 4, 5].map((page) => (
+      {[1].map((page) => (
         <button
           key={page}
           className={`btn btn-sm ${
