@@ -25,6 +25,7 @@ import Hulo from '../assets/Hulo.png';
 import Tagpos from '../assets/Tagpos.png';
 import Pugad from '../assets/Pugad.png';
 import Samahang from '../assets/Samahang.png';
+import NotificationModal from "./NotificationModal"; 
 
 
 const currentMembersInitial = [
@@ -469,7 +470,7 @@ export default function MemberTabs() {
     <div className="p-0">
   {/* Header with Breadcrumbs */}
   <div className="w-full bg-binhi-100 shadow-sm">
-    {/* Navbar with breadcrumbs and dots icon */}
+    {/* Navbar with breadcrumbs and icons */}
     <div className="flex items-center justify-between px-6 py-3">
       <div className="flex-1">
         <div className="text-sm breadcrumbs font-inter text-base">
@@ -488,23 +489,40 @@ export default function MemberTabs() {
         </div>
       </div>
 
-      {/* Dots Button */}
-      <button className="btn btn-square btn-binhi ml-4">
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-          className="w-5 h-5"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth="2"
-            d="M5 12h.01M12 12h.01M19 12h.01"
-          />
-        </svg>
-      </button>
+      {/* Notification and Dots Button */}
+      <div className="flex items-center gap-2 ml-4">
+        {/* Notification Icon */}
+        <button className="btn btn-square bg-transparent hover:bg-transparent shadow-none border-none">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="w-6 h-6 text-gray-800"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"
+            />
+          </svg>
+        </button>
+
+        < Notification />
+
+        {/* Dots Button */}
+        <button
+                className="p-1 text-gray-400 hover:text-gray-600"
+                onClick={() => setShowMenu((v) => !v)}
+              >
+                <svg width="23" height="23" fill="currentColor" viewBox="0 0 20 20">
+                  <circle cx="10" cy="4" r="1.5" />
+                  <circle cx="10" cy="10" r="1.5" />
+                  <circle cx="10" cy="16" r="1.5" />
+                </svg>
+              </button>
+      </div>
     </div>
 
     {/* Page Title */}

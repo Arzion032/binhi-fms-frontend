@@ -24,7 +24,7 @@ const InventoryModal = ({
   showAddedModal,
   setShowAddedModal,
   showDisregardModal,
-  setShowDiscardModal,
+  setShowDisregardModal,
   handleConfirm,
   handleCloseAll,
   Success,
