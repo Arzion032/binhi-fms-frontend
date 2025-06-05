@@ -10,6 +10,8 @@ import SignUp from './components/SignUp/SignUpPage';
 import NextStep from './components/SignUp/NextStep';
 import SetPassword from './components/SignUp/SetPassword';
 import SetUp from './components/SignUp/SetUp';
+import Association from './components/AdminView/Association';
+import LayoutAdmin from "./components/LayoutAdmin/LayoutAdmin";
 
 function App() {
 
@@ -27,6 +29,7 @@ function App() {
         <Route path="/verification" element={<NextStep />} />
         <Route path="/password" element={<SetPassword />} />
         <Route path="/setup" element={<SetUp />} />
+        <Route path="/Association" element={<LayoutAdmin><Association /></LayoutAdmin>} />
       </Routes>
     </Router>
     </div>
