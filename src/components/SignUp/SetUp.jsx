@@ -12,6 +12,8 @@ import Farmer from '../../assets/Farmer.png';
 import Uploadfiles from '../../assets/Uploadfiles.png';
 import UploadDocument from '../../assets/UploadDocument.png';
 import { X } from "lucide-react";
+import Select from 'react-select';
+
 
   const SetUp = () => {
   const navigate = useNavigate();
@@ -235,7 +237,7 @@ useEffect(() => {
       </label>
       <input
         type="text"
-        className="input input-bordered rounded-full border border-gray-300 w-full h-10 text-[#858585] placeholder-gray-400 text-sm px-4 focus:outline-none focus:ring-2 focus:ring-green-500"
+        className="input input-bordered rounded-full border border-[#858585] w-full h-10 text-[#858585] placeholder-gray-400 text-sm px-4 focus:outline-none focus:ring-2 focus:ring-green-500"
         placeholder="Ex. Juan"
         value={firstName}
         onChange={(e) => setFirstName(e.target.value)}
@@ -248,7 +250,7 @@ useEffect(() => {
       </label>
       <input
         type="text"
-        className="input input-bordered rounded-full border border-gray-300 w-full h-10 text-gray-500 placeholder-gray-400 text-sm px-4 focus:outline-none focus:ring-2 focus:ring-green-500"
+        className="input input-bordered rounded-full border border-[#858585] w-full h-10 text-gray-500 placeholder-gray-400 text-sm px-4 focus:outline-none focus:ring-2 focus:ring-green-500"
         placeholder="Ex. Dela Cruz"
         value={lastName}
         onChange={(e) => setLastName(e.target.value)}
@@ -261,94 +263,118 @@ useEffect(() => {
 {/* Address & Association side by side */}
 <div className="flex justify-center mb-4">
   <div className="flex gap-2" style={{ width: "430px" }}>
-    {/* Address */}
+    {/* Barangay Dropdown */}
     <div className="w-[264px]">
-      <label className="block mb-1 font-semibold text-gray-700 text-left text-sm">
+      <label className="block mb-1 font-semibold text-gray text-left text-sm">
         Address
       </label>
-      <div className="relative">
-        <select
-          className="input input-bordered rounded-full border border-gray-300 w-full h-10 text-[#858585] text-sm px-4 pr-10 cursor-pointer focus:outline-none focus:ring-2 focus:ring-green-500"
-          value={barangay}
-          onChange={(e) => setBarangay(e.target.value)}
-        >
-          <option value="" disabled>
-            Barangay
-          </option>
-          {barangaysBinangonan.map((bgy) => (
-            <option key={bgy} value={bgy}>
-              {bgy}
-            </option>
-          ))}
-        </select>
-        <div className="pointer-events-none absolute right-3 top-1/2 transform -translate-y-1/2 text-black">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className="h-4 w-4"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-            strokeWidth={2}
-          >
-            <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
-          </svg>
-        </div>
-      </div>
+      <Select
+        options={barangaysBinangonan.map((bgy) => ({ value: bgy, label: bgy }))}
+        placeholder="Choose Barangay"
+        className="w-full text-sm text-gray text-left"
+        value={barangay ? { value: barangay, label: barangay } : null}
+        onChange={(selectedOption) => {
+          setBarangay(selectedOption.value);
+          setAssociation(""); // Reset association when barangay changes
+        }}
+        styles={{
+          control: (base, state) => ({
+            ...base,
+            borderRadius: '9999px',
+            minHeight: '32px',
+            height: '40px',
+            fontSize: '0.95rem',
+            borderColor: '#858585',
+            boxShadow: state.isFocused ? '0 0 0 2px #22c55e' : 'none',
+            '&:hover': {
+              borderColor: '#858585',
+              boxShadow: '0 0 0 2px #22c55e'
+            }
+          }),
+          valueContainer: (base) => ({
+            ...base,
+            padding: '0 8px',
+          }),
+          input: (base) => ({
+            ...base,
+            margin: 0,
+            padding: 0,
+          }),
+          option: (base, state) => ({
+            ...base,
+            paddingTop: 4,
+            paddingBottom: 4,
+            fontSize: '0.75rem',
+            backgroundColor: state.isSelected
+              ? '#22c55e'
+              : state.isFocused
+              ? '#bbf7d0'
+              : 'white',
+            color: state.isSelected || state.isFocused ? 'black' : 'inherit',
+            cursor: 'pointer',
+          }),
+          menu: (base) => ({
+            ...base,
+            fontSize: '0.75rem',
+          }),
+        }}
+      />
     </div>
 
-    {/* Association with truncated selected display */}
-    <div className="w-[264px] relative">
-      <label className="block mb-1 font-semibold text-gray-700 text-left text-sm">
+    {/* Association Dropdown */}
+    <div className="w-[264px]">
+      <label className="block mb-1 font-semibold text-gray text-left text-sm">
         Association
       </label>
-
-      {/* Visible truncated text (fake select display) */}
-      <div
-        className="input input-bordered rounded-full border border-gray-300 w-full h-10 text-[#858585] text-sm px-4 pr-10 cursor-pointer flex items-center "
-        tabIndex={0}
-        onClick={() => document.getElementById("assoc-select").focus()}
-        role="button"
-        aria-haspopup="listbox"
-      >
-        {association
-          ? truncateText(association, 15)
-          : barangay
-          ? "Select your Association"
-          : "Select Barangay first"}
-      </div>
-
-      {/* Actual select (invisible, but functional) */}
-      <select
-        id="assoc-select"
-        className="absolute inset-0 opacity-0 cursor-pointer "
-        value={association}
-        onChange={(e) => setAssociation(e.target.value)}
-        disabled={!barangay}
-        size={1}
-      >
-        <option value="" disabled>
-          {barangay ? "Select your Association" : "Select Barangay first"}
-        </option>
-        {filteredAssociations.map((assoc) => (
-          <option key={assoc} value={assoc}>
-            {assoc}
-          </option>
-        ))}
-      </select>
-
-      {/* Dropdown arrow */}
-      <div className="pointer-events-none absolute right-3 top-1/2 transform -translate-y- text-gray-400">
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          className="h-4 w-4"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-          strokeWidth={2}
-        >
-          <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
-        </svg>
-      </div>
+      <Select
+        options={filteredAssociations.map((assoc) => ({ value: assoc, label: assoc }))}
+        placeholder={barangay ? "Choose Association Name" : "Select Barangay first"}
+        className="w-full text-xs text-left text-gray"
+        value={association ? { value: association, label: association } : null}
+        onChange={(selectedOption) => setAssociation(selectedOption.value)}
+        isDisabled={!barangay}
+        styles={{
+          control: (base, state) => ({
+            ...base,
+            borderRadius: '9999px',
+            minHeight: '32px',
+            height: '40px',
+            fontSize: '0.95rem',
+            borderColor: '#858585',
+            boxShadow: state.isFocused ? '0 0 0 2px #22c55e' : 'none',
+            '&:hover': {
+              borderColor: '#858585',
+              boxShadow: '0 0 0 2px #22c55e'
+            }
+          }),
+          valueContainer: (base) => ({
+            ...base,
+            padding: '0 8px',
+          }),
+          input: (base) => ({
+            ...base,
+            margin: 0,
+            padding: 0,
+          }),
+          option: (base, state) => ({
+            ...base,
+            paddingTop: 4,
+            paddingBottom: 4,
+            fontSize: '0.75rem',
+            backgroundColor: state.isSelected
+              ? '#22c55e'
+              : state.isFocused
+              ? '#bbf7d0'
+              : 'white',
+            color: state.isSelected || state.isFocused ? 'black' : 'inherit',
+            cursor: 'pointer',
+          }),
+          menu: (base) => ({
+            ...base,
+            fontSize: '0.75rem',
+          }),
+        }}
+      />
     </div>
   </div>
 </div>
@@ -363,7 +389,7 @@ useEffect(() => {
     </label>
     <button
       onClick={() => setShowModal(true)}
-      className="bg-white text-[#858585] border border-gray px-6 py-2 rounded-full hover:border-green-600 hover:bg-green-50 transition w-full flex items-center justify-center gap-2"
+      className="bg-white text-[#858585] border border-[#858585] px-6 py-2 rounded-full hover:border-green-600 hover:bg-green-50 transition w-full flex items-center justify-center gap-2"
     >
       <img src={UploadDocument} alt="Upload Icon" className="w-5 h-5" />
       Upload a Document
@@ -418,35 +444,51 @@ useEffect(() => {
           </select>
         </div>
 
-        {/* Conditional Upload Box with Animation */}
-        <div
-          className={`transition-all duration-500 ${
-            selectedDoc ? "opacity-100 max-h-[300px] mb-4" : "opacity-0 max-h-0 overflow-hidden"
-          }`}
-        >
-          <div className="border-2 border-dashed border-gray-300 rounded-xl p-6 text-center w-[350px] mx-auto">
-          <div className="flex justify-center mb-3">
-              <img src={Upload} alt="Upload Icon" className="w-6 h-6" />
-            </div>
-            <p className="font-semibold text-sm mb-1">
-              Choose a file or{" "}
-              <span className="text-green-600">drag & drop it here</span>
-            </p>
-            <p className="text-gray-500 text-xs mb-4">
-              JPEG, PNG, PDF, and XLXS formats, up to 5 MB
-            </p>
+       {/* Conditional Upload Box with Animation */}
+<div
+  className={`transition-all duration-500 ease-in-out ${
+    selectedDoc ? "opacity-100 max-h-[300px] mb-4" : "opacity-0 max-h-0 overflow-hidden"
+  }`}
+>
+  <div
+    className="border-2 border-dashed border-gray-300 rounded-xl p-6 text-center w-[350px] mx-auto bg-white shadow-sm relative"
+    onDragOver={(e) => e.preventDefault()}
+    onDrop={(e) => {
+      e.preventDefault();
+      if (e.dataTransfer.files.length > 0) {
+        setUploadedFile(e.dataTransfer.files[0]);
+      }
+    }}
+  >
+    <div className="flex justify-center mb-3">
+      <img src={Upload} alt="Upload Icon" className="w-6 h-6" />
+    </div>
+    <p className="font-semibold text-sm mb-1">
+      Choose a file or <span className="text-green-600">drag & drop it here</span>
+    </p>
+    <p className="text-gray-500 text-xs mb-4">
+      JPEG, PNG, PDF, and XLXS formats, up to 5 MB
+    </p>
 
-            <label className="inline-block bg-green-600 text-white text-sm font-medium px-6 py-2 rounded-full cursor-pointer hover:bg-green-700">
-              Browse File
-              <input
-                type="file"
-                className="hidden"
-                onChange={(e) => setUploadedFile(e.target.files[0])}
-              />
-            </label>
-          </div>
-        </div>
-      </div>
+    <label className="inline-block bg-green-600 text-white text-sm font-medium px-6 py-2 rounded-full cursor-pointer hover:bg-green-700">
+      Browse File
+      <input
+        type="file"
+        accept=".jpeg,.jpg,.png,.pdf,.xlsx"
+        className="hidden"
+        onChange={(e) => setUploadedFile(e.target.files[0])}
+      />
+    </label>
+
+    {/* Show uploaded file name */}
+    {uploadedFile && (
+      <p className="mt-4 text-sm text-gray-700 font-medium truncate">
+        {uploadedFile.name}
+      </p>
+    )}
+  </div>
+</div>
+</div>
     </div>
   )}
 </div>
@@ -464,7 +506,7 @@ useEffect(() => {
     <div className="flex gap-2">
 
 <label
-  className={`flex items-center gap-2 cursor-pointer rounded-full border border-gray py-0 px-4 w-1/2 text-gray-700 text-sm hover:border-green-600 hover:bg-green-50 ${
+  className={`flex items-center gap-2 cursor-pointer rounded-full border border-[#858585] py-0 px-4 w-1/2 text-gray-700 text-sm hover:border-green-600 hover:bg-green-50 ${
     role === "Federation Farmer" ? "border-green-600 bg-green-50" : ""
   }`}
   style={{ height: "45px" }}
@@ -484,7 +526,7 @@ useEffect(() => {
 
 
 <label
-  className={`flex items-center gap-2 cursor-pointer rounded-full border border-gray py-0 px-4 w-1/2 text-gray-700 text-sm hover:border-green-600 hover:bg-green-50 ${
+  className={`flex items-center gap-2 cursor-pointer rounded-full border border-[#858585] py-0 px-4 w-1/2 text-gray-700 text-sm hover:border-green-600 hover:bg-green-50 ${
     role === "Federation Member" ? "border-green-600 bg-green-50" : ""
   }`}
   style={{ height: "45px" }}
