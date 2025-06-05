@@ -1,4 +1,3 @@
-// src/components/ProductRequests.jsx
 import React, { useRef, useState } from 'react';
 import { Search, SlidersHorizontal, RefreshCw, ChevronDown } from 'lucide-react';
 
@@ -28,7 +27,6 @@ export default function PendingRequests({
     return new Date(dateStr);
   }
 
-  // Filter + sort requests based on filter state and sortOrder
   const filteredSortedRequests = React.useMemo(() => {
     let filtered = requests.filter(r => {
       return (
@@ -57,7 +55,6 @@ export default function PendingRequests({
     return filtered;
   }, [requests, searchQuery, selectedDocumentRequest, selectedStatus, sortOrder]);
 
-  // Dropdown outside click
   React.useEffect(() => {
     function handleClickOutside(event) {
       if (recentDropdownRef.current && !recentDropdownRef.current.contains(event.target)) {
@@ -69,9 +66,9 @@ export default function PendingRequests({
   }, []);
 
   return (
-    <>
-      {/* Pending Toolbar */}
-      <div className="flex items-center justify-between mb-2 px-4 pt-2">
+    <div className="px-6 pb-4">
+      {/* Toolbar */}
+      <div className="flex items-center justify-between px-4 pt-0 mb-1">
         <div className="flex items-center gap-2">
           {showFilters ? (
             <div className="flex items-center space-x-1 p-2 rounded-lg w-fit">
@@ -105,7 +102,6 @@ export default function PendingRequests({
                 aria-label="Clear filters"
               >
                 <span className="w-4 h-4">
-                  {/* X icon, can be replaced with Lucide X if imported */}
                   <svg viewBox="0 0 16 16" fill="none" width="16" height="16">
                     <path d="M4 4L12 12M12 4L4 12" stroke="#858585" strokeWidth="2" strokeLinecap="round" />
                   </svg>
@@ -122,7 +118,6 @@ export default function PendingRequests({
             </>
           )}
         </div>
-
         <div className="ml-auto flex items-center gap-3">
           <div className="relative w-[280px] flex items-center border rounded-full px-3 py-1 bg-white">
             <Search className="text-gray-500 w-5 h-5 mr-2" />
@@ -143,7 +138,8 @@ export default function PendingRequests({
           </div>
         </div>
       </div>
-
+      {/* Heading (matches RequestHistory) */}
+      <h2 className="text-xl font-bold mb-2 px-4 pt-2">Pending Requests</h2>
       {/* Pending List & Detail */}
       <div className="flex gap-4">
         {/* Left list */}
@@ -314,6 +310,6 @@ export default function PendingRequests({
           </div>
         </div>
       </div>
-    </>
+    </div>
   );
 }
