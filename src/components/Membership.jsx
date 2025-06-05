@@ -477,7 +477,7 @@ export default function MemberTabs() {
         <div className="text-sm breadcrumbs font-inter text-base">
           <ul>
             <li><a className="text-binhigreen underline">Dashboard</a></li>
-            <li><a className="text-binhigreen underline">Membership Management</a></li>
+            <li><a className="text-binhigreen underline">Association Management</a></li>
             <li><a className="text-binhigreen underline">Members</a></li>
             <li className="text-gray-400">
               {activeTab === "current"
@@ -531,7 +531,7 @@ export default function MemberTabs() {
 
     {/* Page Title */}
     <div className="px-6 pb-4 h-5 flex items-center">
-      <h1 className="text-[40px] font-bold text-gray-800">Membership Management</h1>
+      <h1 className="text-[40px] font-bold text-gray-800">Association Management</h1>
     </div>
   </div>
 
