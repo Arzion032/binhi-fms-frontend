@@ -633,11 +633,11 @@ export default function MemberTabs() {
                   setIsAddMemberModalOpen(true);
                   setAddMemberForm({ step: 1, emailOrPhone: '', password: '', confirmPassword: '', firstName: '', lastName: '', address: '', barangay: '', purok: '', street: '' });
                 }}
-                className="flex items-center justify-center gap-2 bg-app-primary hover:bg-app-primary/90 text-white rounded-full px-6 py-2"
+                className="flex items-center justify-center gap-2 bg-app-primary hover:bg-app-primary/90 text-white rounded-full px-7 h-[35px]"
                 data-model-id="1391:4664"
               >
-                <FaPlus className="w-5 h-5" />
-                <span className="font-semibold text-[16px]">Add Member</span>
+                <FaPlus className="w-4 h-4" />
+                <span className="font-semibold text-[15px]">Add Member</span>
               </button>
             </div>
           </div>
@@ -714,6 +714,7 @@ export default function MemberTabs() {
           </td>
 
           <td className="p-4 flex gap-2">
+          <div className="flex justify-center items-center gap-3">
             <span
               onClick={() => openEditClusterModal(member)}
               className="w-4 h-4 cursor-pointer hover:brightness-110 inline-block"
@@ -721,6 +722,7 @@ export default function MemberTabs() {
             >
               <img src={Pencil} alt="Edit" className="w-4 h-4" />
             </span>
+            </div>
             <span
               className="w-4 h-4 cursor-pointer hover:brightness-110 inline-block"
               onClick={() => setIsDeleteModalOpen(true)}
@@ -963,10 +965,10 @@ export default function MemberTabs() {
               street: ''
             });
           }}
-          className="flex items-center justify-center gap-2 bg-app-primary hover:bg-app-primary/90 text-white rounded-full px-6 py-2"
+          className="flex items-center justify-center gap-2 bg-app-primary hover:bg-app-primary/90 text-white rounded-full px-7 h-[35px]"
         >
-          <FaPlus className="w-5 h-[15px]" />
-          <span className="font-semibold text-[15px]">Add Member</span>
+          <FaPlus className="w-4 h-4" />
+          <span className="font-semibold text-[16px]">Add Member</span>
         </button>
       </div>
     </div>
@@ -1437,10 +1439,10 @@ export default function MemberTabs() {
                   setIsAddMemberModalOpen(true);
                   setAddMemberForm({ step: 1, emailOrPhone: '', password: '', confirmPassword: '', firstName: '', lastName: '', address: '', barangay: '', purok: '', street: '' });
                 }}
-                className="flex items-center justify-center gap-2 bg-app-primary hover:bg-app-primary/90 text-white rounded-full px-6 py-2"
+                className="flex items-center justify-center gap-2 bg-app-primary hover:bg-app-primary/90 text-white rounded-full px-7 h-[35px]"
                 data-model-id="1391:4664"
               >
-                <FaPlus className="w-5 h-[15px]" />
+                <FaPlus className="w-4 h-4" />
                 <span className="font-semibold text-[15px]">Add Member</span>
               </button>
             </div>
