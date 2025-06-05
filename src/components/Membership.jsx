@@ -19,70 +19,60 @@ import editIcon from '../assets/Edit.png';
 import edtIcon from '../assets/Trash.png';
 import Pencil from '../assets/Pencil.png';
 import PDF from '../assets/PDF.png';
-import Pantok from '../assets/Pantok.png';
-import Tatala from '../assets/Tatala.png';
-import Hulo from '../assets/Hulo.png';
-import Tagpos from '../assets/Tagpos.png';
-import Pugad from '../assets/Pugad.png';
-import Samahang from '../assets/Samahang.png';
-import NotificationModal from "./NotificationModal.jsx"; 
 
 
 const currentMembersInitial = [
   {
     id: 1,
-    name: "Pantok Farmers Association",
-    location: "Pantok",
-    area: "2.0",
-    president: "Raul Picones",
-    members: 2,
-    image: Pantok,
+    firstName: "Juan",
+    lastName: "Dela Cruz",
+    email: "juandelacruz@gmail.com",
+    role: "Member",
+    address: "Masiang, Bulacan",
+    dob: "20 Aug 1999",
+    dateAdded: "March 21, 2025",
   },
   {
-    id: 2,
-    name: "Tatala Farmers Association",
-    location: "Tatala",
-    area: "25",
-    president: "Rolando Anore",
-    members: 25,
-    image: Tatala,
+    id: 1,
+    firstName: "Juan",
+    lastName: "Dela Cruz",
+    email: "juandelacruz@gmail.com",
+    role: "Member",
+    address: "Masiang, Bulacan",
+    dob: "20 Aug 1999",
+    dateAdded: "March 21, 2025",
   },
   {
-    id: 3,
-    name: "Hulo, Darangan Farmers Association",
-    location: "Darangan",
-    area: "5.5",
-    president: "Eutiquio Mercado",
-    members: 6,
-    image: Hulo,
+    id: 1,
+    firstName: "Juan",
+    lastName: "Dela Cruz",
+    email: "juandelacruz@gmail.com",
+    role: "Member",
+    address: "Masiang, Bulacan",
+    dob: "20 Aug 1999",
+    dateAdded: "March 21, 2025",
   },
   {
-    id: 4,
-    name: "Tagpos Farmers Association",
-    location: "Tagpos",
-    area: "9.0",
-    president: "-",
-    members: 3,
-    image: Tagpos,
+    id: 1,
+    firstName: "Juan",
+    lastName: "Dela Cruz",
+    email: "juandelacruz@gmail.com",
+    role: "Member",
+    address: "Masiang, Bulacan",
+    dob: "20 Aug 1999",
+    dateAdded: "March 21, 2025",
   },
   {
-    id: 5,
-    name: "Pugad St. Monique Farmers Association",
-    location: "Darangan",
-    area: "49.2",
-    president: "Marcelino Domingo",
-    members: 45,
-    image: Pugad,
+    id: 1,
+    firstName: "Juan",
+    lastName: "Dela Cruz",
+    email: "juandelacruz@gmail.com",
+    role: "Member",
+    address: "Masiang, Bulacan",
+    dob: "20 Aug 1999",
+    dateAdded: "March 21, 2025",
   },
-  {
-    id: 6,
-    name: "Samahang Magsasaka ng Darangan",
-    location: "Darangan",
-    area: "40.5",
-    president: "Rolando Leoncio",
-    members: 42,
-    image: Samahang,
-  },
+  
 ];
 
 const rejectedMembersInitial = [
@@ -157,34 +147,6 @@ const rejectedData = [
 
 
 export default function MemberTabs() {
-
-  const [selectedMember, setSelectedMember] = useState([]);
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [selectedCluster, setSelectedCluster] = useState(null);
-  const [clusterForm, setClusterForm] = useState({
-    name: '',
-    president: '',
-    location: '',
-    area: '',
-    members: '',
-  });
-
-  const openEditClusterModal = (member) => {
-    setSelectedCluster(member);
-    setClusterForm({
-      name: member.name || '',
-      president: member.president || '',
-      location: member.location || '',
-      area: member.area || '',
-      members: member.members || '',
-    });
-    setIsEditModalOpen(true);
-  };
-
-  const handleClusterChange = (e) => {
-    const { name, value } = e.target;
-    setClusterForm((prev) => ({ ...prev, [name]: value }));
-  };
   
   // Tabs: current, pending, rejected
   const [activeTab, setActiveTab] = useState("current");
@@ -202,7 +164,6 @@ export default function MemberTabs() {
   
   // Selected members for bulk actions
   const [selectedMembers, setSelectedMembers] = useState([]);
-  const [isNotifOpen, setIsNotifOpen] = useState(false);
   
   // Editing member and edit form
   const [editingMember, setEditingMember] = useState(null);
@@ -232,9 +193,6 @@ export default function MemberTabs() {
     purok: '',
     street: '',
   });
-
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const [isDeleteModalOpe, setIsDeleteModalOpe] = useState(false);
 
   const [showConfirmationModal, setShowConfirmationModal] = useState(false);
   const [showSuccessMessage, setShowSuccessMessage] = useState(false);
@@ -304,24 +262,6 @@ export default function MemberTabs() {
     } else {
       setSelectedMembers(filteredMembers.map(m => m.id));
     }
-  };
-
-  const calculateAge = (dob) => {
-    const birthDate = new Date(dob);
-    const today = new Date();
-    let age = today.getFullYear() - birthDate.getFullYear();
-    const m = today.getMonth() - birthDate.getMonth();
-    if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
-      age--;
-    }
-    return age;
-  };
-  
-  const getDaysAgo = (date) => {
-    const d = new Date(date);
-    const now = new Date();
-    const diff = Math.floor((now - d) / (1000 * 60 * 60 * 24));
-    return `${diff} day${diff !== 1 ? 's' : ''}`;
   };
   
   // Toggle select member by id
@@ -471,13 +411,13 @@ export default function MemberTabs() {
     <div className="p-0">
   {/* Header with Breadcrumbs */}
   <div className="w-full bg-binhi-100 shadow-sm">
-    {/* Navbar with breadcrumbs and icons */}
+    {/* Navbar with breadcrumbs and dots icon */}
     <div className="flex items-center justify-between px-6 py-3">
       <div className="flex-1">
         <div className="text-sm breadcrumbs font-inter text-base">
           <ul>
             <li><a className="text-binhigreen underline">Dashboard</a></li>
-            <li><a className="text-binhigreen underline">Association Management</a></li>
+            <li><a className="text-binhigreen underline">Membership Management</a></li>
             <li><a className="text-binhigreen underline">Members</a></li>
             <li className="text-gray-400">
               {activeTab === "current"
@@ -490,48 +430,28 @@ export default function MemberTabs() {
         </div>
       </div>
 
-      {/* Notification and Dots Button */}
-      <div className="flex items-center gap-2 ml-4">
-        {/* Notification Icon */}
-        <button
-            className="btn btn-square bg-transparent hover:bg-transparent shadow-none border-none"
-            onClick={() => setIsNotifOpen(true)}
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="w-6 h-6 text-gray-800"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"
-              />
-            </svg>
-          </button>
-
-          <NotificationModal isOpen={isNotifOpen} onClose={() => setIsNotifOpen(false)} />
-
-        {/* Dots Button */}
-        <button
-                className="p-1 text-gray-400 hover:text-gray-600"
-                onClick={() => setShowMenu((v) => !v)}
-              >
-                <svg width="23" height="23" fill="currentColor" viewBox="0 0 20 20">
-                  <circle cx="10" cy="4" r="1.5" />
-                  <circle cx="10" cy="10" r="1.5" />
-                  <circle cx="10" cy="16" r="1.5" />
-                </svg>
-              </button>
-      </div>
+      {/* Dots Button */}
+      <button className="btn btn-square btn-binhi ml-4">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+          className="w-5 h-5"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth="2"
+            d="M5 12h.01M12 12h.01M19 12h.01"
+          />
+        </svg>
+      </button>
     </div>
 
     {/* Page Title */}
     <div className="px-6 pb-4 h-5 flex items-center">
-      <h1 className="text-[40px] font-bold text-gray-800">Association Management</h1>
+      <h1 className="text-[40px] font-bold text-gray-800">Membership Management</h1>
     </div>
   </div>
 
@@ -578,8 +498,7 @@ export default function MemberTabs() {
                 alt="loop"
                 className="ml-5 mr-5 w-[20px] max-w-full object-contain"
               />
-              <span className="text-[15.5px] text-lg font-semibold mr-2">All Clusters</span>
-              <span className="text-gray-400 font-normal text-xs">15</span>
+              <span className="text-[15.5px] text-lg font-semibold mr-2">All Members</span>
             </div>
             
             {/* Right Side */}
@@ -633,11 +552,11 @@ export default function MemberTabs() {
                   setIsAddMemberModalOpen(true);
                   setAddMemberForm({ step: 1, emailOrPhone: '', password: '', confirmPassword: '', firstName: '', lastName: '', address: '', barangay: '', purok: '', street: '' });
                 }}
-                className="flex items-center justify-center gap-2 bg-app-primary hover:bg-app-primary/90 text-white rounded-full px-7 h-[35px]"
+                className="flex items-center justify-center gap-2 bg-app-primary hover:bg-app-primary/90 text-white rounded-full px-6 py-2"
                 data-model-id="1391:4664"
               >
-                <FaPlus className="w-4 h-4" />
-                <span className="font-semibold text-[15px]">Add Member</span>
+                <FaPlus className="w-5 h-5" />
+                <span className="font-semibold text-[16px]">Add Member</span>
               </button>
             </div>
           </div>
@@ -647,103 +566,100 @@ export default function MemberTabs() {
             <div className="flex justify-between items-center">
             </div>
 
-          {/* Table 1 */}
-          <div className="overflow-x-auto py-0">
-  <table className="table w-full">
-    <thead>
-      <tr className="text-sm text-black" style={{ backgroundColor: "#F4F4F4" }}>
-        <th className="p-4 rounded-tl-lg rounded-tr-lg text-left">
-          <input
-            type="checkbox"
-            className="checkbox checkbox-sm rounded"
-            checked={selectedMembers.length === filteredMembers.length && filteredMembers.length > 0}
-            onChange={toggleSelectAll}
-            aria-label="Select all members"
-          />
-        </th>
-        <th className="p-4 text-left">Name of Association</th>
-        <th className="p-4 text-left">Farm Location</th>
-        <th className="p-4 text-left">Area (has.)</th>
-        <th className="p-4 text-center">Name of President</th>  
-        <th className="p-4 text-center">No. of Members</th>     
-        <th className="p-4 text-left">Actions</th>
-      </tr>
-    </thead>
-    <tbody>
-      {filteredMembers.map((member) => (
-        <tr key={member.id} className="border-t font-medium">
-          <td className="p-4">
-            <input
-              type="checkbox"
-              className="checkbox checkbox-sm rounded"
-              checked={selectedMembers.includes(member.id)}
-              onChange={() => toggleSelectMember(member.id)}
-              aria-label={`Select member ${member.name}`}
-            />
-          </td>
+            {/* Table */}
+            <div className="overflow-x-auto py-0">
+            <table className="table w-full">
+              <thead>
+                <tr className="text-left" style={{ backgroundColor: "#F4F4F4" }}>
+                  <th className="p-4 rounded-tl-lg rounded-tr-lg">
+                    <input
+                      type="checkbox"
+                      className="checkbox checkbox-sm rounded"
+                      checked={selectedMembers.length === filteredMembers.length && filteredMembers.length > 0}
+                      onChange={toggleSelectAll}
+                      aria-label="Select all members"
+                    />
+                  </th>
+                  <th className="p-4">User Name</th>
+                  <th className="p-4">Role</th>
+                  <th className="p-4">Address</th>
+                  <th className="p-4">Date of Birth</th>
+                  <th className="p-4">Date Added</th>
+                  <th className="p-4">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredMembers.map((member) => (
+                  <tr key={member.id} className="border-t font-medium">
+                    
+                    <td className="p-4">
+                      <input
+                        type="checkbox"
+                        className="checkbox checkbox-sm rounded"
+                        checked={selectedMembers.includes(member.id)}
+                        onChange={() => toggleSelectMember(member.id)}
+                        aria-label={`Select member ${member.firstName} ${member.lastName}`}
+                      />
+                    </td>
+                    <td className="p-4 flex items-center">
+                      <img
+                        src={Juan}
+                        alt={`${member.firstName} ${member.lastName}`}
+                        className="w-10 h-10 rounded-full object-cover mr-3"
+                      />
+                      <div>
+                        <div>{member.firstName} {member.lastName}</div>
+                        <div className="text-sm text-gray-600">{member.email}</div>
+                      </div>
+                    </td>
+                    <td className="p-4">
+                      <div
+                        className="text-center font-bold"
+                        style={{
+                          color: '#0038A8',
+                          borderRadius: '200px',
+                          border: '0.75px solid #0038A8',
+                          opacity: 0.75,
+                          background: '#C0D5FF',
+                          padding: '0px 8px',
+                          fontSize: '12px',
+                          display: 'inline-block',
+                        }}
+                      >
+                        {member.role}
+                      </div>
+                    </td>
+                    <td className="p-4">{member.address}</td>
+                    <td className="p-4">{member.dob}</td>
+                    <td className="p-4">{member.dateAdded}</td>
+                    <td className="p-4 flex gap-2">
 
-          <td className="p-4 flex items-center">
-            <img
-              src={member.image}
-              alt={member.name}
-              className="w-10 h-10 rounded-full object-cover mr-3"
-            />
-            <div>
-              <div className="font-medium">{member.name}</div>
-            </div>
-          </td>
-
-          <td className="p-4">
-            <div className="font-medium">{member.location}</div>
-            <div className="text-xs text-gray-400 font-normal">Binangonan, Rizal</div>
-          </td>
-
-          <td className="p-4">
-            <div className="font-medium">{member.area}</div>
-            <div className="text-xs text-gray-400 font-normal">hectares</div>
-          </td>
-
-          {/* Centered TD */}
-          <td className="p-4 text-center">
-            <div className="font-medium">{member.president || "-"}</div>
-          </td>
-
-          {/* Centered TD */}
-          <td className="p-4 text-center">
-            <div className="font-medium">{member.members}</div>
-          </td>
-
-          <td className="p-4 flex gap-2">
-          <div className="flex justify-center items-center gap-3">
-            <span
-              onClick={() => openEditClusterModal(member)}
-              className="w-4 h-4 cursor-pointer hover:brightness-110 inline-block"
-              aria-label={`Edit member ${member.name}`}
-            >
-              <img src={Pencil} alt="Edit" className="w-4 h-4" />
-            </span>
-            </div>
-            <span
-              className="w-4 h-4 cursor-pointer hover:brightness-110 inline-block"
-              onClick={() => setIsDeleteModalOpen(true)}
-            >
-              <img src={edtIcon} alt="Delete" className="w-4 h-4" />
-            </span>
-          </td>
-        </tr>
-      ))}
-      {filteredMembers.length === 0 && (
-        <tr>
-          <td colSpan={7} className="p-4 text-center text-gray-600">No members found.</td>
-        </tr>
-      )}
-    </tbody>
-  </table>
+                    <span
+                      onClick={() => handleEditClick(member)}
+                      className="w-4 h-4 cursor-pointer hover:brightness-110 inline-block"
+                      aria-label={`Edit member ${member.firstName} ${member.lastName}`}
+                    >
+                      <img src={Pencil} alt="Pencil" className="w-4 h-4" />
+                    </span>
 
 
+                    <span className="w-4 h-4 cursor-pointer hover:brightness-110 inline-block">
+                        <img src={edtIcon} alt="Trash" className="w-4 h-4" />
+                    </span>
+                    </td>
+                  </tr>
+                ))}
+                {filteredMembers.length === 0 && (
+                  <tr>
+                    <td colSpan={7} className="p-4 text-center text-gray-600">No members found.</td>
+                  </tr>
+                )}
+                
+              </tbody>
+            </table>
 
-                 {/* Pagination */}
-     <div className="fixed bottom-0 left-0 w-full py-4">
+            {/* Pagination */}
+    <div className="fixed bottom-0 left-0 w-full py-4">
   <div className="flex justify-center">
     <div className="flex items-center gap-1">
       <button className="btn btn-sm hover:bg-[#D9D9D9] rounded">«</button>
@@ -765,111 +681,8 @@ export default function MemberTabs() {
     </div>
   </div>
   </div>
-</div>
-</div>
-
-    {/* Editable Modal */}
-    {isEditModalOpen && selectedCluster && (
-  <div className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50">
-    <div className="bg-[#F7FAF6] rounded-3xl p-8 w-[450px] max-w-lg border border-black relative shadow-lg">
-      <button
-        onClick={() => setIsEditModalOpen(false)}
-        className="absolute top-4 right-4 text-xl font-bold"
-      >
-        ×
-      </button>
-      <div className="flex items-center gap-4 mb-4">
-        <img
-          src={selectedCluster.image}
-          alt={selectedCluster.name}
-          className="w-16 h-16 rounded-full object-cover"
-        />
-        <div className="flex flex-col">
-          <input
-            type="text"
-            name="name"
-            value={clusterForm.name}
-            onChange={handleClusterChange}
-            className="font-semibold text-lg bg-transparent outline-none"
-            placeholder="Cluster Name"
-          />
-          <input
-            type="text"
-            name="president"
-            value={clusterForm.president}
-            onChange={handleClusterChange}
-            className="text-gray-600 text-sm bg-transparent outline-none"
-            placeholder="President name"
-          />
-        </div>
-      </div>
-
-      <hr className="my-4 border-gray-300" />
-      <div className="space-y-1">
-        {[
-          { name: 'firstName', label: 'First Name' },
-          { name: 'lastName', label: 'Last Name' },
-          { name: 'role', label: 'Role' },
-          { name: 'number', label: 'Number' },
-          { name: 'DateofBirth', label: 'Date of Birth', type: 'date' },
-          { name: 'barangay', label: 'Barangay' },
-          { name: 'purok', label: 'Purok' },
-          { name: 'street', label: 'Street' },
-        ].map(({ name, label, type = 'text' }) => (
-          <div key={name} className="flex items-center gap-4">
-            <div className="w-32 flex items-center gap-2">
-              {fieldIcons[name] ? (
-                <img src={fieldIcons[name]} alt={name} className="w-5 h-5" />
-              ) : (
-                <span className="w-5 h-5" />
-              )}
-              <label>{label}</label>
-            </div>
-            <input
-              type={type}
-              name={name}
-              value={clusterForm[name] || ''}
-              onChange={handleClusterChange}
-              className="flex-1 p-2 rounded bg-[#F8FCF8] font-medium"
-            />
           </div>
-        ))}
-
-        {/* Document Field */}
-        <div className="flex items-center gap-4">
-          <div className="w-32 flex items-center gap-2">
-            <img src={fieldIcons.document} alt="document" className="w-5 h-5" />
-            <label>Document</label>
           </div>
-          <input
-            type="file"
-            name="document"
-            onChange={handleClusterChange}
-            className="flex-1 p-2 rounded font-medium"
-          />
-        </div>
-      </div>
-
-      <div className="mt-6 flex justify-center items-center gap-4">
-        <button
-          onClick={() => setShowConfirmationModal(true)}
-          className="px-4 py-2 rounded-3xl bg-[#FF3B4E] text-white hover:bg-[#E02A3B] text-sm"
-          style={{ width: "170px", height: "39px" }}
-        >
-          Disregard
-        </button>
-        <button
-          onClick={handleConfirmEdit}
-          className="px-10 py-2 bg-[#4CAE4F] text-white rounded-full hover:bg-green-600"
-          style={{ width: "170px", height: "39px" }}
-        >
-          Confirm
-        </button>
-      </div>
-    </div>
-  </div>
-)}
-
         </>
       )}
 
@@ -887,7 +700,6 @@ export default function MemberTabs() {
         <span className="text-[15.5px] text-lg font-semibold mr-2">
           Pending Members
         </span>
-        <span className="text-gray-400 font-normal text-xs">24</span>
       </div>
 
       {/* Right Side */}
@@ -965,10 +777,10 @@ export default function MemberTabs() {
               street: ''
             });
           }}
-          className="flex items-center justify-center gap-2 bg-app-primary hover:bg-app-primary/90 text-white rounded-full px-7 h-[35px]"
+          className="flex items-center justify-center gap-2 bg-app-primary hover:bg-app-primary/90 text-white rounded-full px-6 py-2"
         >
-          <FaPlus className="w-4 h-4" />
-          <span className="font-semibold text-[16px]">Add Member</span>
+          <FaPlus className="w-5 h-[15px]" />
+          <span className="font-semibold text-[15px]">Add Member</span>
         </button>
       </div>
     </div>
@@ -1374,7 +1186,6 @@ export default function MemberTabs() {
                 className="ml-5 mr-5 w-[20px] max-w-full object-contain"
               />
               <span className="text-[15.5px] text-lg font-semibold mr-2">Rejected Members</span>
-              <span className="text-gray-400 font-normal text-xs">24</span>
             </div>
             {/* Right Side */}
       <div className="flex items-center space-x-4">
@@ -1439,10 +1250,10 @@ export default function MemberTabs() {
                   setIsAddMemberModalOpen(true);
                   setAddMemberForm({ step: 1, emailOrPhone: '', password: '', confirmPassword: '', firstName: '', lastName: '', address: '', barangay: '', purok: '', street: '' });
                 }}
-                className="flex items-center justify-center gap-2 bg-app-primary hover:bg-app-primary/90 text-white rounded-full px-7 h-[35px]"
+                className="flex items-center justify-center gap-2 bg-app-primary hover:bg-app-primary/90 text-white rounded-full px-6 py-2"
                 data-model-id="1391:4664"
               >
-                <FaPlus className="w-4 h-4" />
+                <FaPlus className="w-5 h-[15px]" />
                 <span className="font-semibold text-[15px]">Add Member</span>
               </button>
             </div>
@@ -1457,7 +1268,7 @@ export default function MemberTabs() {
          <div className="overflow-x-auto">
       <table className="table w-full">
         <thead className="bg-gray-50 text-gray-700 font-semibold">
-        <tr className="text-left text-sm text-black" style={{ backgroundColor: "#F4F4F4" }}>
+        <tr className="text-left" style={{ backgroundColor: "#F4F4F4" }}>
             <th className="p-4 rounded-tl-lg rounded-tr-lg">
               <input
                className="checkbox checkbox-sm rounded"
@@ -1495,11 +1306,11 @@ export default function MemberTabs() {
 
                 <div>
                   <div className="font-medium">{item.name}</div>
-                  <div className="text-sm text-gray-500 font-normal">{item.email}</div>
+                  <div className="text-sm text-gray-500 font-medium">{item.email}</div>
                 </div>
               </td>
               <td className="p-4">
-                <span className="text-center font-medium"
+                <span className="text-center font-bold"
                       style={{
                         color: '#0038A8',
                         borderRadius: '200px',
@@ -1515,7 +1326,7 @@ export default function MemberTabs() {
                 </span>
               </td>
               <td className="p-4">
-                <span className="text-center font-medium"
+                <span className="text-center font-bold"
                       style={{
                         color: '#A51B29',
                         borderRadius: '200px',
@@ -1538,7 +1349,7 @@ export default function MemberTabs() {
                 <div className="text-xs text-gray-400">Click to view</div>
               </td>
               <td className="p-4">
-                <div className="text-sm font-medium">{item.date}</div>
+                <div className="text-sm font-bold">{item.date}</div>
                 <div className="text-xs text-gray-400">{item.daysAgo}</div>
               </td>
               <td className="p-4 flex items-center gap-3">
@@ -1547,15 +1358,10 @@ export default function MemberTabs() {
                       onClick={() => setIsApplicationDetailsOpen(true)}
                     >
                       <img src={editIcon} alt="Edit" className="w-4 h-4" />
-
-                      </span>
-                      <span
-                className="w-4 h-4 cursor-pointer hover:brightness-110 inline-block"
-                onClick={() => setIsDeleteModalOpe(true)}
-              >
-                <img src={edtIcon} alt="Trash" className="w-4 h-4" />
-              </span>
-                
+                    </span>
+                <span className="w-4 h-4 cursor-pointer hover:brightness-110 inline-block">
+                    <img src={edtIcon} alt="Trash" className="w-4 h-4" />
+                </span>
               </td>
             </tr>
           ))}
@@ -1740,9 +1546,8 @@ export default function MemberTabs() {
         </tbody>
       </table>
 
-       {/* Pagination */}
-
-     <div className="fixed bottom-0 left-0 w-full py-4">
+      {/* Pagination */}
+    <div className="fixed bottom-0 left-0 w-full py-4">
   <div className="flex justify-center">
     <div className="flex items-center gap-1">
       <button className="btn btn-sm hover:bg-[#D9D9D9] rounded">«</button>
@@ -1764,53 +1569,10 @@ export default function MemberTabs() {
     </div>
   </div>
   </div>
-</div>
-</div>
+    </div>
+    </div>
         </>
       )}
-
-{isDeleteModalOpe && (
-          <div className="fixed inset-0 z-50 bg-black bg-opacity-40 flex items-center justify-center">
-            <div className="bg-white rounded-3xl p-6 w-[400px] border border-black shadow-lg relative text-center">
-              <button
-                onClick={() => setIsDeleteModalOpe(false)}
-                className="absolute top-2 right-3 text-gray-400 hover:text-black"
-              >
-                &times;
-              </button>
-            
-              <div className="mb-4 flex justify-center items-center">
-                    <img src={Disregard} alt="Disregard.png" className="w-[80px] max-w-full object-contain" />
-                  </div>
-                <h2 className="text-2xl text-center font-bold mb-2">Confirm Deletion?</h2>
-                <p className="text-sm text-center text-gray-600">
-                  The selected equipment will be permanently removed from your records.
-                </p>
-                
-                <div className="flex justify-center gap-3 mt-6">
-                  <button
-                    onClick={() => setIsDeleteModalOpe(false)}
-                    className="px-7 py-2 bg-white text-[#E02A3B] border border-[#E02A3B] rounded-full hover:bg-[#E02A3B] hover:text-white text-sm font-medium"
-                    style={{ width: "130px", height: "39px" }}
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    onClick={() => {
-                      // TODO: Add deletion logic here
-                      setIsDeleteModalOpe(false);
-                    }}
-                    className="px-4 py-2 rounded-3xl bg-[#FF3B4E] text-white hover:bg-[#E02A3B] text-sm"
-                    style={{ width: "130px", height: "39px" }}
-                  >
-                    Delete
-                  </button>
-                </div>
-              
-            </div>
-          </div>
-        )}
-
 
       {/* Add Member Modal */}
       {isAddMemberModalOpen && (
@@ -2038,7 +1800,7 @@ export default function MemberTabs() {
 
             <hr className="mb-4" />
 
-            {/* Edit Member Modal */}
+            {/* Edit Form Fields */}
             <div className="space-y-1 ">
               
               {['firstName', 'lastName', 'role', 'number', 'DateofBirth', 'barangay', 'purok', 'street'].map((field) => (
@@ -2157,7 +1919,7 @@ export default function MemberTabs() {
                 Cancel
               </button>
               <button
-                onClick={() => setShowConfirmationModal(false)}
+                
                 className="px-7 py-2 bg-white text-[#E02A3B] border border-[#E02A3B] rounded-full hover:bg-[#E02A3B] hover:text-white text-sm font-medium"
                 style={{ width: "130px", height: "39px" }}
               >

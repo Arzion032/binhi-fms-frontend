@@ -18,8 +18,9 @@ import Hulo from '../../assets/Hulo.png';
 import Tagpos from '../../assets/Tagpos.png';
 import Pugad from '../../assets/Pugad.png';
 import Samahang from '../../assets/Samahang.png';
+import Pencil2 from '../../assets/PencilBlack.png';
+import Time from '../../assets/Time.png';
 import NotificationModal from "../NotificationModal.jsx"; 
-import AssociationModals from "../AssociationModals.jsx"; 
 
 const currentMembersInitial = [
     {
@@ -143,10 +144,94 @@ const currentMembersInitial = [
   
   export default function MemberTabs() {
   
-    const [showEditModal, setShowEditModal] = useState(false);
-    const [selectedItem, setSelectedItem] = useState(null);
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const [selectedCluster, setSelectedCluster] = useState(null);
+    const [showEditAssociationModal, setShowEditAssociationModal] = useState(false);
+    const [showDetailAssociationModal, setShowDetailAssociationModal] = useState(false);
+    const [selectedAssociation, setSelectedAssociation] = useState(null);
+    const [showEditModal, setShowEditModal] = useState(false);
+    const [validationErrors, setValidationErrors] = useState({});
+    const [showFarmerModal, setShowFarmerModal] = useState(false);
+    const [showSuccessModal, setShowSuccessModal] = useState(false);
+    const [memberToDelete, setMemberToDelete] = useState(null);
+
+    const [newMember, setNewMember] = useState({
+        name: '',
+        location: '',
+        president: '',
+        area: '',
+        members: '',
+        image: Pantok, // default image
+      });
+      
+      const handleClose = () => {
+        setIsAddMemberModalOpen(false);
+        setNewMember({ name: '', location: '', president: '', area: '', members: '', image: Pantok });
+      };
+      
+    const [editFormData, setEditFormData] = useState({
+    id: "",
+    name: "",
+    location: "",
+    president: "",
+    area: "",
+    members: "",
+    image: "",
+    });
+
+    const handleEditClick = (member) => {
+    setEditFormData({ ...member });
+    setShowEditModal(true);
+    };
+
+    const handleDelete = () => {
+        setFilteredMembers(prev => prev.filter(member => member.id !== memberToDelete));
+        setSelectedMembers(prev => prev.filter(id => id !== memberToDelete));
+        setIsDeleteModalOpen(false);
+        setMemberToDelete(null);
+      };
+      
+
+    const handleAssociationEditChange = (e) => {
+        const { name, value } = e.target;
+      
+        setEditFormData((prev) => ({
+          ...prev,
+          [name]: value,
+        }));
+      
+        // Clear validation error for this field if it's now valid
+        if (value.trim()) {
+          setValidationErrors((prev) => ({
+            ...prev,
+            [name]: false,
+          }));
+        }
+      };
+      
+
+      const handleEditConfirm = () => {
+        const errors = {};
+        if (!editFormData.name.trim()) errors.name = true;
+        if (!editFormData.location.trim()) errors.location = true;
+        if (!editFormData.president.trim()) errors.president = true;
+        if (!editFormData.area.trim()) errors.area = true;
+        if (!editFormData.members.toString().trim()) errors.members = true;
+      
+        setValidationErrors(errors);
+      
+        // Only update if all fields are valid
+        if (Object.keys(errors).length === 0) {
+          const updatedList = members.map((item) =>
+            item.id === editFormData.id ? { ...item, ...editFormData } : item
+          );
+          setMembers(updatedList);
+          setShowEditModal(false);
+          setValidationErrors({}); // clear all errors
+        }
+      };      
+
+
     const [clusterForm, setClusterForm] = useState({
       name: '',
       president: '',
@@ -154,23 +239,6 @@ const currentMembersInitial = [
       area: '',
       members: '',
     });
-  
-    const openEditClusterModal = (member) => {
-      setSelectedCluster(member);
-      setClusterForm({
-        name: member.name || '',
-        president: member.president || '',
-        location: member.location || '',
-        area: member.area || '',
-        members: member.members || '',
-      });
-      setIsEditModalOpen(true);
-    };
-  
-    const handleClusterChange = (e) => {
-      const { name, value } = e.target;
-      setClusterForm((prev) => ({ ...prev, [name]: value }));
-    };
     
     // Tabs: current, pending, rejected
     const [activeTab, setActiveTab] = useState("current");
@@ -205,27 +273,25 @@ const currentMembersInitial = [
     // Add member modal and form
     const [isAddMemberModalOpen, setIsAddMemberModalOpen] = useState(false);
     const [addMemberForm, setAddMemberForm] = useState({
-      step: 1,
-      emailOrPhone: '',
-      password: '',
-      confirmPassword: '',
-      firstName: '',
-      lastName: '',
-      address: '',
-      barangay: '',
-      purok: '',
-      street: '',
+    step: 1,
+    emailOrPhone: '',
+    password: '',
+    confirmPassword: '',
+    firstName: '',
+    lastName: '',
+    address: '',
+    barangay: '',
+    purok: '',
+    street: ''
     });
+
   
     const [isDeleteModalOpe, setIsDeleteModalOpe] = useState(false);
   
     const [showConfirmationModal, setShowConfirmationModal] = useState(false);
     const [showSuccessMessage, setShowSuccessMessage] = useState(false);
   
-    const handleDisregard = () => {
-      setShowRejectModal(false); // Close the first modal
-      setShowConfirmationModal(true); // Show the confirmation modal
-    };
+    
   
     const [showFilters, setShowFilters] = useState(false);
     const [selectedRole, setSelectedRole] = useState("");
@@ -248,7 +314,12 @@ const currentMembersInitial = [
     };
     
     // Filtered members for current tab
-    const filteredMembers = filterMembersBySearch(members, searchCurrent);
+    const [filteredMembers, setFilteredMembers] = useState(members);
+
+        useEffect(() => {
+        setFilteredMembers(members);
+        }, [members]);
+
     
   
     useEffect(() => {
@@ -517,15 +588,25 @@ const currentMembersInitial = [
   
                 {/* Add Member Button */}
                 <button
-                  onClick={() => {
+                onClick={() => {
                     setIsAddMemberModalOpen(true);
-                    setAddMemberForm({ step: 1, emailOrPhone: '', password: '', confirmPassword: '', firstName: '', lastName: '', address: '', barangay: '', purok: '', street: '' });
-                  }}
-                  className="flex items-center justify-center gap-2 bg-app-primary hover:bg-app-primary/90 text-white rounded-full px-7 h-[35px]"
-                  data-model-id="1391:4664"
+                    setAddMemberForm({
+                    step: 1,
+                    emailOrPhone: '',
+                    password: '',
+                    confirmPassword: '',
+                    firstName: '',
+                    lastName: '',
+                    address: '',
+                    barangay: '',
+                    purok: '',
+                    street: ''
+                    });
+                }}
+                className="flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 text-white rounded-full px-7 h-[35px]"
                 >
-                  <FaPlus className="w-4 h-4" />
-                  <span className="font-semibold text-[15px]">Add Member</span>
+                <FaPlus className="w-4 h-4" />
+                <span className="font-semibold text-[15px]">Add Member</span>
                 </button>
               </div>
             </div>
@@ -607,9 +688,10 @@ const currentMembersInitial = [
               {/* Details */}
                  <div 
                    onClick={() => {
-                    setSelectedItem(item);
-                    setShowEditModal(true);
+                    setSelectedAssociation(member);
+                    setShowDetailAssociationModal(true);
                   }}
+                  
                   className="cursor-pointer group flex items-left justify-left transition-all duration-200 ease-in-out"
                 >
                   <div className="flex items-left w-[20px] group-hover:w-[80px] transition-all duration-200 overflow-hidden">
@@ -623,7 +705,10 @@ const currentMembersInitial = [
               {/* Delete */}
               <span
                 className="w-4 h-4 cursor-pointer hover:brightness-110 inline-block"
-                onClick={() => setIsDeleteModalOpe(true)}
+                onClick={() => {
+                    setMemberToDelete(member.id);
+                    setIsDeleteModalOpe(true);
+                  }}
               >
                 <img src={edtIcon} alt="Trash" className="w-4 h-4" />
               </span>
@@ -666,215 +751,470 @@ const currentMembersInitial = [
     </div>
   </div>
   </div>
-  
-      {/* Editable Modal */}
-      {isEditModalOpen && selectedCluster && (
-    <div className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50">
-      <div className="bg-[#F7FAF6] rounded-3xl p-8 w-[450px] max-w-lg border border-black relative shadow-lg">
-        <button
-          onClick={() => setIsEditModalOpen(false)}
-          className="absolute top-4 right-4 text-xl font-bold"
-        >
-          ×
-        </button>
-        <div className="flex items-center gap-4 mb-4">
-          <img
-            src={selectedCluster.image}
-            alt={selectedCluster.name}
-            className="w-16 h-16 rounded-full object-cover"
-          />
-          <div className="flex flex-col">
-            <input
-              type="text"
-              name="name"
-              value={clusterForm.name}
-              onChange={handleClusterChange}
-              className="font-semibold text-lg bg-transparent outline-none"
-              placeholder="Cluster Name"
-            />
-            <input
-              type="text"
-              name="president"
-              value={clusterForm.president}
-              onChange={handleClusterChange}
-              className="text-gray-600 text-sm bg-transparent outline-none"
-              placeholder="President name"
-            />
-          </div>
+
+  {showDetailAssociationModal && selectedAssociation && (
+  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-30">
+    <div className="bg-white rounded-3xl w-[400px] max-w-full p-6 shadow-lg">
+      <div className="flex justify-between items-start mb-4">
+        <div>
+          <h2 className="text-lg font-bold">Association Details</h2>
+          <p className="text-sm text-gray-600">Here's the details of this association.</p>
         </div>
-  
-        <hr className="my-4 border-gray-300" />
-        <div className="space-y-1">
-          {[
-            { name: 'firstName', label: 'First Name' },
-            { name: 'lastName', label: 'Last Name' },
-            { name: 'role', label: 'Role' },
-            { name: 'number', label: 'Number' },
-            { name: 'DateofBirth', label: 'Date of Birth', type: 'date' },
-            { name: 'barangay', label: 'Barangay' },
-            { name: 'purok', label: 'Purok' },
-            { name: 'street', label: 'Street' },
-          ].map(({ name, label, type = 'text' }) => (
-            <div key={name} className="flex items-center gap-4">
-              <div className="w-32 flex items-center gap-2">
-                {fieldIcons[name] ? (
-                  <img src={fieldIcons[name]} alt={name} className="w-5 h-5" />
-                ) : (
-                  <span className="w-5 h-5" />
-                )}
-                <label>{label}</label>
-              </div>
-              <input
-                type={type}
-                name={name}
-                value={clusterForm[name] || ''}
-                onChange={handleClusterChange}
-                className="flex-1 p-2 rounded bg-[#F8FCF8] font-medium"
-              />
-            </div>
-          ))}
-  
-          {/* Document Field */}
-          <div className="flex items-center gap-4">
-            <div className="w-32 flex items-center gap-2">
-              <img src={fieldIcons.document} alt="document" className="w-5 h-5" />
-              <label>Document</label>
-            </div>
-            <input
-              type="file"
-              name="document"
-              onChange={handleClusterChange}
-              className="flex-1 p-2 rounded font-medium"
-            />
-          </div>
-        </div>
-  
-        <div className="mt-6 flex justify-center items-center gap-4">
-          <button
-            onClick={() => setShowConfirmationModal(true)}
-            className="px-4 py-2 rounded-3xl bg-[#FF3B4E] text-white hover:bg-[#E02A3B] text-sm"
-            style={{ width: "170px", height: "39px" }}
-          >
-            Disregard
-          </button>
-          <button
-            onClick={handleConfirmEdit}
-            className="px-10 py-2 bg-[#4CAE4F] text-white rounded-full hover:bg-green-600"
-            style={{ width: "170px", height: "39px" }}
-          >
-            Confirm
-          </button>
+        <button onClick={() => setShowDetailAssociationModal(false)} className="text-xl font-bold">&times;</button>
+      </div>
+
+      <div className="border-b border-gray-300 my-4"></div>
+
+      {/* Image and name/location side-by-side */}
+      <div className="flex items-center gap-4 mb-4">
+        <img
+          src={selectedAssociation.image}
+          alt="Association"
+          className="w-16 h-16 rounded-full object-cover"
+        />
+        <div>
+          <h3 className="font-bold text-lg">{selectedAssociation.name}</h3>
+          <p className="text-sm text-gray-700">{selectedAssociation.location}, Binangonan, Rizal</p>
         </div>
       </div>
+
+      {/* Info Below Labels */}
+      <div className="mt-4 text-sm space-y-4 text-left">
+        <div>
+          <p className="font-semibold text-gray-700">Association:</p>
+          <p className="text-gray-900">{selectedAssociation.name}</p>
+        </div>
+        <div>
+          <p className="font-semibold text-gray-700">Farm Location:</p>
+          <p className="text-gray-900">{selectedAssociation.location}, Binangonan, Rizal</p>
+        </div>
+        <div>
+          <p className="font-semibold text-gray-700">Area (has.):</p>
+          <p className="text-gray-900">{selectedAssociation.area}</p>
+        </div>
+        <div>
+          <p className="font-semibold text-gray-700">President:</p>
+          <p className="text-gray-900">{selectedAssociation.president || "-"}</p>
+        </div>
+        <div>
+          <p className="font-semibold text-gray-700">No. of Members:</p>
+          <p className="text-gray-900">{selectedAssociation.members}</p>
+        </div>
+      </div>
+
+      {/* Action Buttons */}
+      <div className="flex justify-center gap-0 items-center mt-8">
+        {/* Edit (Pencil2) */}
+        <button
+                className="flex items-center gap-2 text-sm font-medium font-semibold text-black px-4 py-2 rounded-full border border-transparent hover:border-blue focus:border-blue hover:text-blue focus:text-blue transition-all"
+                onClick={() => {
+                    handleEditClick(selectedAssociation);
+                    setShowDetailAssociationModal(false);
+                }}
+                >
+                <img src={Pencil2} alt="Edit" className="w-4 h-4" />
+                Edit Details
+                </button>
+
+
+        <button className="flex items-center gap-2 text-sm font-medium font-semibold text-black px-4 py-2 rounded-full border border-transparent hover:border-blue focus:border-blue hover:text-blue focus:text-blue transition-all"
+        onClick={() => setShowFarmerModal(true)}>
+          <img src={Time} alt="Time" className="w-4 h-4" />
+          View Farmers
+        </button>
+      </div>
+
+      {/* Back Button */}
+      <button
+        onClick={() => setShowDetailAssociationModal(false)}
+        className="mt-6 w-full bg-[#4CAE4F] text-white font-medium py-2 rounded-full"
+      >
+        Back
+      </button>
     </div>
-  )}
-  
-          </>
+  </div>
+)}
+
+
+{showEditModal && (
+  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-30">
+    <div className="bg-white rounded-3xl w-[420px] max-w-full p-6 shadow-lg">
+      <div className="flex justify-between items-start mb-2">
+        <div>
+          <h2 className="text-lg font-bold">Edit Association Details</h2>
+          <p className="text-sm text-gray-600">Please edit the machinery.</p>
+        </div>
+        <button onClick={() => setShowEditModal(false)} className="text-xl font-bold">&times;</button>
+      </div>
+
+      <div className="border-b border-gray-300 my-4"></div>
+
+      <div className="flex items-center gap-4 mb-4">
+        <img
+          src={editFormData.image}
+          alt="Association"
+          className="w-16 h-16 rounded-full object-cover"
+        />
+        <div>
+          <h3 className="font-bold text-lg">{editFormData.name}</h3>
+          <p className="text-sm text-gray-700">{editFormData.location}, Binangonan, Rizal</p>
+        </div>
+      </div>
+
+      <div className="space-y-3">
+        <div>
+          <label className="text-sm font-semibold">
+            Association Name{" "}
+            <span className={validationErrors.name ? "text-red" : "text-gray"}>*</span>
+          </label>
+          <input
+            name="name"
+            value={editFormData.name}
+            onChange={handleAssociationEditChange}
+            className="input input-bordered w-full mt-1 rounded-full"
+          />
+        </div>
+
+        <div className="flex gap-2">
+          <div className="w-1/2">
+            <label className="text-sm font-semibold">
+              Farm Location{" "}
+              <span className={validationErrors.location ? "text-red" : "text-gray"}>*</span>
+            </label>
+            <select
+              name="location"
+              value={editFormData.location}
+              onChange={handleAssociationEditChange}
+              className="input input-bordered w-full mt-1 rounded-full"
+            >
+              <option value="">Select</option>
+              <option value="Pantok">Pantok</option>
+              <option value="Tatala">Tatala</option>
+              <option value="Tagpos">Tagpos</option>
+            </select>
+          </div>
+          <div className="w-1/2">
+            <label className="text-sm font-semibold">City, Province</label>
+            <input
+              disabled
+              value="Binangonan, Rizal"
+              className="input input-bordered w-full mt-1 bg-gray-100 rounded-full"
+            />
+          </div>
+        </div>
+
+        <div>
+          <label className="text-sm font-semibold">
+            President{" "}
+            <span className={validationErrors.president ? "text-red" : "text-gray"}>*</span>
+          </label>
+          <input
+            name="president"
+            value={editFormData.president}
+            onChange={handleAssociationEditChange}
+            className="input input-bordered w-full mt-1 rounded-full"
+          />
+        </div>
+
+        <div className="flex gap-2">
+          <div className="w-1/2">
+            <label className="text-sm font-semibold">
+              Area (has.){" "}
+              <span className={validationErrors.area ? "text-red" : "text-gray"}>*</span>
+            </label>
+            <input
+              name="area"
+              value={editFormData.area}
+              onChange={handleAssociationEditChange}
+              className="input input-bordered w-full mt-1 rounded-full"
+            />
+          </div>
+          <div className="w-1/2">
+            <label className="text-sm font-semibold">
+              No. of Members{" "}
+              <span className={validationErrors.members ? "text-red" : "text-gray"}>*</span>
+            </label>
+            <input
+              name="members"
+              value={editFormData.members}
+              onChange={handleAssociationEditChange}
+              className="input input-bordered w-full mt-1 rounded-full"
+            />
+          </div>
+        </div>
+      </div>
+
+      <div className="flex justify-between mt-6 gap-2">
+      <button
+            className="w-1/2 bg-red text-white font-semibold py-2 rounded-full"
+            onClick={() => {
+                setShowConfirmationModal(true);
+                setShowEditModal(false);
+            }}
+            >
+            Disregard
+            </button>
+
+        <button
+            className="w-1/2 bg-green-600 text-white font-semibold py-2 rounded-full"
+            onClick={() => {
+                handleEditConfirm();
+                setConfirmAction(true);
+            }}
+            >
+            Confirm
+            </button>
+
+            </div>
+            </div>
+        </div>
+        )}
+
+
+{showFarmerModal && (
+  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-30">
+    <div className="bg-white rounded-2xl w-[700px] max-w-full p-6 shadow-xl">
+      <div className="flex justify-between items-start mb-4">
+        <div>
+          <h2 className="text-xl font-bold">Pantok Farmers Association</h2>
+          <p className="text-sm text-gray-600">Here’s the farmers of this association.</p>
+        </div>
+        <button onClick={() => setShowFarmerModal(false)} className="text-xl font-bold">
+          &times;
+        </button>
+      </div>
+
+      {/* Search */}
+      <div className="relative mb-4">
+        <input
+          type="text"
+          placeholder="Search farmer name or code"
+          className="input input-bordered w-full pl-10 rounded-full h-10 text-sm"
+        />
+        <svg className="w-4 h-4 absolute left-4 top-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-4.35-4.35m0 0A7.5 7.5 0 103.5 3.5a7.5 7.5 0 0013.15 13.15z" />
+        </svg>
+      </div>
+
+      {/* Table */}
+      <div className="overflow-x-auto rounded-xl">
+        <table className="table w-full">
+          <thead className="text-left text-sm text-black bg-[#F4F4F4]">
+            <tr>
+              <th>Farmer Name</th>
+              <th>Code</th>
+              <th>Address</th>
+              <th>Date of Birth</th>
+            </tr>
+          </thead>
+          <tbody className="text-sm">
+            {[...Array(4)].map((_, idx) => (
+              <tr key={idx} className="border-b">
+                <td className="py-2">Juan Dela Cruz</td>
+                <td className="py-2">JDC192</td>
+                <td className="py-2">
+                  <div className="font-semibold">Masinag</div>
+                  <div className="text-gray-500 text-xs">Bulacan</div>
+                </td>
+                <td className="py-2">
+                  <div className="font-medium">20 Aug 1999</div>
+                  <div className="text-gray-500 text-xs">78 Years Old</div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      {/* Pagination */}
+      <div className="flex justify-center mt-4 gap-2 items-center">
+        <button className="px-2 py-1 rounded text-gray-400 cursor-not-allowed">{'<'}</button>
+        <button className="btn btn-sm hover:bg-[#D9D9D9] rounded">1</button>
+        <button className="w-8 h-8 text-gray-600 hover:bg-gray-100 rounded-lg">{'>'}</button>
+      </div>
+    </div>
+  </div>
+)}
+
+{isAddMemberModalOpen && (
+  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
+    <div className="bg-white rounded-2xl w-[450px] max-w-full p-6 shadow-xl">
+      <div className="flex justify-between items-start mb-4">
+        <div>
+          <h2 className="text-lg font-bold">Add Association</h2>
+          <p className="text-sm text-gray-600">Fill up the required fields.</p>
+        </div>
+        <button
+          onClick={() => setIsAddMemberModalOpen(false)}
+          className="text-xl font-bold text-gray-500 hover:text-black"
+        >
+          &times;
+        </button>
+      </div>
+      <div className="border-b border-gray-300 my-4"></div>
+
+      <div className="flex items-center gap-4 mb-4">
+        <img
+            src={Pantok}
+            alt="Pantok.png"
+            className="w-16 h-16 rounded-full object-cover"
+        />
+        <div>
+            <h3 className="font-bold text-lg">Association Name</h3>
+            <p className="text-sm text-gray-600">Farm Location</p>
+        </div>
+        </div>
+
+
+      <div className="space-y-3">
+        <div>
+          <label className="text-sm font-semibold">Association Name <span className="text-red">*</span></label>
+          <input type="text" placeholder="Please Enter Association Name" className="input input-bordered w-full rounded-full h-10 text-sm" />
+        </div>
+
+        <div className="flex gap-2">
+          <div className="w-1/2">
+            <label className="text-sm font-semibold">Farm Location <span className="text-red">*</span></label>
+            <select className="input input-bordered w-full rounded-full h-10 text-sm">
+              <option>Select Farm Location</option>
+              <option value="">Select</option>
+              <option value="Pantok">Pantok</option>
+              <option value="Tatala">Tatala</option>
+              <option value="Tagpos">Tagpos</option>
+            </select>
+          </div>
+          <div className="w-1/2">
+            <label className="text-sm font-semibold">City, Province</label>
+            <input
+  type="text"
+  placeholder="Binangonan, Rizal"
+  className="input input-bordered w-full rounded-full h-10 text-sm bg-gray-100"
+  value="Binangonan, Rizal"
+  readOnly
+/>
+          </div>
+        </div>
+
+        <div>
+          <label className="text-sm font-semibold">President <span className="text-red">*</span></label>
+          <input
+  type="text"
+  placeholder="Enter the President Name"
+  className="input input-bordered w-full rounded-full h-10 text-sm"
+  value={newMember.president}
+  onChange={(e) => setNewMember({ ...newMember, president: e.target.value })}
+/>
+        </div>
+
+        <div className="flex gap-2">
+          <div className="w-1/2">
+            <label className="text-sm font-semibold">Area (has.)</label>
+            <input
+  type="text"
+  placeholder="Enter the Area"
+  className="input input-bordered w-full rounded-full h-10 text-sm"
+  value={newMember.area}
+  onChange={(e) => setNewMember({ ...newMember, area: e.target.value })}
+/>
+          </div>
+          <div className="w-1/2">
+            <label className="text-sm font-semibold">No. of Members <span className="text-red">*</span></label>
+            <input
+  type="number"
+  placeholder="Enter the Quantity"
+  className="input input-bordered w-full rounded-full h-10 text-sm"
+  value={newMember.members}
+  onChange={(e) => setNewMember({ ...newMember, members: e.target.value })}
+/>
+          </div>
+        </div>
+      </div>
+
+      <div className="mt-6 flex justify-between gap-2">
+      <button
+            className="w-1/2 bg-red text-white py-2 rounded-full font-semibold hover:bg-red-700"
+            onClick={() => {
+                setShowConfirmationModal(true);
+                setIsAddMemberModalOpen(false);
+            }}
+              
+            >
+          Disregard
+        </button>
+        <button
+            className="w-1/2 bg-green-600 text-white py-2 rounded-full font-semibold hover:bg-green-700"
+            onClick={() => {
+                const newEntry = {
+                  id: Date.now(),
+                  ...newMember,
+                };
+                setMembers(prev => [...prev, newEntry]);
+                setNewMember({ name: '', location: '', president: '', area: '', members: '', image: Pantok });
+                setIsAddMemberModalOpen(false);
+                setShowSuccessModal(true);
+              }}
+            >
+            Confirm
+            </button>
+
+      </div>
+    </div>
+  </div>
+)}
+
+      
+      </>
         )}
   
   
   {isDeleteModalOpe && (
-            <div className="fixed inset-0 z-50 bg-black bg-opacity-40 flex items-center justify-center">
-              <div className="bg-white rounded-3xl p-6 w-[400px] border border-black shadow-lg relative text-center">
-                <button
-                  onClick={() => setIsDeleteModalOpe(false)}
-                  className="absolute top-2 right-3 text-gray-400 hover:text-black"
-                >
-                  &times;
-                </button>
-              
-                <div className="mb-4 flex justify-center items-center">
-                      <img src={Disregard} alt="Disregard.png" className="w-[80px] max-w-full object-contain" />
-                    </div>
-                  <h2 className="text-2xl text-center font-bold mb-2">Confirm Deletion?</h2>
-                  <p className="text-sm text-center text-gray-600">
-                    The selected equipment will be permanently removed from your records.
-                  </p>
-                  
-                  <div className="flex justify-center gap-3 mt-6">
-                    <button
-                      onClick={() => setIsDeleteModalOpe(false)}
-                      className="px-7 py-2 bg-white text-[#E02A3B] border border-[#E02A3B] rounded-full hover:bg-[#E02A3B] hover:text-white text-sm font-medium"
-                      style={{ width: "130px", height: "39px" }}
-                    >
-                      Cancel
-                    </button>
-                    <button
-                      onClick={() => {
-                        // TODO: Add deletion logic here
-                        setIsDeleteModalOpe(false);
-                      }}
-                      className="px-4 py-2 rounded-3xl bg-[#FF3B4E] text-white hover:bg-[#E02A3B] text-sm"
-                      style={{ width: "130px", height: "39px" }}
-                    >
-                      Delete
-                    </button>
-                  </div>
-                
-              </div>
-            </div>
-          )}
+  <div className="fixed inset-0 z-50 bg-black bg-opacity-40 flex items-center justify-center">
+    <div className="bg-white rounded-3xl p-6 w-[400px] border border-black shadow-lg relative text-center">
+      <button
+        onClick={() => setIsDeleteModalOpe(false)}
+        className="absolute top-2 right-3 text-gray-400 hover:text-black"
+      >
+        &times;
+      </button>
+
+      <div className="mb-4 flex justify-center items-center">
+        <img src={Disregard} alt="Disregard.png" className="w-[80px] max-w-full object-contain" />
+      </div>
+
+      <h2 className="text-2xl text-center font-bold mb-2">Confirm Deletion?</h2>
+      <p className="text-sm text-center text-gray-600">
+        The selected association will be permanently removed from your records.
+      </p>
+
+      <div className="flex justify-center gap-3 mt-6">
+        <button
+          onClick={() => setIsDeleteModalOpe(false)}
+          className="px-7 py-2 bg-white text-[#E02A3B] border border-[#E02A3B] rounded-full hover:bg-[#E02A3B] hover:text-white text-sm font-medium"
+          style={{ width: "130px", height: "39px" }}
+        >
+          Cancel
+        </button>
+        <button
+          onClick={() => {
+            if (memberToDelete) {
+              setFilteredMembers(prev => prev.filter(member => member.id !== memberToDelete));
+              setSelectedMembers(prev => prev.filter(id => id !== memberToDelete));
+            }
+            setIsDeleteModalOpe(false);
+            setMemberToDelete(null);
+          }}
+          className="px-4 py-2 rounded-3xl bg-[#FF3B4E] text-white hover:bg-[#E02A3B] text-sm"
+          style={{ width: "130px", height: "39px" }}
+        >
+          Delete
+        </button>
+      </div>
+    </div>
+  </div>
+)}
+
   
-  
-  
-        {/* Success Modal */}
-        {successModalOpen && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-            <div
-              className="bg-white dark:bg-gray-800 p-6 w-[90%] max-w-sm relative rounded-[25px] border border-black"
-            >
-              <button
-                onClick={() => setConfirmAction('discardChanges')}
-                className="absolute top-4 right-4 text-gray-500 hover:text-gray-700"
-                aria-label="Close success modal"
-              >
-                ✖
-              </button>
-  
-              <div className="mb-6 text-center">
-                <div className="mb-4">
-                  <img src={Member} alt="Member" />
-                </div>
-                
-              </div>
-  
-              <div className="flex justify-center gap-4">
-                <button
-                  onClick={() => {
-                    setSuccessModalOpen(false);
-                    setIsAddMemberModalOpen(true);
-                    setAddMemberForm(prev => ({ ...prev, step: 2 }));
-                  }}
-                  className="px-10 py-2 bg-white text-[#4CAE4F] border border-[#4CAE4F] rounded-full hover:bg-[#4CAE4F] hover:text-white font-bold"
-                >
-                  Back
-                </button>
-                <button
-                  onClick={() => {
-                    setSuccessModalOpen(false);
-                    setIsAddMemberModalOpen(false);
-                    setAddMemberForm({
-                      step: 1,
-                      emailOrPhone: '',
-                      password: '',
-                      confirmPassword: '',
-                      firstName: '',
-                      lastName: '',
-                      address: '',
-                      barangay: '',
-                      purok: '',
-                      street: '',
-                    });
-                  }}
-                  className="px-10 py-2 bg-[#4CAE4F] text-white rounded-full hover:bg-green-600 font-bold"
-                >
-                  Done
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
-  
+
         {/* Edit Member Modal */}
         {editingMember && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
@@ -905,10 +1245,7 @@ const currentMembersInitial = [
   
               <hr className="mb-4" />
 
-              <AssociationModals
               
-              
-              />
   
               {/* Edit Member Modal */}
               <div className="space-y-1 ">
@@ -963,6 +1300,47 @@ const currentMembersInitial = [
             </div>
           </div>
         )}
+
+        {/* Success Modal */}
+       {showSuccessModal && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-30 z-50">
+          <div className="bg-white p-8 w-[500px] h-[300px] rounded-2xl shadow-md w-96 text-center relative border border-black">
+            <button
+              className="absolute top-4 right-4 text-gray-400 hover:text-black"
+              onClick={() => setShowSuccessModal(false)}
+            >
+              &times;
+            </button>
+            <div className="mb-4 flex justify-center items-center">
+              <img
+                src={Success}
+                alt="Success.png"
+                className="w-[80px] max-w-full object-contain"
+              />
+            </div>
+            <h2 className="text-3xl font-bold mb-2">Member added successfully!</h2>
+            <p className="text-sm text-gray-600 mb-6">
+              Everything’s set. Feel free to check the member!
+            </p>
+            <div className="flex justify-center gap-4 p-6">
+              <button
+                className="px-4 py-2 bg-white text-[#4CAE4F] border border-[#4CAE4F] rounded-full hover:bg-[#4CAE4F] hover:text-white text-sm font-medium"
+                style={{ width: "130px", height: "39px" }}
+                onClick={() => setShowSuccessModal(false)}
+              >
+                Back
+              </button>
+              <button
+                className="px-4 py-2 rounded-3xl bg-[#4CAE4F] text-white hover:bg-green-600 text-sm"
+                style={{ width: "130px", height: "39px" }}
+                onClick={() => setShowSuccessModal(false)}
+              >
+                Done
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
   
         {/* Confirmation Modal */}
         {confirmAction && (
@@ -1029,12 +1407,16 @@ const currentMembersInitial = [
                   Cancel
                 </button>
                 <button
-                  onClick={() => setShowConfirmationModal(false)}
-                  className="px-7 py-2 bg-white text-[#E02A3B] border border-[#E02A3B] rounded-full hover:bg-[#E02A3B] hover:text-white text-sm font-medium"
-                  style={{ width: "130px", height: "39px" }}
+                onClick={() => {
+                    setShowConfirmationModal(false);
+                    setShowEditModal(false);
+                }}
+                className="px-7 py-2 bg-white text-[#E02A3B] border border-[#E02A3B] rounded-full hover:bg-[#E02A3B] hover:text-white text-sm font-medium"
+                style={{ width: "130px", height: "39px" }}
                 >
-                  Disregard
+                Disregard
                 </button>
+
               </div>
             </div>
           </div>
