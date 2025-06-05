@@ -125,7 +125,7 @@ const RentSchedule = ({
               <td className="px-3 py-3">{row.area}</td>
               <td className="px-3 py-3">{row.operator}</td>
               <td className="px-3 py-3">
-  <div className="flex justify-center items-center gap-3">
+  <div className="flex justify-left items-center gap-3">
     <div className="group">
       <div
         className="flex items-center w-[20px] group-hover:w-[80px] transition-all duration-200 overflow-hidden cursor-pointer"

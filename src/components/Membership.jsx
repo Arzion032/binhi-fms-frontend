@@ -746,7 +746,7 @@ export default function MemberTabs() {
     <div className="flex items-center gap-1">
       <button className="btn btn-sm hover:bg-[#D9D9D9] rounded">«</button>
 
-      {[1, 2, 3, 4, 5].map((page) => (
+      {[1].map((page) => (
         <button
           key={page}
           className={`btn btn-sm ${
@@ -1745,7 +1745,7 @@ export default function MemberTabs() {
     <div className="flex items-center gap-1">
       <button className="btn btn-sm hover:bg-[#D9D9D9] rounded">«</button>
 
-      {[1, 2, 3, 4, 5].map((page) => (
+      {[1].map((page) => (
         <button
           key={page}
           className={`btn btn-sm ${

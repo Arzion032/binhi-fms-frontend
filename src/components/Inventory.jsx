@@ -428,7 +428,7 @@ export default function EquipmentPage() {
     <th className="w-[15%]">Model</th>
     <th className="w-[15%]">Rental Price</th>
     <th className="w-[15%]">Status</th>
-    <th className="w-[30%]">Actions</th>
+    <th className="w-[30%] text-center">Actions</th>
   </tr>
 </thead>
 <tbody>
@@ -894,9 +894,10 @@ export default function EquipmentPage() {
 
         {activeTab === "rentHistory" && (
           <>
-            <div className="bg-[#F9FCF7] min-h-screen flex justify-center px-4">
+            <div className="bg-[#F9FCF7] min-h-screen flex justify-center px-">
+
               <div className="w-full">
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 gap-4">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 gap-4">
                   {/* Left side: All Requests */}
                   <div className="flex items-center">
                                 <img
