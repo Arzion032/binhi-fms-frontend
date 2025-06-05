@@ -682,38 +682,38 @@ const currentMembersInitial = [
               <div className="font-medium">{member.members}</div>
             </td>
   
-            <td>
-            <div className="flex justify-center items-center gap-3">
+            <td className="p-4">
+  <div className="flex justify-center items-center gap-3">
+    {/* Group wrapper must be on the parent for hover to affect children */}
+    <div className="group relative flex items-center justify-center w-5 h-5">
+      {/* Details icon that moves on group hover */}
+      <div
+        onClick={() => {
+          setSelectedAssociation(member);
+          setShowDetailAssociationModal(true);
+        }}
+        className="transition-transform duration-300 ease-in-out group-hover:-translate-x-9 cursor-pointer"
+      >
+        <img src={Details} alt="Details" className="w-4 h-4" />
+        <span className="absolute left-3 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 group-hover:translate-x-2 transition-all duration-300 ease-in-out text-blue text-sm font-medium whitespace-nowrap">
+        Details
+      </span>
+      </div>
+    </div>
 
-              {/* Details */}
-                 <div 
-                   onClick={() => {
-                    setSelectedAssociation(member);
-                    setShowDetailAssociationModal(true);
-                  }}
-                  
-                  className="cursor-pointer group flex items-left justify-left transition-all duration-200 ease-in-out"
-                >
-                  <div className="flex items-left w-[20px] group-hover:w-[80px] transition-all duration-200 overflow-hidden">
-                    <img src={Details} alt="Details" className="w-4 h-4 mr-1" />
-                    <span className="opacity-0 group-hover:opacity-100 text-blue text-sm font-medium transition-opacity duration-200 whitespace-nowrap">
-                      Details
-                    </span>
-                  </div>
-                </div>
+    {/* Delete icon stays still */}
+    <span
+      className="w-4 h-4 cursor-pointer hover:brightness-110 inline-block"
+      onClick={() => {
+        setMemberToDelete(member.id);
+        setIsDeleteModalOpe(true);
+      }}
+    >
+      <img src={edtIcon} alt="Trash" className="w-4 h-4" />
+    </span>
+  </div>
+</td>
 
-              {/* Delete */}
-              <span
-                className="w-4 h-4 cursor-pointer hover:brightness-110 inline-block"
-                onClick={() => {
-                    setMemberToDelete(member.id);
-                    setIsDeleteModalOpe(true);
-                  }}
-              >
-                <img src={edtIcon} alt="Trash" className="w-4 h-4" />
-              </span>
-            </div>
-          </td>
           </tr>
         ))}
         {filteredMembers.length === 0 && (
