@@ -50,12 +50,12 @@ export default function Financial() {
 
   // ─── HISTORY DATA & HANDLERS ────────────────────────────────────────────────
   const [transactions, setTransactions] = useState([
-    { name: 'Kaye Lagablab', email: 'juandcruz@gmail.com', avatar: '/Screenshot_195.png', type: 'Income', source: 'Marketplace', category: '-', amount: '12,999', date: 'Apr 17, 2025', relativeDate: '5 days ago' },
-    { name: 'Carlo Imnida',   email: 'juandcruz@gmail.com', avatar: '/Screenshot_195.png', type: 'Expense', source: '-', category: 'Farm Supply', amount: '5,400', date: 'Apr 16, 2025', relativeDate: '6 days ago' },
-    { name: 'Yna Boomboom',   email: 'juandcruz@gmail.com', avatar: '/Screenshot_195.png', type: 'Expense', source: '-', category: 'Farm Supply', amount: '7,000', date: 'Apr 15, 2025', relativeDate: '7 days ago' },
-    { name: 'Fred Ko Pal',    email: 'juandcruz@gmail.com', avatar: '/Screenshot_195.png', type: 'Expense', source: '-', category: 'Farm Supply', amount: '1,500', date: 'Apr 14, 2025', relativeDate: '8 days ago' },
-    { name: 'Ry Ban Tot',     email: 'juandcruz@gmail.com', avatar: '/Screenshot_195.png', type: 'Income', source: 'Marketplace', category: '-', amount: '2,500', date: 'Apr 13, 2025', relativeDate: '9 days ago' },
-    { name: 'Nisi B. Ding',   email: 'juandcruz@gmail.com', avatar: '/Screenshot_195.png', type: 'Income', source: 'Marketplace', category: '-', amount: '999',   date: 'Apr 12, 2025', relativeDate: '10 days ago' }
+    { name: 'Kaye Arroyo', email: 'juandcruz@gmail.com', avatar: '/sampleproduct.png', type: 'Income', source: 'Marketplace', category: 'Hunos', amount: '12,999', date: 'Apr 17, 2025', relativeDate: '5 days ago' },
+    { name: 'Carlo Bascuna',   email: 'juandcruz@gmail.com', avatar: '/sampleproduct.png', type: 'Expense', source: '-', category: 'Hunos', amount: '5,400', date: 'Apr 16, 2025', relativeDate: '6 days ago' },
+    { name: 'Yna Mae Nieves',   email: 'juandcruz@gmail.com', avatar: '/sampleproduct.png', type: 'Expense', source: '-', category: 'Hunos', amount: '7,000', date: 'Apr 15, 2025', relativeDate: '7 days ago' },
+    { name: 'Tanggol Montenegro',    email: 'juandcruz@gmail.com', avatar: '/sampleproduct.png', type: 'Expense', source: '-', category: 'Hunos', amount: '1,500', date: 'Apr 14, 2025', relativeDate: '8 days ago' },
+    { name: 'Aldrin Gueverra',     email: 'juandcruz@gmail.com', avatar: '/sampleproduct.png', type: 'Income', source: 'Marketplace', category: 'Hunos', amount: '2,500', date: 'Apr 13, 2025', relativeDate: '9 days ago' },
+    { name: 'Nisi Viloria',   email: 'juandcruz@gmail.com', avatar: '/sampleproduct.png', type: 'Income', source: 'Marketplace', category: 'Hunos', amount: '999',   date: 'Apr 12, 2025', relativeDate: '10 days ago' }
   ]);
   const itemsPerPage = 5;
   const [currentPage, setCurrentPage] = useState(1);
@@ -559,10 +559,9 @@ export default function Financial() {
                     }} />
                   </th>
                   <th>User Name</th>
-                  <th>Role</th>
                   <th>Type</th>
                   <th>Source</th>
-                  <th>Category</th>
+                  <th>Payment Method</th>
                   <th>Amount</th>
                   <th>Date Added</th>
                 </tr>
@@ -590,18 +589,6 @@ export default function Financial() {
                       </div>
                     </td>
                     <td>
-                      <span className="px-4 py-1 rounded-full text-xs font-medium" style={{
-                        color: '#0066FF',
-                        border: '2px solid #0066FF',
-                        backgroundColor: '#E0F0FF',
-                        display: 'inline-block',
-                        minWidth: '80px',
-                        textAlign: 'center'
-                      }}>
-                        Member
-                      </span>
-                    </td>
-                    <td>
                       <span className="px-3 py-1 rounded-full text-xs font-medium" style={{
                         color: item.type === 'Income' ? '#15803d' : '#dc2626',
                         backgroundColor: item.type === 'Income' ? '#d1fae5' : '#fee2e2',
@@ -613,7 +600,7 @@ export default function Financial() {
                     </td>
                     <td>{item.source}</td>
                     <td>{item.category}</td>
-                    <td className="font-medium text-right">₱{item.amount}</td>
+                    <td className="font-medium text-left">₱{item.amount}</td>
                     <td>
                       <div>{item.date}</div>
                       <div className="text-xs text-gray-500">{item.relativeDate}</div>

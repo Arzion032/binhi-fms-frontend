@@ -66,7 +66,7 @@ export default function OrderManagementModal({
         {/* Product */}
         <div className="flex items-center gap-4 mb-7">
           <img
-            src={order.product.image || order.product.avatar || "/Screenshot_195.png"}
+            src={order.product.image || order.product.avatar || "/sampleproduct.png"}
             alt={order.product.name}
             className="rounded-full"
             style={{ width: 65, height: 65, objectFit: "cover" }}

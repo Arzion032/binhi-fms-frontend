@@ -7,13 +7,13 @@ import {
 import OrderHistoryModal from "./OrderHistoryModal";
 
 const CUSTOMER_DATA = [
-  { id: 1, name: "Juan Dela Cruz", email: "juandcruz@gmail.com", address: "Masinag", province: "Bulacan", birthdate: "20 Aug 1999", age: 78, avatar: "/Screenshot_195.png", contact: "(+63) 948 122 9142" },
-  { id: 2, name: "Maria Reyes", email: "mariareyes@gmail.com", address: "Poblacion", province: "Bulacan", birthdate: "15 Feb 1987", age: 37, avatar: "/Screenshot_195.png", contact: "(+63) 912 345 6789" },
-  { id: 3, name: "Pedro Santos", email: "pedrosantos@gmail.com", address: "San Roque", province: "Bulacan", birthdate: "04 Nov 1965", age: 58, avatar: "/Screenshot_195.png", contact: "(+63) 999 888 7777" },
-  { id: 4, name: "Anna Flores", email: "annaflores@gmail.com", address: "Sta. Maria", province: "Bulacan", birthdate: "30 Sep 1973", age: 50, avatar: "/Screenshot_195.png", contact: "(+63) 922 222 4444" },
-  { id: 5, name: "Josefa Diaz", email: "josefadiaz@gmail.com", address: "Muzon", province: "Bulacan", birthdate: "12 May 1980", age: 44, avatar: "/Screenshot_195.png", contact: "(+63) 901 222 3333" },
-  { id: 6, name: "Enrique Villanueva", email: "enriquevillanueva@gmail.com", address: "Marilao", province: "Bulacan", birthdate: "10 Dec 1958", age: 65, avatar: "/Screenshot_195.png", contact: "(+63) 977 123 4567" },
-  { id: 7, name: "Paula Martinez", email: "paulamartinez@gmail.com", address: "San Jose", province: "Bulacan", birthdate: "03 Mar 1970", age: 54, avatar: "/Screenshot_195.png", contact: "(+63) 934 567 8910" },
+  { id: 1, name: "Juan Dela Cruz", email: "juandcruz@gmail.com", address: "Masinag", province: "Bulacan", birthdate: "20 Aug 1999", age: 78, avatar: "/sampleproduct.png", contact: "(+63) 948 122 9142" },
+  { id: 2, name: "Maria Reyes", email: "mariareyes@gmail.com", address: "Poblacion", province: "Bulacan", birthdate: "15 Feb 1987", age: 37, avatar: "/sampleproduct.png", contact: "(+63) 912 345 6789" },
+  { id: 3, name: "Pedro Santos", email: "pedrosantos@gmail.com", address: "San Roque", province: "Bulacan", birthdate: "04 Nov 1965", age: 58, avatar: "/sampleproduct.png", contact: "(+63) 999 888 7777" },
+  { id: 4, name: "Anna Flores", email: "annaflores@gmail.com", address: "Sta. Maria", province: "Bulacan", birthdate: "30 Sep 1973", age: 50, avatar: "/sampleproduct.png", contact: "(+63) 922 222 4444" },
+  { id: 5, name: "Josefa Diaz", email: "josefadiaz@gmail.com", address: "Muzon", province: "Bulacan", birthdate: "12 May 1980", age: 44, avatar: "/sampleproduct.png", contact: "(+63) 901 222 3333" },
+  { id: 6, name: "Enrique Villanueva", email: "enriquevillanueva@gmail.com", address: "Marilao", province: "Bulacan", birthdate: "10 Dec 1958", age: 65, avatar: "/sampleproduct.png", contact: "(+63) 977 123 4567" },
+  { id: 7, name: "Paula Martinez", email: "paulamartinez@gmail.com", address: "San Jose", province: "Bulacan", birthdate: "03 Mar 1970", age: 54, avatar: "/sampleproduct.png", contact: "(+63) 934 567 8910" },
 ];
 
 const SAMPLE_ORDERS = [

@@ -42,21 +42,21 @@ function generateFarmerCode(name = "Juan D Cruz") {
 
 // Use the same products as in ProductManagement.jsx, but only status "Pending"
 const RAW_PRODUCTS = [
-  { id: 3, name: "Sticky Glutinous Rice", variation: "Sticky", avatar: "/Screenshot_195.png", price: 4800, category: "Grains", stock: 60, status: "Pending" },
-  { id: 11, name: "Sorghum", variation: "Grain", avatar: "/Screenshot_195.png", price: 4200, category: "Grains", stock: 40, status: "Pending" },
-  { id: 19, name: "Spinach", variation: "Green", avatar: "/Screenshot_195.png", price: 800, category: "Vegetable", stock: 50, status: "Pending" },
-  { id: 7, name: "Black Rice Special", variation: "Black", avatar: "/Screenshot_195.png", price: 6000, category: "Grains", stock: 30, status: "Pending" },
-  { id: 15, name: "Bitter Gourd", variation: "Small", avatar: "/Screenshot_195.png", price: 350, category: "Vegetable", stock: 40, status: "Pending" },
-  { id: 49, name: "Beef Sirloin", variation: "Slice", avatar: "/Screenshot_195.png", price: 40000, category: "Meats", stock: 50, status: "Pending" },
-  { id: 53, name: "Goat Meat", variation: "Cubes", avatar: "/Screenshot_195.png", price: 45000, category: "Meats", stock: 20, status: "Pending" },
-  { id: 43, name: "Powdered Milk", variation: "Instant", avatar: "/Screenshot_195.png", price: 9500, category: "Milks & Dairy", stock: 70, status: "Pending" },
-  { id: 28, name: "Ube", variation: "Purple", avatar: "/Screenshot_195.png", price: 1200, category: "Root Crops", stock: 40, status: "Pending" },
-  { id: 33, name: "Carrot Root", variation: "Orange", avatar: "/Screenshot_195.png", price: 900, category: "Root Crops", stock: 60, status: "Pending" },
-  { id: 39, name: "Cheddar Cheese", variation: "Block", avatar: "/Screenshot_195.png", price: 20000, category: "Milks & Dairy", stock: 40, status: "Pending" },
-  { id: 72, name: "Galunggong", variation: "Round Scad", avatar: "/Screenshot_195.png", price: 1700, category: "Fish", stock: 70, status: "Pending" },
-  { id: 60, name: "Red Watermelon", variation: "Seedless", avatar: "/Screenshot_195.png", price: 3000, category: "Fruits", stock: 60, status: "Pending" },
-  { id: 78, name: "Salmon", variation: "Slice", avatar: "/Screenshot_195.png", price: 6800, category: "Fish", stock: 35, status: "Pending" },
-  { id: 65, name: "Rambutan", variation: "Red", avatar: "/Screenshot_195.png", price: 5000, category: "Fruits", stock: 25, status: "Pending" },
+  { id: 3, name: "Sticky Glutinous Rice", variation: "Sticky", avatar: "/sampleproduct.png", price: 4800, category: "Grains", stock: 60, status: "Pending" },
+  { id: 11, name: "Sorghum", variation: "Grain", avatar: "/sampleproduct.png", price: 4200, category: "Grains", stock: 40, status: "Pending" },
+  { id: 19, name: "Spinach", variation: "Green", avatar: "/sampleproduct.png", price: 800, category: "Vegetable", stock: 50, status: "Pending" },
+  { id: 7, name: "Black Rice Special", variation: "Black", avatar: "/sampleproduct.png", price: 6000, category: "Grains", stock: 30, status: "Pending" },
+  { id: 15, name: "Bitter Gourd", variation: "Small", avatar: "/sampleproduct.png", price: 350, category: "Vegetable", stock: 40, status: "Pending" },
+  { id: 49, name: "Beef Sirloin", variation: "Slice", avatar: "/sampleproduct.png", price: 40000, category: "Meats", stock: 50, status: "Pending" },
+  { id: 53, name: "Goat Meat", variation: "Cubes", avatar: "/sampleproduct.png", price: 45000, category: "Meats", stock: 20, status: "Pending" },
+  { id: 43, name: "Powdered Milk", variation: "Instant", avatar: "/sampleproduct.png", price: 9500, category: "Milks & Dairy", stock: 70, status: "Pending" },
+  { id: 28, name: "Ube", variation: "Purple", avatar: "/sampleproduct.png", price: 1200, category: "Root Crops", stock: 40, status: "Pending" },
+  { id: 33, name: "Carrot Root", variation: "Orange", avatar: "/sampleproduct.png", price: 900, category: "Root Crops", stock: 60, status: "Pending" },
+  { id: 39, name: "Cheddar Cheese", variation: "Block", avatar: "/sampleproduct.png", price: 20000, category: "Milks & Dairy", stock: 40, status: "Pending" },
+  { id: 72, name: "Galunggong", variation: "Round Scad", avatar: "/sampleproduct.png", price: 1700, category: "Fish", stock: 70, status: "Pending" },
+  { id: 60, name: "Red Watermelon", variation: "Seedless", avatar: "/sampleproduct.png", price: 3000, category: "Fruits", stock: 60, status: "Pending" },
+  { id: 78, name: "Salmon", variation: "Slice", avatar: "/sampleproduct.png", price: 6800, category: "Fish", stock: 35, status: "Pending" },
+  { id: 65, name: "Rambutan", variation: "Red", avatar: "/sampleproduct.png", price: 5000, category: "Fruits", stock: 25, status: "Pending" },
 ];
 
 const DRAFT_PRODUCTS = RAW_PRODUCTS.map((item) => {
