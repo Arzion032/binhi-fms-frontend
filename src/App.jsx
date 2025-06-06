@@ -25,13 +25,13 @@ function App() {
         <Route path="/membership" element={<Layout><Membership/></Layout>} />
         <Route path="/document" element={<Layout><Document/></Layout>} />
         <Route path="/marketplace" element={<Layout><Marketplace/></Layout>} />
-        <Route path="/inventory" element={<Layout><Inventory/></Layout>} />
+        <Route path="/machinery" element={<Layout><Inventory/></Layout>} />
         <Route path="/signup" element={<SignUp/>} />
         <Route path="/verification" element={<NextStep />} />
         <Route path="/password" element={<SetPassword />} />
         <Route path="/setup" element={<SetUp />} />
-        <Route path="/Association" element={<LayoutAdmin><Association /></LayoutAdmin>} />
-        <Route path="/Machinery" element={<LayoutAdmin><Machinery /></LayoutAdmin>} />
+        <Route path="/AdminAssociation" element={<LayoutAdmin><Association /></LayoutAdmin>} />
+        <Route path="/AdminMachinery" element={<LayoutAdmin><Machinery /></LayoutAdmin>} />
       </Routes>
     </Router>
     </div>

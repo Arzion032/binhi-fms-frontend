@@ -70,7 +70,7 @@ const Sidebar = () => {
         <li>
           <details className="group [&_summary::-webkit-details-marker]:hidden">
             <summary className="flex cursor-pointer items-center justify-between rounded-lg px-3 py-1.5 text-gray-500 hover:bg-gray-100 hover:text-gray-700">
-              <Link to="/Association" className="flex items-center space-x-2">
+              <Link to="/AdminAssociation" className="flex items-center space-x-2">
               <img src={Membership} alt="Membership" className="w-5 h-5" />
               <span className="text-sm font-Inter font-bold">Association</span>
               </Link>
@@ -95,15 +95,7 @@ const Sidebar = () => {
                   href="#"
                   className="block rounded-lg px-3 py-1.5 text-sm font-medium text-gray-500 hover:bg-gray-100 hover:text-gray-700"
                 >
-                  Members List
-                </a>
-              </li>
-              <li>
-                <a
-                  href="#"
-                  className="block rounded-lg px-3 py-1.5 text-sm font-medium text-gray-500 hover:bg-gray-100 hover:text-gray-700"
-                >
-                  Add Member
+                  Current Members
                 </a>
               </li>
             </ul>
@@ -114,10 +106,10 @@ const Sidebar = () => {
         <li>
           <details className="group [&_summary::-webkit-details-marker]:hidden">
             <summary className="flex cursor-pointer items-center justify-between rounded-lg px-3 py-1.5 text-gray-500 hover:bg-gray-100 hover:text-gray-700">
-              <Link to="/financial" className="flex items-center space-x-2">
+              <span className="flex items-center space-x-2">
               <img src={Financial} alt="Financial" className="w-5 h-5" />
                 <span className="text-sm font-Inter font-bold">Financial</span>
-              </Link>
+              </span>
               <span className="shrink-0 transition duration-300 group-open:-rotate-180">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -158,7 +150,7 @@ const Sidebar = () => {
         <li>
           <details className="group [&_summary::-webkit-details-marker]:hidden">
             <summary className="flex cursor-pointer items-center justify-between rounded-lg px-3 py-1.5 text-gray-500 hover:bg-gray-100 hover:text-gray-700">
-            <Link to="/Machinery" className="flex items-center space-x-2">
+            <Link to="/AdminMachinery" className="flex items-center space-x-2">
               <img src={Inventory} alt="Inventory" className="w-5 h-5" />
                 <span className="text-sm font-Inter font-bold">Machineries</span>
               </Link>
@@ -183,7 +175,7 @@ const Sidebar = () => {
                   href="#"
                   className="block rounded-lg px-3 py-1.5 text-sm font-medium text-gray-500 hover:bg-gray-100 hover:text-gray-700"
                 >
-                  Stock Management
+                  Machineries
                 </a>
               </li>
               <li>
@@ -191,7 +183,7 @@ const Sidebar = () => {
                   href="#"
                   className="block rounded-lg px-3 py-1.5 text-sm font-medium text-gray-500 hover:bg-gray-100 hover:text-gray-700"
                 >
-                  Stock Alerts
+                  Rent Schedule
                 </a>
               </li>
             </ul>
@@ -253,10 +245,10 @@ const Sidebar = () => {
         <li>
           <details className="group [&_summary::-webkit-details-marker]:hidden">
             <summary className="flex cursor-pointer items-center justify-between rounded-lg px-3 py-1.5 text-gray-500 hover:bg-gray-100 hover:text-gray-700">
-              <Link to="/marketplace" className="flex items-center space-x-2">
+              <span className="flex items-center space-x-2">
               <img src={Products} alt="Products" className="w-5 h-5" />
                 <span className="text-sm font-Inter font-bold">Products</span>
-              </Link>
+              </span>
               <span className="shrink-0 transition duration-300 group-open:-rotate-180">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"

@@ -492,14 +492,42 @@ export default function MemberTabs() {
         <>
           <div className="flex items-center justify-between w-full mb-4">
             {/* Left Side */}
-            <div className="flex items-center">
-              <img
-                src={loop}
-                alt="loop"
-                className="ml-5 mr-5 w-[20px] max-w-full object-contain"
-              />
-              <span className="text-[15.5px] text-lg font-semibold mr-2">All Members</span>
-            </div>
+      <div className="flex items-center">
+        {!showFilters && (
+          <img
+            src={loop}
+            alt="loop"
+            className="ml-5 mr-5 w-[20px] max-w-full object-contain"
+          />
+        )}
+        {!showFilters ? (
+          <div className="flex items-center">
+            <span className="text-[15.5px] text-lg font-semibold mr-2">All Members</span>
+            <span className="text-gray-400 font-normal text-xs">4</span>
+          </div>
+        ) : (
+          <div className="flex items-center space-x-1 border rounded-l-3xl rounded-r-3xl px-3 py-1 cursor-pointer bg-white border border-[#858585] h-[35px]">
+            <SlidersHorizontal className="w-4 h-4 text-[#3b82f6]" />
+            <span className="mr-2 p-2 text-sm text-[#3b82f6] font-medium">Active Filters</span>
+            <select
+              value={selectedRole}
+              onChange={(e) => setSelectedRole(e.target.value)}
+              className="border border-[#858585] h-[35px] text-sm bg-white text-[#858585] pl-2 pr-6"
+            >
+              <option value="">Role</option>
+              <option value="admin">Farmer</option>
+              <option value="member">Member</option>
+            </select>
+            <button
+              onClick={clearFilters}
+              className="flex items-center space-x-1 rounded-r-3xl px-3 py-1 text-sm border-[#858585] h-[35px] text-[#858585]"
+            >
+              <X className="w-4 h-4 text-[#858585]" />
+              <span>Clear</span>
+            </button>
+          </div>
+        )}
+      </div>
             
             {/* Right Side */}
             <div className="flex items-center space-x-4">
@@ -518,48 +546,26 @@ export default function MemberTabs() {
         </button>
       </div>
 
+      {/* Add Member Button */}
+      <button
+          onClick={() => {
+            setIsAddMemberModalOpen(true);
+            setAddMemberForm({ step: 1, emailOrPhone: '', password: '', confirmPassword: '', firstName: '', lastName: '', address: '', barangay: '', purok: '', street: '' });
+          }}
+  className="flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 text-white rounded-full px-7 h-[35px]"
+>
+  <FaPlus className="w-4 h-4" />
+  <span className="font-semibold text-[15px]">Add Member</span>
+</button>
+      </div>
+    </div>
+
        {/* Filter Panel */}
        {showFilters && (
-        <div className="flex items-center space-x-1 p-2 rounded-lg w-fit">
-        <div className="flex items-center space-x-1 border rounded-l-3xl px-3 py-1 cursor-pointer bg-white border border-[#858585] h-[35px]">
-          <SlidersHorizontal className="text-blue w-4 h-4" />
-          <span className="mr-2 p-2 text-sm text-blue font-medium">Active Filters</span>
-        </div>
-
-          <select
-            value={selectedRole}
-            onChange={(e) => setSelectedRole(e.target.value)}
-            className="border border-[#858585] h-[35px] w-[60px] text-center text-sm bg-white text-[#858585]"
-          >
-            <option value="">Role</option>
-            <option value="admin">Farmer</option>
-            <option value="member">Member</option>
-          </select>
-
-          <button
-            onClick={clearFilters}
-            className="flex items-center space-x-1 border rounded-r-3xl px-3 py-1 text-sm border border-[#858585] h-[35px] bg-white text-[#858585]"
-          >
-            <X className="w-4 h-4 text-[#858585]" />
-            <span>Clear</span>
-          </button>
+        <div>
         </div>
       )}
 
-              {/* Add Member Button */}
-              <button
-                onClick={() => {
-                  setIsAddMemberModalOpen(true);
-                  setAddMemberForm({ step: 1, emailOrPhone: '', password: '', confirmPassword: '', firstName: '', lastName: '', address: '', barangay: '', purok: '', street: '' });
-                }}
-                className="flex items-center justify-center gap-2 bg-app-primary hover:bg-app-primary/90 text-white rounded-full px-6 py-2"
-                data-model-id="1391:4664"
-              >
-                <FaPlus className="w-5 h-5" />
-                <span className="font-semibold text-[16px]">Add Member</span>
-              </button>
-            </div>
-          </div>
 
           {/* Bulk Delete Button */}
           <div className="rounded-lg bg-gray-50 dark:bg-gray-800" role="tabpanel" tabIndex={0}>
@@ -690,23 +696,48 @@ export default function MemberTabs() {
       {activeTab === "pending" && (
   <>
     <div className="flex items-center justify-between w-full mb-4">
-      {/* Left Side */}
+            {/* Left Side */}
       <div className="flex items-center">
-        <img
-          src={loop}
-          alt="loop"
-          className="ml-5 mr-5 w-[20px] max-w-full object-contain"
-        />
-        <span className="text-[15.5px] text-lg font-semibold mr-2">
-          Pending Members
-        </span>
+        {!showFilters && (
+          <img
+            src={loop}
+            alt="loop"
+            className="ml-5 mr-5 w-[20px] max-w-full object-contain"
+          />
+        )}
+        {!showFilters ? (
+          <div className="flex items-center">
+            <span className="text-[15.5px] text-lg font-semibold mr-2">All Members</span>
+            <span className="text-gray-400 font-normal text-xs">4</span>
+          </div>
+        ) : (
+          <div className="flex items-center space-x-1 border rounded-l-3xl rounded-r-3xl px-3 py-1 cursor-pointer bg-white border border-[#858585] h-[35px]">
+            <SlidersHorizontal className="w-4 h-4 text-[#3b82f6]" />
+            <span className="mr-2 p-2 text-sm text-[#3b82f6] font-medium">Active Filters</span>
+            <select
+              value={selectedRole}
+              onChange={(e) => setSelectedRole(e.target.value)}
+              className="border border-[#858585] h-[35px] text-sm bg-white text-[#858585] pl-2 pr-6"
+            >
+              <option value="">Role</option>
+              <option value="admin">Farmer</option>
+              <option value="member">Member</option>
+            </select>
+            <button
+              onClick={clearFilters}
+              className="flex items-center space-x-1 rounded-r-3xl px-3 py-1 text-sm border-[#858585] h-[35px] text-[#858585]"
+            >
+              <X className="w-4 h-4 text-[#858585]" />
+              <span>Clear</span>
+            </button>
+          </div>
+        )}
       </div>
-
-      {/* Right Side */}
-      <div className="flex items-center space-x-4">
-
+            
+            {/* Right Side */}
+            <div className="flex items-center space-x-4">
               {/* Search Bar */}
-              <div className="relative w-[280px] flex items-center border rounded-full px-3 py-1 bg-white">
+      <div className="relative w-[280px] flex items-center border rounded-full px-3 py-1 bg-white">
         <Search className="text-gray-500 w-5 h-5 mr-2 " />
         <input
           type="text"
@@ -720,48 +751,8 @@ export default function MemberTabs() {
         </button>
       </div>
 
-
-       {/* Filter Panel */}
-       {showFilters && (
-        <div className="flex items-center space-x-1 p-2 rounded-lg w-fit">
-        <div className="flex items-center space-x-1 border rounded-l-3xl px-3 py-1 cursor-pointer bg-white border border-[#858585] h-[35px]">
-          <SlidersHorizontal className="text-blue w-4 h-4" />
-          <span className="mr-2 p-2 text-sm text-blue font-medium">Active Filters</span>
-        </div>
-
-          <select
-            value={selectedRole}
-            onChange={(e) => setSelectedRole(e.target.value)}
-            className="border border-[#858585] h-[35px] w-[60px] text-center text-sm bg-white text-[#858585]"
-          >
-            <option value="">Role</option>
-            <option value="admin">Farmer</option>
-            <option value="member">Member</option>
-          </select>
-
-          <select
-            value={selectedRole}
-            onChange={(e) => setSelectedRole(e.target.value)}
-            className="border border-[#858585] h-[35px] text-sm bg-white text-[#858585]"
-          >
-            <option value="">Document</option>
-            <option value="admin"></option>
-            <option value="member"></option>
-          </select>
-
-          <button
-            onClick={clearFilters}
-            className="flex items-center space-x-1 border rounded-r-3xl px-3 py-1 text-sm border border-[#858585] h-[35px] bg-white text-[#858585]"
-          >
-            <X className="w-4 h-4 text-[#858585]" />
-            <span>Clear</span>
-          </button>
-        </div>
-      )}
-
-
-        {/* Add Member Button */}
-        <button
+      {/* Add Member Button */}
+      <button
           onClick={() => {
             setIsAddMemberModalOpen(true);
             setAddMemberForm({
@@ -774,16 +765,21 @@ export default function MemberTabs() {
               address: '',
               barangay: '',
               purok: '',
-              street: ''
-            });
+              street: ''});
           }}
-          className="flex items-center justify-center gap-2 bg-app-primary hover:bg-app-primary/90 text-white rounded-full px-6 py-2"
-        >
-          <FaPlus className="w-5 h-[15px]" />
-          <span className="font-semibold text-[15px]">Add Member</span>
-        </button>
+  className="flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 text-white rounded-full px-7 h-[35px]"
+>
+  <FaPlus className="w-4 h-4" />
+  <span className="font-semibold text-[15px]">Add Member</span>
+</button>
       </div>
     </div>
+
+       {/* Filter Panel */}
+       {showFilters && (
+        <div>
+        </div>
+      )}
 
     {/* Main Content */}
     <div className="p-0 rounded-lg bg-gray-50 dark:bg-gray-800" role="tabpanel " tabIndex={0}>
@@ -1179,85 +1175,80 @@ export default function MemberTabs() {
         <>
         <div className="flex items-center justify-between w-full mb-4">
             {/* Left Side */}
-            <div className="flex items-center">
-              <img
-                src={loop}
-                alt="loop"
-                className="ml-5 mr-5 w-[20px] max-w-full object-contain"
-              />
-              <span className="text-[15.5px] text-lg font-semibold mr-2">Rejected Members</span>
-            </div>
+      <div className="flex items-center">
+        {!showFilters && (
+          <img
+            src={loop}
+            alt="loop"
+            className="ml-5 mr-5 w-[20px] max-w-full object-contain"
+          />
+        )}
+        {!showFilters ? (
+          <div className="flex items-center">
+            <span className="text-[15.5px] text-lg font-semibold mr-2">Rejected Members</span>
+            <span className="text-gray-400 font-normal text-xs">6</span>
+          </div>
+        ) : (
+          <div className="flex items-center space-x-1 border rounded-l-3xl rounded-r-3xl px-3 py-1 cursor-pointer bg-white border border-[#858585] h-[35px]">
+            <SlidersHorizontal className="w-4 h-4 text-[#3b82f6]" />
+            <span className="mr-2 p-2 text-sm text-[#3b82f6] font-medium">Active Filters</span>
+            <select
+              value={selectedRole}
+              onChange={(e) => setSelectedRole(e.target.value)}
+              className="border border-[#858585] h-[35px] text-sm bg-white text-[#858585] pl-2 pr-6"
+            >
+              <option value="">Role</option>
+              <option value="admin">Farmer</option>
+              <option value="member">Member</option>
+            </select>
+            <button
+              onClick={clearFilters}
+              className="flex items-center space-x-1 rounded-r-3xl px-3 py-1 text-sm border-[#858585] h-[35px] text-[#858585]"
+            >
+              <X className="w-4 h-4 text-[#858585]" />
+              <span>Clear</span>
+            </button>
+          </div>
+        )}
+      </div>
+            
             {/* Right Side */}
       <div className="flex items-center space-x-4">
-              {/* Search Bar */}
-              <div className="relative w-[280px] flex items-center border rounded-full px-3 py-1 bg-white">
-        <Search className="text-gray-500 w-5 h-5 mr-2 " />
-        <input
-          type="text"
-          placeholder="Search Member"
-          className="flex-1 outline-none bg-white"
-          value={searchCurrent}
-          onChange={(e) => setSearchCurrent(e.target.value)}
-        />
-        <button onClick={() => setShowFilters(!showFilters)}>
-          <SlidersHorizontal className="text-gray-600 w-5 h-5" />
-        </button>
-      </div>
+        {/* Search Bar */}
+        <div className="relative w-[280px] flex items-center border rounded-full px-3 py-1 bg-white">
+          <Search className="text-gray-500 w-5 h-5 mr-2" />
+          <input
+            type="text"
+            placeholder="Search Member"
+            className="flex-1 outline-none bg-white"
+            value={searchCurrent}
+            onChange={(e) => setSearchCurrent(e.target.value)}
+          />
+          <button onClick={() => setShowFilters(!showFilters)}>
+            <SlidersHorizontal className="text-gray-600 w-5 h-5" />
+          </button>
+        </div>
 
+        {/* Add Member Button */}
+        <button
+          onClick={() => {
+            setIsAddMemberModalOpen(true);
+            setAddMemberForm({ step: 1, emailOrPhone: '', password: '', confirmPassword: '', firstName: '', lastName: '', address: '', barangay: '', purok: '', street: '' });
+          }}
+  className="flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 text-white rounded-full px-7 h-[35px]"
+>
+  <FaPlus className="w-4 h-4" />
+  <span className="font-semibold text-[15px]">Add Member</span>
+</button>
+      </div>
+    </div>
 
        {/* Filter Panel */}
        {showFilters && (
-        <div className="flex items-center space-x-1 p-2 rounded-lg w-fit">
-        <div className="flex items-center space-x-1 border rounded-l-3xl px-3 py-1 cursor-pointer bg-white border border-[#858585] h-[35px]">
-          <SlidersHorizontal className="text-blue w-4 h-4" />
-          <span className="mr-2 p-2 text-sm text-blue font-medium">Active Filters</span>
-        </div>
-
-          <select
-            value={selectedRole}
-            onChange={(e) => setSelectedRole(e.target.value)}
-            className="border border-[#858585] h-[35px] w-[60px] text-center text-sm bg-white text-[#858585]"
-          >
-            <option value="">Role</option>
-            <option value="admin">Farmer</option>
-            <option value="member">Member</option>
-          </select>
-
-          <select
-            value={selectedRole}
-            onChange={(e) => setSelectedRole(e.target.value)}
-            className="border border-[#858585] h-[35px] w-[150px] text-sm bg-white text-[#858585]"
-          >
-            <option value="">Reason of Rejection</option>
-            <option value="admin">Duplicate Registration</option>
-            <option value="member">Invalid Document</option>
-            <option value="admin">Suspicious Information</option>
-          </select>
-
-          <button
-            onClick={clearFilters}
-            className="flex items-center space-x-1 border rounded-r-3xl px-3 py-1 text-sm border border-[#858585] h-[35px] bg-white text-[#858585]"
-          >
-            <X className="w-4 h-4 text-[#858585]" />
-            <span>Clear</span>
-          </button>
+        <div>
         </div>
       )}
 
-              {/* Add Member Button */}
-              <button
-                onClick={() => {
-                  setIsAddMemberModalOpen(true);
-                  setAddMemberForm({ step: 1, emailOrPhone: '', password: '', confirmPassword: '', firstName: '', lastName: '', address: '', barangay: '', purok: '', street: '' });
-                }}
-                className="flex items-center justify-center gap-2 bg-app-primary hover:bg-app-primary/90 text-white rounded-full px-6 py-2"
-                data-model-id="1391:4664"
-              >
-                <FaPlus className="w-5 h-[15px]" />
-                <span className="font-semibold text-[15px]">Add Member</span>
-              </button>
-            </div>
-          </div>
 
            {/* Bulk Delete Button */}
            <div className="rounded-lg bg-gray-50 dark:bg-gray-800" role="tabpanel" tabIndex={0}>

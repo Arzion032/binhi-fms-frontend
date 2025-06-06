@@ -97,7 +97,7 @@ const Sidebar = () => {
                   href="#"
                   className="block rounded-lg px-3 py-1.5 text-sm font-medium text-gray-500 hover:bg-gray-100 hover:text-gray-700"
                 >
-                  Members List
+                  Current Members
                 </a>
               </li>
               <li>
@@ -105,7 +105,15 @@ const Sidebar = () => {
                   href="#"
                   className="block rounded-lg px-3 py-1.5 text-sm font-medium text-gray-500 hover:bg-gray-100 hover:text-gray-700"
                 >
-                  Add Member
+                  Pending Members
+                </a>
+              </li>
+              <li>
+                <a
+                  href="#"
+                  className="block rounded-lg px-3 py-1.5 text-sm font-medium text-gray-500 hover:bg-gray-100 hover:text-gray-700"
+                >
+                  Rejected Members
                 </a>
               </li>
             </ul>
@@ -160,7 +168,7 @@ const Sidebar = () => {
         <li>
           <details className="group [&_summary::-webkit-details-marker]:hidden">
             <summary className="flex cursor-pointer items-center justify-between rounded-lg px-3 py-1.5 text-gray-500 hover:bg-gray-100 hover:text-gray-700">
-            <Link to="/inventory" className="flex items-center space-x-2">
+            <Link to="/machinery" className="flex items-center space-x-2">
               <img src={Inventory} alt="Inventory" className="w-5 h-5" />
                 <span className="text-sm font-Inter font-bold">Machineries</span>
               </Link>
@@ -185,7 +193,7 @@ const Sidebar = () => {
                   href="#"
                   className="block rounded-lg px-3 py-1.5 text-sm font-medium text-gray-500 hover:bg-gray-100 hover:text-gray-700"
                 >
-                  Stock Management
+                  Machineries
                 </a>
               </li>
               <li>
@@ -193,7 +201,7 @@ const Sidebar = () => {
                   href="#"
                   className="block rounded-lg px-3 py-1.5 text-sm font-medium text-gray-500 hover:bg-gray-100 hover:text-gray-700"
                 >
-                  Stock Alerts
+                  Rent Schedule
                 </a>
               </li>
             </ul>
