@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import {
   Search,
   SlidersHorizontal,
@@ -12,15 +12,6 @@ import {
 import AddCategoryModal from "./AddCategoryModal";
 import EditDetailsModal from "./EditDetailsModal";
 
-const CATEGORIES_SUMMARY = [
-  { name: "Grains", count: 28 },
-  { name: "Vegetable", count: 35 },
-  { name: "Root Crops", count: 41 },
-  { name: "Milks & Dairy", count: 51 },
-  { name: "Meats", count: 60 },
-  { name: "Fruits", count: 75 },
-];
-
 const BADGE_STYLES = {
   Fruits: { color: "#7C3AED", background: "#F3E8FF", border: "#7C3AED" },
   "Milks & Dairy": { color: "#3B82F6", background: "#DDECFF", border: "#3B82F6" },
@@ -28,24 +19,102 @@ const BADGE_STYLES = {
   Grains: { color: "#B79900", background: "#FFF8D4", border: "#B79900" },
   "Root Crops": { color: "#F97316", background: "#FFEDD5", border: "#F97316" },
   Meats: { color: "#DC2626", background: "#FEE2E2", border: "#DC2626" },
+  Fish: { color: "#0284C7", background: "#DEF5FF", border: "#0284C7" },
 };
 
+const CATEGORY_NAMES = [
+  "Grains",
+  "Vegetable",
+  "Root Crops",
+  "Milks & Dairy",
+  "Meats",
+  "Fruits",
+  "Fish",
+];
+
 const INITIAL_PRODUCTS = [
-  { id: 1, name: "Premium Farm Fresh Sweet Corn", variation: "Yellow, White", avatar: "/Screenshot_195.png", price: 12999, category: "Fruits", stock: 25, status: "Approved" },
-  { id: 2, name: "Train Your Dragon's Treasure Exotic Fruit", variation: "Yellow, White", avatar: "/Screenshot_195.png", price: 12999, category: "Milks & Dairy", stock: 25, status: "Pending" },
-  { id: 3, name: "Ultra-Green Superfood Broccoli Hulk Flavored", variation: "Yellow, White", avatar: "/Screenshot_195.png", price: 12999, category: "Vegetable", stock: 25, status: "Approved" },
-  { id: 4, name: "HAAHAHA PANG SAMGYUP", variation: "Yellow, White", avatar: "/Screenshot_195.png", price: 12999, category: "Grains", stock: 25, status: "Pending" },
-  { id: 5, name: "Creamy Black Gold Avocado with Balut", variation: "Yellow, White", avatar: "/Screenshot_195.png", price: 12999, category: "Fruits", stock: 25, status: "Approved" },
-  { id: 6, name: "Organic Rainbow Carrots", variation: "Orange, Purple, White", avatar: "/Screenshot_195.png", price: 8999, category: "Root Crops", stock: 40, status: "Approved" },
-  { id: 7, name: "Premium Angus Beef Strips", variation: "Tenderloin, Ribeye", avatar: "/Screenshot_195.png", price: 35999, category: "Meats", stock: 15, status: "Approved" },
-  { id: 8, name: "Fresh Farm Milk Bottles", variation: "Whole, Low-fat", avatar: "/Screenshot_195.png", price: 4599, category: "Milks & Dairy", stock: 60, status: "Pending" },
-  { id: 9, name: "Heirloom Tomatoes Mix", variation: "Red, Green, Yellow", avatar: "/Screenshot_195.png", price: 15999, category: "Vegetable", stock: 30, status: "Approved" },
-  { id: 10, name: "Artisan Wheat Flour", variation: "All-purpose, Bread", avatar: "/Screenshot_195.png", price: 6999, category: "Grains", stock: 50, status: "Approved" },
-  { id: 11, name: "Tropical Mango Paradise", variation: "Manila, Carabao", avatar: "/Screenshot_195.png", price: 18999, category: "Fruits", stock: 20, status: "Pending" },
-  { id: 12, name: "Sweet Purple Yam", variation: "Large, Medium", avatar: "/Screenshot_195.png", price: 11999, category: "Root Crops", stock: 35, status: "Approved" },
-  { id: 13, name: "Farm Fresh Chicken Breast", variation: "Boneless, Bone-in", avatar: "/Screenshot_195.png", price: 24999, category: "Meats", stock: 25, status: "Approved" },
-  { id: 14, name: "Artisan Cheese Collection", variation: "Cheddar, Mozzarella", avatar: "/Screenshot_195.png", price: 28999, category: "Milks & Dairy", stock: 18, status: "Pending" },
-  { id: 15, name: "Crispy Lettuce Heads", variation: "Iceberg, Romaine", avatar: "/Screenshot_195.png", price: 7999, category: "Vegetable", stock: 45, status: "Approved" },
+  { id: 41, name: "Yogurt", variation: "Plain", avatar: "/Screenshot_195.png", price: 7000, category: "Milks & Dairy", stock: 60, status: "Approved" },
+  { id: 3, name: "Sticky Glutinous Rice", variation: "Sticky", avatar: "/Screenshot_195.png", price: 4800, category: "Grains", stock: 60, status: "Pending" },
+  { id: 27, name: "Taro", variation: "Large", avatar: "/Screenshot_195.png", price: 800, category: "Root Crops", stock: 50, status: "Approved" },
+  { id: 75, name: "Dilis", variation: "Anchovy", avatar: "/Screenshot_195.png", price: 900, category: "Fish", stock: 110, status: "Approved" },
+  { id: 59, name: "Banana Lacatan", variation: "Yellow", avatar: "/Screenshot_195.png", price: 1500, category: "Fruits", stock: 80, status: "Approved" },
+  { id: 20, name: "Cauliflower", variation: "White", avatar: "/Screenshot_195.png", price: 950, category: "Vegetable", stock: 30, status: "Approved" },
+  { id: 54, name: "Duck Meat", variation: "Whole", avatar: "/Screenshot_195.png", price: 40000, category: "Meats", stock: 40, status: "Approved" },
+  { id: 11, name: "Sorghum", variation: "Grain", avatar: "/Screenshot_195.png", price: 4200, category: "Grains", stock: 40, status: "Pending" },
+  { id: 68, name: "Dragonfruit", variation: "Red", avatar: "/Screenshot_195.png", price: 9000, category: "Fruits", stock: 35, status: "Approved" },
+  { id: 35, name: "Camote", variation: "Red", avatar: "/Screenshot_195.png", price: 800, category: "Root Crops", stock: 55, status: "Approved" },
+  { id: 45, name: "Greek Yogurt", variation: "Plain", avatar: "/Screenshot_195.png", price: 15000, category: "Milks & Dairy", stock: 30, status: "Approved" },
+  { id: 66, name: "Lanzones", variation: "Sweet", avatar: "/Screenshot_195.png", price: 6000, category: "Fruits", stock: 45, status: "Approved" },
+  { id: 70, name: "Tilapia", variation: "Whole", avatar: "/Screenshot_195.png", price: 1800, category: "Fish", stock: 60, status: "Approved" },
+  { id: 19, name: "Spinach", variation: "Green", avatar: "/Screenshot_195.png", price: 800, category: "Vegetable", stock: 50, status: "Pending" },
+  { id: 25, name: "Sweet Potato", variation: "Orange", avatar: "/Screenshot_195.png", price: 600, category: "Root Crops", stock: 55, status: "Approved" },
+  { id: 29, name: "Yam", variation: "White", avatar: "/Screenshot_195.png", price: 1100, category: "Root Crops", stock: 60, status: "Approved" },
+  { id: 64, name: "Papaya", variation: "Hawaiian", avatar: "/Screenshot_195.png", price: 2800, category: "Fruits", stock: 65, status: "Approved" },
+  { id: 21, name: "Okra", variation: "Slender", avatar: "/Screenshot_195.png", price: 400, category: "Vegetable", stock: 80, status: "Approved" },
+  { id: 44, name: "Cream Cheese", variation: "Soft", avatar: "/Screenshot_195.png", price: 18000, category: "Milks & Dairy", stock: 25, status: "Approved" },
+  { id: 48, name: "Chicken Drumsticks", variation: "Cut", avatar: "/Screenshot_195.png", price: 20000, category: "Meats", stock: 100, status: "Approved" },
+  { id: 30, name: "Radish", variation: "Red", avatar: "/Screenshot_195.png", price: 550, category: "Root Crops", stock: 45, status: "Approved" },
+  { id: 13, name: "Eggplant", variation: "Long", avatar: "/Screenshot_195.png", price: 500, category: "Vegetable", stock: 60, status: "Approved" },
+  { id: 55, name: "Lamb Chops", variation: "Chop", avatar: "/Screenshot_195.png", price: 70000, category: "Meats", stock: 15, status: "Approved" },
+  { id: 38, name: "Carabao Milk", variation: "Whole", avatar: "/Screenshot_195.png", price: 5200, category: "Milks & Dairy", stock: 50, status: "Approved" },
+  { id: 10, name: "Oats", variation: "Rolled", avatar: "/Screenshot_195.png", price: 3800, category: "Grains", stock: 60, status: "Approved" },
+  { id: 63, name: "Pineapple", variation: "Large", avatar: "/Screenshot_195.png", price: 7000, category: "Fruits", stock: 70, status: "Approved" },
+  { id: 47, name: "Fresh Pork Belly", variation: "Sliced", avatar: "/Screenshot_195.png", price: 38000, category: "Meats", stock: 80, status: "Approved" },
+  { id: 74, name: "Tamban", variation: "Small", avatar: "/Screenshot_195.png", price: 1200, category: "Fish", stock: 100, status: "Approved" },
+  { id: 49, name: "Beef Sirloin", variation: "Slice", avatar: "/Screenshot_195.png", price: 40000, category: "Meats", stock: 50, status: "Pending" },
+  { id: 80, name: "Sardines", variation: "Can", avatar: "/Screenshot_195.png", price: 1500, category: "Fish", stock: 200, status: "Approved" },
+  { id: 53, name: "Goat Meat", variation: "Cubes", avatar: "/Screenshot_195.png", price: 45000, category: "Meats", stock: 20, status: "Pending" },
+  { id: 22, name: "Pechay", variation: "Baguio", avatar: "/Screenshot_195.png", price: 500, category: "Vegetable", stock: 70, status: "Approved" },
+  { id: 40, name: "Mozzarella Cheese", variation: "Shredded", avatar: "/Screenshot_195.png", price: 21000, category: "Milks & Dairy", stock: 30, status: "Approved" },
+  { id: 46, name: "Gouda Cheese", variation: "Block", avatar: "/Screenshot_195.png", price: 25000, category: "Milks & Dairy", stock: 20, status: "Approved" },
+  { id: 67, name: "Atis", variation: "Sugar Apple", avatar: "/Screenshot_195.png", price: 4200, category: "Fruits", stock: 40, status: "Approved" },
+  { id: 56, name: "Beef Brisket", variation: "Slab", avatar: "/Screenshot_195.png", price: 43000, category: "Meats", stock: 30, status: "Approved" },
+  { id: 57, name: "Turkey", variation: "Whole", avatar: "/Screenshot_195.png", price: 48000, category: "Meats", stock: 12, status: "Approved" },
+  { id: 81, name: "Tulingan", variation: "Skipjack", avatar: "/Screenshot_195.png", price: 1800, category: "Fish", stock: 30, status: "Approved" },
+  { id: 5, name: "Jasmine Rice", variation: "Fragrant", avatar: "/Screenshot_195.png", price: 5200, category: "Grains", stock: 90, status: "Approved" },
+  { id: 23, name: "Bell Pepper", variation: "Red, Green", avatar: "/Screenshot_195.png", price: 1300, category: "Vegetable", stock: 40, status: "Approved" },
+  { id: 50, name: "Ground Pork", variation: "Lean", avatar: "/Screenshot_195.png", price: 25000, category: "Meats", stock: 90, status: "Approved" },
+  { id: 32, name: "Ginger", variation: "Yellow", avatar: "/Screenshot_195.png", price: 1400, category: "Root Crops", stock: 80, status: "Approved" },
+  { id: 1, name: "Premium White Rice", variation: "Long Grain", avatar: "/Screenshot_195.png", price: 4500, category: "Grains", stock: 100, status: "Approved" },
+  { id: 28, name: "Ube", variation: "Purple", avatar: "/Screenshot_195.png", price: 1200, category: "Root Crops", stock: 40, status: "Pending" },
+  { id: 51, name: "Pork Chop", variation: "Bone-in", avatar: "/Screenshot_195.png", price: 30000, category: "Meats", stock: 60, status: "Approved" },
+  { id: 2, name: "Brown Rice Deluxe", variation: "Brown", avatar: "/Screenshot_195.png", price: 5000, category: "Grains", stock: 80, status: "Approved" },
+  { id: 6, name: "Corn Grits", variation: "Yellow", avatar: "/Screenshot_195.png", price: 3200, category: "Grains", stock: 100, status: "Approved" },
+  { id: 77, name: "Lapu-Lapu", variation: "Grouper", avatar: "/Screenshot_195.png", price: 5400, category: "Fish", stock: 20, status: "Approved" },
+  { id: 7, name: "Black Rice Special", variation: "Black", avatar: "/Screenshot_195.png", price: 6000, category: "Grains", stock: 30, status: "Pending" },
+  { id: 15, name: "Bitter Gourd", variation: "Small", avatar: "/Screenshot_195.png", price: 350, category: "Vegetable", stock: 40, status: "Pending" },
+  { id: 76, name: "Hasa-hasa", variation: "Short Mackerel", avatar: "/Screenshot_195.png", price: 2000, category: "Fish", stock: 80, status: "Approved" },
+  { id: 4, name: "Organic Red Rice", variation: "Red", avatar: "/Screenshot_195.png", price: 5300, category: "Grains", stock: 70, status: "Approved" },
+  { id: 61, name: "Apple Fuji", variation: "Red", avatar: "/Screenshot_195.png", price: 4000, category: "Fruits", stock: 75, status: "Approved" },
+  { id: 26, name: "Cassava", variation: "Brown", avatar: "/Screenshot_195.png", price: 500, category: "Root Crops", stock: 70, status: "Approved" },
+  { id: 43, name: "Powdered Milk", variation: "Instant", avatar: "/Screenshot_195.png", price: 9500, category: "Milks & Dairy", stock: 70, status: "Pending" },
+  { id: 14, name: "Tomato", variation: "Red", avatar: "/Screenshot_195.png", price: 600, category: "Vegetable", stock: 75, status: "Approved" },
+  { id: 60, name: "Red Watermelon", variation: "Seedless", avatar: "/Screenshot_195.png", price: 3000, category: "Fruits", stock: 60, status: "Pending" },
+  { id: 18, name: "Lettuce", variation: "Iceberg", avatar: "/Screenshot_195.png", price: 1200, category: "Vegetable", stock: 55, status: "Approved" },
+  { id: 9, name: "Barley", variation: "Whole", avatar: "/Screenshot_195.png", price: 3400, category: "Grains", stock: 50, status: "Approved" },
+  { id: 39, name: "Cheddar Cheese", variation: "Block", avatar: "/Screenshot_195.png", price: 20000, category: "Milks & Dairy", stock: 40, status: "Pending" },
+  { id: 79, name: "Maya-maya", variation: "Snapper", avatar: "/Screenshot_195.png", price: 3600, category: "Fish", stock: 45, status: "Approved" },
+  { id: 17, name: "Cabbage", variation: "Round", avatar: "/Screenshot_195.png", price: 1100, category: "Vegetable", stock: 85, status: "Approved" },
+  { id: 24, name: "Broccoli", variation: "Green", avatar: "/Screenshot_195.png", price: 2000, category: "Vegetable", stock: 25, status: "Approved" },
+  { id: 69, name: "Grapes", variation: "Purple", avatar: "/Screenshot_195.png", price: 10000, category: "Fruits", stock: 32, status: "Approved" },
+  { id: 31, name: "Turnip", variation: "Purple", avatar: "/Screenshot_195.png", price: 850, category: "Root Crops", stock: 35, status: "Approved" },
+  { id: 36, name: "Fresh Cow's Milk", variation: "Whole", avatar: "/Screenshot_195.png", price: 4800, category: "Milks & Dairy", stock: 65, status: "Approved" },
+  { id: 58, name: "Carabao Mango", variation: "Yellow", avatar: "/Screenshot_195.png", price: 2500, category: "Fruits", stock: 120, status: "Approved" },
+  { id: 34, name: "Singkamas", variation: "Large", avatar: "/Screenshot_195.png", price: 450, category: "Root Crops", stock: 70, status: "Approved" },
+  { id: 73, name: "Tuna", variation: "Steak", avatar: "/Screenshot_195.png", price: 3200, category: "Fish", stock: 40, status: "Approved" },
+  { id: 72, name: "Galunggong", variation: "Round Scad", avatar: "/Screenshot_195.png", price: 1700, category: "Fish", stock: 70, status: "Pending" },
+  { id: 62, name: "Orange Valencia", variation: "Orange", avatar: "/Screenshot_195.png", price: 3500, category: "Fruits", stock: 50, status: "Approved" },
+  { id: 71, name: "Bangus", variation: "Milkfish", avatar: "/Screenshot_195.png", price: 2300, category: "Fish", stock: 50, status: "Approved" },
+  { id: 8, name: "Wheat Flour", variation: "All-purpose", avatar: "/Screenshot_195.png", price: 2500, category: "Grains", stock: 120, status: "Approved" },
+  { id: 16, name: "Carrots", variation: "Orange", avatar: "/Screenshot_195.png", price: 850, category: "Vegetable", stock: 60, status: "Approved" },
+  { id: 33, name: "Carrot Root", variation: "Orange", avatar: "/Screenshot_195.png", price: 900, category: "Root Crops", stock: 60, status: "Pending" },
+  { id: 12, name: "Quinoa", variation: "White", avatar: "/Screenshot_195.png", price: 12000, category: "Grains", stock: 25, status: "Approved" },
+  { id: 52, name: "Chicken Breast", variation: "Boneless", avatar: "/Screenshot_195.png", price: 22000, category: "Meats", stock: 70, status: "Approved" },
+  { id: 42, name: "Butter", variation: "Salted", avatar: "/Screenshot_195.png", price: 8500, category: "Milks & Dairy", stock: 45, status: "Approved" },
+  { id: 78, name: "Salmon", variation: "Slice", avatar: "/Screenshot_195.png", price: 6800, category: "Fish", stock: 35, status: "Pending" },
+  { id: 65, name: "Rambutan", variation: "Red", avatar: "/Screenshot_195.png", price: 5000, category: "Fruits", stock: 25, status: "Pending" },
+  { id: 60, name: "Red Watermelon", variation: "Seedless", avatar: "/Screenshot_195.png", price: 3000, category: "Fruits", stock: 60, status: "Pending" },
+  { id: 37, name: "Low-fat Milk", variation: "Low-fat", avatar: "/Screenshot_195.png", price: 4500, category: "Milks & Dairy", stock: 55, status: "Approved" },
 ];
 
 export default function ProductManagement() {
@@ -54,18 +123,41 @@ export default function ProductManagement() {
   const [products, setProducts] = useState(INITIAL_PRODUCTS);
   const [selectedRows, setSelectedRows] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
+  const [selectedCategory, setSelectedCategory] = useState(null);
+
+  // Real-time category count
+  const categoriesSummary = useMemo(() => {
+    return CATEGORY_NAMES.map((cat) => ({
+      name: cat,
+      count: products.filter((p) => p.category === cat).length,
+    }));
+  }, [products]);
+
+  // Category and search filters combined
+  const filteredProducts = useMemo(() => {
+    let filtered = products;
+    if (selectedCategory) {
+      filtered = filtered.filter((p) => p.category === selectedCategory);
+    }
+    if (searchQuery.trim()) {
+      filtered = filtered.filter((p) =>
+        p.name.toLowerCase().includes(searchQuery.trim().toLowerCase())
+      );
+    }
+    return filtered;
+  }, [products, selectedCategory, searchQuery]);
+
   const itemsPerPage = 7;
-  const filteredProducts = products.filter((p) =>
-    p.name.toLowerCase().includes(searchQuery.trim().toLowerCase())
-  );
   const totalPages = Math.ceil(filteredProducts.length / itemsPerPage);
   const visibleProducts = filteredProducts.slice(
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
   );
+
   useEffect(() => {
     setCurrentPage(1);
-  }, [searchQuery]);
+  }, [searchQuery, selectedCategory]);
+
   const handleDeleteSelected = () => {
     if (!window.confirm("Delete selected products?")) return;
     setProducts((prev) => prev.filter((p) => !selectedRows.includes(p.id)));
@@ -93,6 +185,11 @@ export default function ProductManagement() {
     setEditProduct(product);
     setEditModalMode("edit");
     setShowEditModal(true);
+  };
+
+  const handleCategoryClick = (cat) => {
+    setSelectedCategory((prev) => (prev === cat ? null : cat));
+    setSelectedRows([]); // clear selected rows when changing category
   };
 
   return (
@@ -213,14 +310,16 @@ export default function ProductManagement() {
       {/* CATEGORY SUMMARY */}
       <div className="pb-4">
         <div className="flex gap-4 overflow-x-auto">
-          {CATEGORIES_SUMMARY.map((cat) => {
+          {categoriesSummary.map((cat) => {
             const style = BADGE_STYLES[cat.name] || BADGE_STYLES["Grains"];
+            const isActive = selectedCategory === cat.name;
             return (
               <div
                 key={cat.name}
+                onClick={() => handleCategoryClick(cat.name)}
                 style={{
                   position: "relative",
-                  border: "1px solid #858585",
+                  border: isActive ? `2px solid ${style.border}` : "1px solid #858585",
                   borderRadius: "1.6rem",
                   minWidth: "150px",
                   height: "80px",
@@ -228,9 +327,12 @@ export default function ProductManagement() {
                   display: "flex",
                   flexDirection: "column",
                   justifyContent: "center",
-                  backgroundColor: "#FFFFFF",
+                  backgroundColor: isActive ? style.background : "#FFFFFF",
                   flex: "1",
                   overflow: "hidden",
+                  cursor: "pointer",
+                  boxShadow: isActive ? "0 2px 8px 0 rgba(2,132,199,0.08)" : undefined,
+                  transition: "border 0.18s, background 0.18s",
                 }}
               >
                 <div
@@ -391,6 +493,13 @@ export default function ProductManagement() {
                 </tr>
               );
             })}
+            {visibleProducts.length === 0 && (
+              <tr>
+                <td colSpan={7} style={{ textAlign: "center", padding: "2rem", color: "#888" }}>
+                  No products found.
+                </td>
+              </tr>
+            )}
           </tbody>
         </table>
         {/* PAGINATION */}
@@ -443,7 +552,7 @@ export default function ProductManagement() {
             )
           );
         }}
-        mode={editModalMode}Add commentMore actions
+        mode={editModalMode}
       />
     </div>
   );
