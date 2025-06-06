@@ -6,8 +6,6 @@ import Financial from '../assets/Financial.png';
 import Inventory from '../assets/Inventory.png';
 import Document from '../assets/Document.png';
 import Products from '../assets/Products.png';
-import Customers from '../assets/Customers.png';
-import Orders from '../assets/Orders.png';
 import Payout from '../assets/Payout.png';
 import Settings from '../assets/Settings.png';
 import { Link } from "react-router-dom";
@@ -74,7 +72,7 @@ const Sidebar = () => {
             <summary className="flex cursor-pointer items-center justify-between rounded-lg px-3 py-1.5 text-gray-500 hover:bg-gray-100 hover:text-gray-700">
               <Link to="/membership" className="flex items-center space-x-2">
               <img src={Membership} alt="Membership" className="w-5 h-5" />
-              <span className="text-sm font-Inter font-bold">Membership</span>
+              <span className="text-sm font-Inter font-bold">Association</span>
               </Link>
               <span className="shrink-0 transition duration-300 group-open:-rotate-180">
                 <svg
@@ -204,10 +202,10 @@ const Sidebar = () => {
         <li>
           <details className="group [&_summary::-webkit-details-marker]:hidden">
             <summary className="flex cursor-pointer items-center justify-between rounded-lg px-3 py-1.5 text-gray-500 hover:bg-gray-100 hover:text-gray-700">
-              <Link to="/document" className="flex items-center space-x-2">
+              <span className="flex items-center space-x-2">
               <img src={Document} alt="Document" className="w-5 h-5" />
                 <span className="text-sm font-Inter font-bold">Document</span>
-              </Link>
+              </span>
               <span className="shrink-0 transition duration-300 group-open:-rotate-180">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -289,95 +287,6 @@ const Sidebar = () => {
                   className="block rounded-lg px-3 py-1.5 text-sm font-medium text-gray-500 hover:bg-gray-100 hover:text-gray-700"
                 >
                   Add Product
-                </a>
-              </li>
-            </ul>
-          </details>
-        </li>
-
-        {/* Customers Menu */}
-        <li>
-          <details className="group [&_summary::-webkit-details-marker]:hidden">
-            <summary className="flex cursor-pointer items-center justify-between rounded-lg px-3 py-1.5 text-gray-500 hover:bg-gray-100 hover:text-gray-700">
-              <span className="flex items-center space-x-2">
-              <img src={Customers} alt="Customers" className="w-5 h-5" />
-                <span className="text-sm font-Inter font-bold">Customers</span>
-              </span>
-              <span className="shrink-0 transition duration-300 group-open:-rotate-180">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="w-5 h-5"
-                  viewBox="0 0 20 20"
-                  fill="currentColor"
-                >
-                  <path
-                    fillRule="evenodd"
-                    d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-                    clipRule="evenodd"
-                  />
-                </svg>
-              </span>
-            </summary>
-            <ul className="mt-1 space-y-1 px-3">
-              <li>
-                <a
-                  href="#"
-                  className="block rounded-lg px-3 py-1.5 text-sm font-medium text-gray-500 hover:bg-gray-100 hover:text-gray-700"
-                >
-                  Customer List
-                </a>
-              </li>
-              <li>
-                <a
-                  href="#"
-                  className="block rounded-lg px-3 py-1.5 text-sm font-medium text-gray-500 hover:bg-gray-100 hover:text-gray-700"
-                >
-                  Add Customer
-                </a>
-              </li>
-            </ul>
-          </details>
-        </li>
-
-        {/* Orders Menu */}
-        <li>
-          <details className="group [&_summary::-webkit-details-marker]:hidden">
-            <summary className="flex cursor-pointer items-center justify-between rounded-lg px-3 py-1.5 text-gray-500 hover:bg-gray-100 hover:text-gray-700">
-              <span className="flex items-center space-x-2">
-              <img src={Orders
-              } alt="Orders" className="w-5 h-5" />
-                <span className="text-sm font-Inter font-bold">Orders</span>
-              </span>
-              <span className="shrink-0 transition duration-300 group-open:-rotate-180">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="w-5 h-5"
-                  viewBox="0 0 20 20"
-                  fill="currentColor"
-                >
-                  <path
-                    fillRule="evenodd"
-                    d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-                    clipRule="evenodd"
-                  />
-                </svg>
-              </span>
-            </summary>
-            <ul className="mt-1 space-y-1 px-3">
-              <li>
-                <a
-                  href="#"
-                  className="block rounded-lg px-3 py-1.5 text-sm font-medium text-gray-500 hover:bg-gray-100 hover:text-gray-700"
-                >
-                  Order History
-                </a>
-              </li>
-              <li>
-                <a
-                  href="#"
-                  className="block rounded-lg px-3 py-1.5 text-sm font-medium text-gray-500 hover:bg-gray-100 hover:text-gray-700"
-                >
-                  Track Order
                 </a>
               </li>
             </ul>

@@ -10,6 +10,8 @@ import SignUp from './components/SignUp/SignUpPage';
 import NextStep from './components/SignUp/NextStep';
 import SetPassword from './components/SignUp/SetPassword';
 import SetUp from './components/SignUp/SetUp';
+import Association from './components/AdminView/Association';
+import LayoutAdmin from "./components/LayoutAdmin/LayoutAdmin";
 
 function App() {
   return (
@@ -30,6 +32,7 @@ function App() {
           <Route path="/marketplace/orders" element={<Layout><Marketplace defaultTab="Order Management" /></Layout>} />
           <Route path="/marketplace/payouts" element={<Layout><Marketplace defaultTab="Farmer Payout" /></Layout>} />
           <Route path="/marketplace/*" element={<Navigate to="/marketplace/products" replace />} />
+          <Route path="/Association" element={<LayoutAdmin><Association /></LayoutAdmin>} />
         </Routes>
       </Router>
     </div>
