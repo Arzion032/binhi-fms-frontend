@@ -1,10 +1,10 @@
 import React from "react";
 import { useState, useEffect } from "react";
 import { X, SlidersHorizontal, Check } from "lucide-react";
-import Pencil2 from './../assets/PencilBlack.png';
-import Time from './../assets/Time.png';
+import Pencil2 from '../../assets/PencilBlack.png';
+import Time from '../../assets/Time.png';
 
-const InventoryModal = ({
+const MachineryModal = ({
   showModal,
   setShowModal,
   setSelectedDoc,
@@ -652,4 +652,4 @@ const InventoryModal = ({
   );
 };
 
-export default InventoryModal;
+export default MachineryModal;

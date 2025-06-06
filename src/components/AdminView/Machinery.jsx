@@ -8,7 +8,7 @@ import Success from '../../assets/Success.png';
 import Rent from '../../assets/Rent.png';
 import Details from '../../assets/Details.png';
 import Select from 'react-select';
-import InventoryModal from "../../../MachineryModal.jsx";
+import MachineryModal from "./../AdminView/MachineryModal.jsx";
 import UploadDocument from "../../assets/UploadDocument.png";
 import Uploadfiles from "../../assets/UploadFiles.png";
 import Upload from "../../assets/Upload.png";
@@ -362,7 +362,7 @@ export default function EquipmentPage() {
 
               
             {/* Modal Component */}
-          <InventoryModal
+          <MachineryModal
                 isModalOpen={isModalOpen}
                 setIsModalOpen={setIsModalOpen}
                 handleConfirm={handleConfirm}
@@ -506,7 +506,7 @@ export default function EquipmentPage() {
               </span>
             </div>
 
-            <InventoryModal
+            <MachineryModal
         
                     showEditModal={showEditModal}
                     setShowEditModal={setShowEditModal}
@@ -773,7 +773,7 @@ export default function EquipmentPage() {
                   </div>
 
                   {/* Modal Component */}
-                  <InventoryModal
+                  <MachineryModal
                     showModal={showModal}
                     setShowModal={setShowModal}
                     selectedDoc={selectedDoc}
@@ -978,7 +978,7 @@ export default function EquipmentPage() {
 />
        
       {/* Add Machinery Modal Component */}
-      <InventoryModal
+      <MachineryModal
                 isModalOpen={isModalOpen}
                 setIsModalOpen={setIsModalOpen}
                 handleConfirm={handleConfirm}

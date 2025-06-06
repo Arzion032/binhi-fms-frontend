@@ -12,6 +12,7 @@ import SetPassword from './components/SignUp/SetPassword';
 import SetUp from './components/SignUp/SetUp';
 import Association from './components/AdminView/Association';
 import LayoutAdmin from "./components/LayoutAdmin/LayoutAdmin";
+import Machinery from './components/AdminView/Machinery';
 
 function App() {
 
@@ -30,6 +31,7 @@ function App() {
         <Route path="/password" element={<SetPassword />} />
         <Route path="/setup" element={<SetUp />} />
         <Route path="/Association" element={<LayoutAdmin><Association /></LayoutAdmin>} />
+        <Route path="/Machinery" element={<LayoutAdmin><Machinery /></LayoutAdmin>} />
       </Routes>
     </Router>
     </div>
