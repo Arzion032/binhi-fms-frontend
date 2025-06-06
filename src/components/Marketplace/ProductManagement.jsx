@@ -32,8 +32,19 @@ const CATEGORY_NAMES = [
   "Fish",
 ];
 
+// Farmer code generator (format: JDC123)
+function generateFarmerCode(name = "Juan D Cruz") {
+  const [first, mid, last] = name.split(" ");
+  const initials =
+    (first ? first[0] : "") +
+    (mid ? mid[0] : "") +
+    (last ? last[0] : "");
+  const digits = Math.floor(100 + Math.random() * 900);
+  return `${initials.toUpperCase()}${digits}`;
+}
+
 const INITIAL_PRODUCTS = [
-  { id: 41, name: "Yogurt", variation: "Plain", avatar: "/Screenshot_195.png", price: 7000, category: "Milks & Dairy", stock: 60, status: "Approved" },
+    { id: 41, name: "Yogurt", variation: "Plain", avatar: "/Screenshot_195.png", price: 7000, category: "Milks & Dairy", stock: 60, status: "Approved" },
   { id: 3, name: "Sticky Glutinous Rice", variation: "Sticky", avatar: "/Screenshot_195.png", price: 4800, category: "Grains", stock: 60, status: "Pending" },
   { id: 27, name: "Taro", variation: "Large", avatar: "/Screenshot_195.png", price: 800, category: "Root Crops", stock: 50, status: "Approved" },
   { id: 75, name: "Dilis", variation: "Anchovy", avatar: "/Screenshot_195.png", price: 900, category: "Fish", stock: 110, status: "Approved" },
@@ -115,7 +126,12 @@ const INITIAL_PRODUCTS = [
   { id: 65, name: "Rambutan", variation: "Red", avatar: "/Screenshot_195.png", price: 5000, category: "Fruits", stock: 25, status: "Pending" },
   { id: 60, name: "Red Watermelon", variation: "Seedless", avatar: "/Screenshot_195.png", price: 3000, category: "Fruits", stock: 60, status: "Pending" },
   { id: 37, name: "Low-fat Milk", variation: "Low-fat", avatar: "/Screenshot_195.png", price: 4500, category: "Milks & Dairy", stock: 55, status: "Approved" },
-];
+].map((item) => ({
+  ...item,
+  association: "Macamot Farmers Association",
+  farmer: generateFarmerCode("Juan D Cruz"),
+  unit: "1kg",
+}));
 
 export default function ProductManagement() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -125,7 +141,6 @@ export default function ProductManagement() {
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedCategory, setSelectedCategory] = useState(null);
 
-  // Real-time category count
   const categoriesSummary = useMemo(() => {
     return CATEGORY_NAMES.map((cat) => ({
       name: cat,
@@ -133,7 +148,6 @@ export default function ProductManagement() {
     }));
   }, [products]);
 
-  // Category and search filters combined
   const filteredProducts = useMemo(() => {
     let filtered = products;
     if (selectedCategory) {
@@ -153,6 +167,7 @@ export default function ProductManagement() {
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
   );
+  const emptyRows = itemsPerPage - visibleProducts.length > 0 ? itemsPerPage - visibleProducts.length : 0;
 
   useEffect(() => {
     setCurrentPage(1);
@@ -164,7 +179,6 @@ export default function ProductManagement() {
     setSelectedRows([]);
   };
 
-  // Modal State
   const [showAddCategory, setShowAddCategory] = useState(false);
   const [categoryModalMode, setCategoryModalMode] = useState("add");
   const [showEditModal, setShowEditModal] = useState(false);
@@ -189,7 +203,7 @@ export default function ProductManagement() {
 
   const handleCategoryClick = (cat) => {
     setSelectedCategory((prev) => (prev === cat ? null : cat));
-    setSelectedRows([]); // clear selected rows when changing category
+    setSelectedRows([]);
   };
 
   return (
@@ -346,8 +360,8 @@ export default function ProductManagement() {
                     borderRadius: "1.6rem 0 0 1.6rem",
                   }}
                 />
-                <span style={{ fontSize: "0.875rem", color: "#9CA3AF", fontWeight: 500, marginLeft: "8px" }}>{cat.name}</span>
-                <span style={{ fontSize: "1.875rem", fontWeight: 900, color: "#000000", marginLeft: "8px" }}>{cat.count}</span>
+                <span style={{ fontSize: "0.81rem", color: "#9CA3AF", fontWeight: 500, marginLeft: "8px" }}>{cat.name}</span>
+                <span style={{ fontSize: "1.4rem", fontWeight: 900, color: "#000000", marginLeft: "8px" }}>{cat.count}</span>
               </div>
             );
           })}
@@ -356,10 +370,33 @@ export default function ProductManagement() {
       {/* TABLE */}
       <div style={{ borderRadius: "1rem", overflow: "hidden", minHeight: 420 }}>
         <h2 className="px-4 pt-4 text-xl font-bold text-gray-900">Product List</h2>
-        <table style={{ width: "100%", borderCollapse: "collapse" }}>
+        <table style={{
+          width: "100%",
+          borderCollapse: "collapse",
+          tableLayout: "fixed"
+        }}>
+          <colgroup>
+            <col style={{ width: "4%" }} />
+            <col style={{ width: "15%" }} />
+            <col style={{ width: "10%" }} />
+            <col style={{ width: "19%" }} />
+            <col style={{ width: "13%" }} />
+            <col style={{ width: "7%" }} />
+            <col style={{ width: "9%" }} />
+            <col style={{ width: "11%" }} />
+            <col style={{ width: "7%" }} />
+            <col style={{ width: "7%" }} />
+            <col style={{ width: "8%" }} />
+          </colgroup>
           <thead style={{ backgroundColor: "#F7F7FB" }}>
-            <tr style={{ color: "#4B5563", fontSize: "0.875rem", fontWeight: 600 }}>
-              <th style={{ padding: "0.75rem" }}>
+            <tr style={{
+              color: "#4B5563",
+              fontSize: "0.92rem",
+              fontWeight: 600,
+              height: "48px",
+              verticalAlign: "middle"
+            }}>
+              <th style={{ padding: "0.55rem", verticalAlign: "middle", textAlign: "center" }}>
                 <input
                   type="checkbox"
                   className="checkbox checkbox-sm rounded"
@@ -371,12 +408,16 @@ export default function ProductManagement() {
                   }
                 />
               </th>
-              <th style={{ padding: "0.75rem", textAlign: "left" }}>Product</th>
-              <th style={{ padding: "0.75rem", textAlign: "left" }}>Price</th>
-              <th style={{ padding: "0.75rem", textAlign: "left" }}>Category</th>
-              <th style={{ padding: "0.75rem", textAlign: "left" }}>Stock</th>
-              <th style={{ padding: "0.75rem", textAlign: "left" }}>Status</th>
-              <th style={{ padding: "0.75rem", textAlign: "left" }}>Actions</th>
+              <th style={{ padding: "0.55rem", textAlign: "left", verticalAlign: "middle", fontWeight: 600, fontSize: "0.97rem", whiteSpace: "nowrap" }}>Product</th>
+              <th style={{ padding: "0.55rem", textAlign: "left", verticalAlign: "middle", fontWeight: 600, fontSize: "0.97rem", whiteSpace: "nowrap" }}>Variation</th>
+              <th style={{ padding: "0.55rem", textAlign: "left", verticalAlign: "middle", fontWeight: 600, fontSize: "0.97rem", maxWidth: 210, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>Association</th>
+              <th style={{ padding: "0.55rem", textAlign: "left", verticalAlign: "middle", fontWeight: 600, fontSize: "0.97rem", maxWidth: 140, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>Farmer Code</th>
+              <th style={{ padding: "0.55rem", textAlign: "left", verticalAlign: "middle", fontWeight: 600, fontSize: "0.97rem", whiteSpace: "nowrap" }}>Unit</th>
+              <th style={{ padding: "0.55rem", textAlign: "left", verticalAlign: "middle", fontWeight: 600, fontSize: "0.97rem", whiteSpace: "nowrap" }}>Price</th>
+              <th style={{ padding: "0.55rem", textAlign: "left", verticalAlign: "middle", fontWeight: 600, fontSize: "0.97rem", whiteSpace: "nowrap" }}>Category</th>
+              <th style={{ padding: "0.55rem", textAlign: "left", verticalAlign: "middle", fontWeight: 600, fontSize: "0.97rem", whiteSpace: "nowrap" }}>Stock</th>
+              <th style={{ padding: "0.55rem", textAlign: "left", verticalAlign: "middle", fontWeight: 600, fontSize: "0.97rem", whiteSpace: "nowrap" }}>Status</th>
+              <th style={{ padding: "0.55rem", textAlign: "left", verticalAlign: "middle", fontWeight: 600, fontSize: "0.97rem", whiteSpace: "nowrap" }}>Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -388,10 +429,16 @@ export default function ProductManagement() {
                   key={p.id}
                   style={{
                     backgroundColor: isSelected ? "#F0FDFA" : "transparent",
-                    height: "49px",
+                    minHeight: 44,
+                    verticalAlign: "middle",
+                    fontSize: "0.94rem"
                   }}
                 >
-                  <td style={{ padding: "0.75rem" }}>
+                  <td style={{
+                    padding: "0.55rem",
+                    verticalAlign: "middle",
+                    textAlign: "center"
+                  }}>
                     <input
                       type="checkbox"
                       className="checkbox checkbox-sm rounded"
@@ -405,45 +452,132 @@ export default function ProductManagement() {
                       }}
                     />
                   </td>
-                  <td style={{ padding: "0.75rem" }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
+                  <td style={{
+                    padding: "0.55rem",
+                    verticalAlign: "middle",
+                    fontSize: "0.97rem",
+                    fontWeight: 500,
+                    whiteSpace: "nowrap",
+                    overflow: "hidden",
+                    textOverflow: "ellipsis"
+                  }}>
+                    <div style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "0.65rem",
+                      minHeight: "34px"
+                    }}>
                       <img
                         src={p.avatar}
                         alt={p.name}
-                        style={{ width: 32, height: 32, borderRadius: "50%" }}
+                        style={{ width: 28, height: 28, borderRadius: "50%" }}
                       />
                       <div>
-                        <div style={{ fontWeight: 600, color: "#111827" }}>{p.name}</div>
-                        <div style={{ fontSize: "0.75rem", color: "#6B7280" }}>
-                          Variation: {p.variation}
-                        </div>
+                        <div style={{
+                          fontWeight: 600,
+                          color: "#111827",
+                          fontSize: "0.97rem",
+                          lineHeight: 1.2,
+                          whiteSpace: "nowrap"
+                        }}>{p.name}</div>
                       </div>
                     </div>
                   </td>
-                  <td style={{ padding: "0.75rem" }}>₱{Number(p.price).toLocaleString("en-PH", { minimumFractionDigits: 2 })}</td>
-                  <td style={{ padding: "0.75rem" }}>
+                  <td style={{
+                    padding: "0.55rem",
+                    verticalAlign: "middle",
+                    fontSize: "0.96rem",
+                    fontWeight: 500,
+                    whiteSpace: "nowrap"
+                  }}>
+                    {p.variation}
+                  </td>
+                  <td style={{
+                    padding: "0.55rem",
+                    verticalAlign: "middle",
+                    fontSize: "0.96rem",
+                    fontWeight: 500,
+                    maxWidth: 210,
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                    whiteSpace: "nowrap"
+                  }} title={p.association}>
+                    {p.association}
+                  </td>
+                  <td style={{
+                    padding: "0.55rem",
+                    verticalAlign: "middle",
+                    fontSize: "0.96rem",
+                    fontWeight: 500,
+                    maxWidth: 140,
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                    whiteSpace: "nowrap"
+                  }} title={p.farmer}>
+                    {p.farmer}
+                  </td>
+                  <td style={{
+                    padding: "0.55rem",
+                    verticalAlign: "middle",
+                    fontSize: "0.95rem",
+                    fontWeight: 500,
+                    whiteSpace: "nowrap"
+                  }}>
+                    {p.unit}
+                  </td>
+                  <td style={{
+                    padding: "0.55rem",
+                    verticalAlign: "middle",
+                    fontSize: "0.95rem",
+                    fontWeight: 500,
+                    whiteSpace: "nowrap"
+                  }}>
+                    ₱{Number(p.price).toLocaleString("en-PH", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                  </td>
+                  <td style={{
+                    padding: "0.55rem",
+                    verticalAlign: "middle",
+                    fontSize: "0.95rem",
+                    fontWeight: 500,
+                    whiteSpace: "nowrap"
+                  }}>
                     <span
                       style={{
                         display: "inline-block",
-                        padding: "0.25rem 0.75rem",
-                        fontSize: "0.75rem",
+                        padding: "0.16rem 0.6rem",
+                        fontSize: "0.88rem",
                         fontWeight: 500,
                         borderRadius: "9999px",
                         color: style.color,
                         backgroundColor: style.background,
                         border: `1px solid ${style.border}`,
+                        whiteSpace: "nowrap"
                       }}
                     >
                       {p.category}
                     </span>
                   </td>
-                  <td style={{ padding: "0.75rem" }}>{p.stock}</td>
-                  <td style={{ padding: "0.75rem" }}>
+                  <td style={{
+                    padding: "0.55rem",
+                    verticalAlign: "middle",
+                    fontSize: "0.95rem",
+                    fontWeight: 500,
+                    whiteSpace: "nowrap"
+                  }}>
+                    {p.stock}
+                  </td>
+                  <td style={{
+                    padding: "0.55rem",
+                    verticalAlign: "middle",
+                    fontSize: "0.95rem",
+                    fontWeight: 500,
+                    whiteSpace: "nowrap"
+                  }}>
                     <span
                       style={{
                         display: "inline-block",
-                        padding: "0.25rem 0.75rem",
-                        fontSize: "0.75rem",
+                        padding: "0.16rem 0.6rem",
+                        fontSize: "0.88rem",
                         fontWeight: 500,
                         borderRadius: "9999px",
                         color:
@@ -465,37 +599,61 @@ export default function ProductManagement() {
                             ? "#15803D"
                             : "#DC2626"
                         }`,
+                        whiteSpace: "nowrap"
                       }}
                     >
                       {p.status}
                     </span>
                   </td>
-                  <td style={{ padding: "0.75rem", textAlign: "left", minWidth: 160 }}>
-                    <div className="group flex items-center gap-4">
+                  <td style={{
+                    padding: "0.55rem",
+                    verticalAlign: "middle",
+                    textAlign: "left",
+                    minWidth: 115,
+                    fontSize: "0.95rem",
+                    fontWeight: 500,
+                    whiteSpace: "nowrap"
+                  }}>
+                    <div className="group flex items-center gap-3">
                       {p.status === "Pending" ? (
                         <div className="relative flex items-center" style={{ cursor: "pointer" }} onClick={() => handleDetails(p)}>
-                          <Copy size={20} stroke="#16A34A" className="transition-transform duration-200 group-hover:-translate-x-2" />
-                          <span className="absolute left-5 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 text-[#16A34A] text-sm font-medium transition-opacity duration-200 whitespace-nowrap" style={{ minWidth: 50 }}>
+                          <Copy size={18} stroke="#16A34A" className="transition-transform duration-200 group-hover:-translate-x-2" />
+                          <span className="absolute left-5 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 text-[#16A34A] text-xs font-medium transition-opacity duration-200 whitespace-nowrap" style={{ minWidth: 42 }}>
                             Details
                           </span>
                         </div>
                       ) : (
                         <div className="relative flex items-center" style={{ cursor: "pointer" }}>
-                          <Pencil size={20} stroke="#3B82F6" className="cursor-pointer transition-transform duration-200 group-hover:-translate-x-1" onClick={() => handleEdit(p)} />
-                          <span className="absolute left-7 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 text-[#3B82F6] text-sm font-medium transition-opacity duration-200 whitespace-nowrap" style={{ minWidth: 40 }}>
+                          <Pencil size={18} stroke="#3B82F6" className="cursor-pointer transition-transform duration-200 group-hover:-translate-x-1" onClick={() => handleEdit(p)} />
+                          <span className="absolute left-7 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 text-[#3B82F6] text-xs font-medium transition-opacity duration-200 whitespace-nowrap" style={{ minWidth: 33 }}>
                             Edit
                           </span>
                         </div>
                       )}
-                      <Trash2 size={20} stroke="#EF4444" className="cursor-pointer transition-transform duration-200 group-hover:translate-x-8" />
+                      <Trash2 size={18} stroke="#EF4444" className="cursor-pointer transition-transform duration-200 group-hover:translate-x-8" />
                     </div>
                   </td>
                 </tr>
               );
             })}
+            {Array.from({ length: emptyRows }).map((_, idx) => (
+              <tr key={`empty-row-${idx}`} style={{ minHeight: 44, background: "transparent" }}>
+                <td style={{ padding: "0.55rem" }}>&nbsp;</td>
+                <td style={{ padding: "0.55rem" }}></td>
+                <td style={{ padding: "0.55rem" }}></td>
+                <td style={{ padding: "0.55rem" }}></td>
+                <td style={{ padding: "0.55rem" }}></td>
+                <td style={{ padding: "0.55rem" }}></td>
+                <td style={{ padding: "0.55rem" }}></td>
+                <td style={{ padding: "0.55rem" }}></td>
+                <td style={{ padding: "0.55rem" }}></td>
+                <td style={{ padding: "0.55rem" }}></td>
+                <td style={{ padding: "0.55rem" }}></td>
+              </tr>
+            ))}
             {visibleProducts.length === 0 && (
               <tr>
-                <td colSpan={7} style={{ textAlign: "center", padding: "2rem", color: "#888" }}>
+                <td colSpan={11} style={{ textAlign: "center", padding: "2rem", color: "#888" }}>
                   No products found.
                 </td>
               </tr>

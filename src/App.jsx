@@ -6,6 +6,7 @@ import Layout from "./components/Layout/Layout";
 import Financial from "./components/FinancialTracker/Financial";
 import Document from "./components/DocumentProcessing/Document";
 import Marketplace from "./components/Marketplace/Marketplace";
+import FinancialTracker from "./components/AdminView/FinancialTracker";
 
 function App() {
   return (
@@ -16,12 +17,8 @@ function App() {
           <Route path="/membership" element={<Layout><Membership /></Layout>} />
           <Route path="/document" element={<Layout><Document /></Layout>} />
           <Route path="/inventory" element={<Layout><Inventory /></Layout>} />
-          <Route path="/marketplace" element={<Layout><Marketplace defaultTab="Product Management" /></Layout>} />
-          <Route path="/marketplace/products" element={<Layout><Marketplace defaultTab="Product Management" /></Layout>} />
-          <Route path="/marketplace/customers" element={<Layout><Marketplace defaultTab="Customer Management" /></Layout>} />
-          <Route path="/marketplace/orders" element={<Layout><Marketplace defaultTab="Order Management" /></Layout>} />
-          <Route path="/marketplace/payouts" element={<Layout><Marketplace defaultTab="Farmer Payout" /></Layout>} />
-          <Route path="/marketplace/*" element={<Navigate to="/marketplace/products" replace />} />
+          <Route path="/marketplace" element={<Layout><Marketplace /></Layout>} />
+          <Route path="/financial-tracker" element={<LayoutAdmin><FinancialTracker /></LayoutAdmin>} />
         </Routes>
       </Router>
     </div>
