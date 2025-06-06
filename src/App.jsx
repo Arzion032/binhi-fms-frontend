@@ -12,6 +12,10 @@ import SetPassword from './components/SignUp/SetPassword';
 import SetUp from './components/SignUp/SetUp';
 import Association from './components/AdminView/Association';
 import LayoutAdmin from "./components/LayoutAdmin/LayoutAdmin";
+import FinancialTracker from "./components/AdminView/FinancialTracker";
+import LayoutAdmin from "./components/LayoutAdmin/LayoutAdmin";
+import MarketplaceAdmin from "./components/AdminView/MarketplaceAdmin/MarketplaceAdmin";
+
 
 function App() {
   return (
@@ -33,6 +37,8 @@ function App() {
           <Route path="/marketplace/payouts" element={<Layout><Marketplace defaultTab="Farmer Payout" /></Layout>} />
           <Route path="/marketplace/*" element={<Navigate to="/marketplace/products" replace />} />
           <Route path="/Association" element={<LayoutAdmin><Association /></LayoutAdmin>} />
+          <Route path="/financial-tracker" element={<LayoutAdmin><FinancialTracker /></LayoutAdmin>} />
+          <Route path="/marketplace-admin" element={<LayoutAdmin><MarketplaceAdmin /></LayoutAdmin>} />
         </Routes>
       </Router>
     </div>

@@ -33,7 +33,7 @@ export default function PayoutModal({
         <div>
           <div className="flex items-center gap-4 mb-4">
             <img
-              src={payout?.farmer?.avatar || "/sampleproduct.png"}
+              src={payout?.farmer?.avatar || "/Screenshot_195.png"}
               alt={payout?.farmer?.name || "Farmer"}
               className="w-16 h-16 rounded-full object-cover border border-gray-200"
             />
@@ -49,7 +49,7 @@ export default function PayoutModal({
             <div className="font-bold text-gray-900">Items Sold</div>
             <div className="flex items-center gap-2 mt-1">
               <img
-                src={payout?.product?.image || "/sampleproduct.png"}
+                src={payout?.product?.image || "/Screenshot_195.png"}
                 alt={payout?.product?.name || "Product"}
                 className="w-9 h-9 rounded-md object-cover border border-gray-200"
               />

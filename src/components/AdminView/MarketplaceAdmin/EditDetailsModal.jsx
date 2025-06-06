@@ -146,7 +146,7 @@ export default function EditDetailsModal({
         {/* Image, Product Name, and Variation */}
         <div className="flex items-center gap-4 mb-7">
           <img
-            src={avatar || '/sampleproduct.png'}
+            src={avatar || '/Screenshot_195.png'}
             alt={name}
             className="rounded-full"
             style={{ width: 65, height: 65, objectFit: "cover" }}

@@ -3,11 +3,11 @@ import React from "react";
 export default function OrderHistoryModal({ isOpen, onClose, customerName, orders }) {
   if (!isOpen) return null;
 
-  // All images point to ./Screenshot_195.png
+  // All images point to ./sampleproduct.png
   const normalizedOrders = orders.map(order => ({
     ...order,
-    sellerAvatar: "./Screenshot_195.png",
-    productImage: "./Screenshot_195.png",
+    sellerAvatar: "./sampleproduct.png",
+    productImage: "./sampleproduct.png",
   }));
 
   return (

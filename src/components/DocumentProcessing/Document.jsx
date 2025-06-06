@@ -12,7 +12,6 @@ import {
 import ApproveModal, { RejectModal } from './ApproveModal';
 
 export default function Document() {
-  // ─── TAB STATE & INDICATOR ───────────────────────────────────────────────────
   const [activeTab, setActiveTab] = useState('pending');
   const pendingRef = useRef();
   const historyRef = useRef();
@@ -38,33 +37,30 @@ export default function Document() {
     return () => window.removeEventListener('resize', updateIndicator);
   }, [updateIndicator]);
 
-  // ─── SEARCH & FILTER STATE ───────────────────────────────────────────────────────
   const [showFilters, setShowFilters] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedDocumentRequest, setSelectedDocumentRequest] = useState('');
   const [selectedStatus, setSelectedStatus] = useState('');
 
-  // ─── REQUESTS STATE ────────────────────────────────────────────────────────────
   const [requests, setRequests] = useState([
-    { id: 1, name: 'Juan Dela Cruz', email: 'juandelacruz@gmail.com', avatar: '/Screenshot_195.png', listDate: 'Apr 9, 2025, 11:34 AM', role: 'Member', document: 'Rental Form', status: 'Pending', requestedOn: 'April 9, 2025, 11:34 AM' },
-    { id: 2, name: 'Carlo Imnida', email: 'carloimnida@gmail.com', avatar: '/Screenshot_195.png', listDate: 'Apr 8, 2025, 10:00 AM', role: 'Member', document: 'Land Title', status: 'Approved', requestedOn: 'April 8, 2025, 10:00 AM' },
-    { id: 3, name: 'Yna Boomboom', email: 'ynab@example.com', avatar: '/Screenshot_195.png', listDate: 'Apr 7, 2025, 09:20 AM', role: 'Member', document: 'Tax Document', status: 'Rejected', requestedOn: 'April 7, 2025, 09:20 AM' },
-    { id: 4, name: 'Mike Johnson', email: 'mike.j@example.com', avatar: '/Screenshot_195.png', listDate: 'Apr 6, 2025, 08:45 AM', role: 'Member', document: 'Application Form', status: 'Pending', requestedOn: 'April 6, 2025, 08:45 AM' },
-    { id: 5, name: 'Sarah Lee', email: 'sarah.lee@example.com', avatar: '/Screenshot_195.png', listDate: 'Apr 5, 2025, 02:30 PM', role: 'Member', document: 'ID Verification', status: 'Approved', requestedOn: 'April 5, 2025, 02:30 PM' },
-    { id: 6, name: 'David Lee', email: 'david.lee@example.com', avatar: '/Screenshot_195.png', listDate: 'Apr 4, 2025, 11:15 AM', role: 'Member', document: 'Passport Copy', status: 'Rejected', requestedOn: 'April 4, 2025, 11:15 AM' },
-    { id: 7, name: 'Emily Clark', email: 'emily.clark@example.com', avatar: '/Screenshot_195.png', listDate: 'Apr 3, 2025, 09:05 AM', role: 'Member', document: 'Certificate', status: 'Pending', requestedOn: 'April 3, 2025, 09:05 AM' },
-    { id: 8, name: 'Robert Brown', email: 'robert.brown@example.com', avatar: '/Screenshot_195.png', listDate: 'Apr 2, 2025, 04:20 PM', role: 'Member', document: 'Tax Form', status: 'Approved', requestedOn: 'April 2, 2025, 04:20 PM' },
-    { id: 9, name: 'Linda White', email: 'linda.white@example.com', avatar: '/Screenshot_195.png', listDate: 'Apr 1, 2025, 12:00 PM', role: 'Member', document: 'Lease Agreement', status: 'Rejected', requestedOn: 'April 1, 2025, 12:00 PM' },
-    { id: 10, name: 'Steven Garcia', email: 'steven.garcia@example.com', avatar: '/Screenshot_195.png', listDate: 'Mar 31, 2025, 03:40 PM', role: 'Member', document: 'Employment Letter', status: 'Pending', requestedOn: 'March 31, 2025, 03:40 PM' },
-    { id: 11, name: 'Karen Martinez', email: 'karen.martinez@example.com', avatar: '/Screenshot_195.png', listDate: 'Mar 30, 2025, 10:10 AM', role: 'Member', document: 'Insurance Document', status: 'Approved', requestedOn: 'March 30, 2025, 10:10 AM' },
-    { id: 12, name: 'Brian Rodriguez', email: 'brian.rodriguez@example.com', avatar: '/Screenshot_195.png', listDate: 'Mar 29, 2025, 05:50 PM', role: 'Member', document: 'Bank Statement', status: 'Rejected', requestedOn: 'March 29, 2025, 05:50 PM' },
-    { id: 13, name: 'Michelle Nguyen', email: 'michelle.nguyen@example.com', avatar: '/Screenshot_195.png', listDate: 'Mar 28, 2025, 07:25 AM', role: 'Member', document: 'Utility Bill', status: 'Pending', requestedOn: 'March 28, 2025, 07:25 AM' },
-    { id: 14, name: 'Chris Patel', email: 'chris.patel@example.com', avatar: '/Screenshot_195.png', listDate: 'Mar 27, 2025, 06:15 PM', role: 'Member', document: 'Mortgage Contract', status: 'Approved', requestedOn: 'March 27, 2025, 06:15 PM' },
-    { id: 15, name: 'Jessica Kim', email: 'jessica.kim@example.com', avatar: '/Screenshot_195.png', listDate: 'Mar 26, 2025, 01:05 PM', role: 'Member', document: 'Vehicle Registration', status: 'Rejected', requestedOn: 'March 26, 2025, 01:05 PM' }
+    { id: 1, name: 'Juan Dela Cruz', email: 'juandelacruz@gmail.com', avatar: '/sampleproduct.png', listDate: 'Apr 9, 2025, 11:34 AM', role: 'Farmer', document: 'Rental Form', status: 'Pending', requestedOn: 'April 9, 2025, 11:34 AM' },
+    { id: 2, name: 'Carlo Imnida', email: 'carloimnida@gmail.com', avatar: '/sampleproduct.png', listDate: 'Apr 8, 2025, 10:00 AM', role: 'Farmer', document: 'Land Title', status: 'Approved', requestedOn: 'April 8, 2025, 10:00 AM' },
+    { id: 3, name: 'Yna Boomboom', email: 'ynab@example.com', avatar: '/sampleproduct.png', listDate: 'Apr 7, 2025, 09:20 AM', role: 'Farmer', document: 'Tax Document', status: 'Rejected', requestedOn: 'April 7, 2025, 09:20 AM' },
+    { id: 4, name: 'Mike Johnson', email: 'mike.j@example.com', avatar: '/sampleproduct.png', listDate: 'Apr 6, 2025, 08:45 AM', role: 'Farmer', document: 'Application Form', status: 'Pending', requestedOn: 'April 6, 2025, 08:45 AM' },
+    { id: 5, name: 'Sarah Lee', email: 'sarah.lee@example.com', avatar: '/sampleproduct.png', listDate: 'Apr 5, 2025, 02:30 PM', role: 'Farmer', document: 'ID Verification', status: 'Approved', requestedOn: 'April 5, 2025, 02:30 PM' },
+    { id: 6, name: 'David Lee', email: 'david.lee@example.com', avatar: '/sampleproduct.png', listDate: 'Apr 4, 2025, 11:15 AM', role: 'Farmer', document: 'Passport Copy', status: 'Rejected', requestedOn: 'April 4, 2025, 11:15 AM' },
+    { id: 7, name: 'Emily Clark', email: 'emily.clark@example.com', avatar: '/sampleproduct.png', listDate: 'Apr 3, 2025, 09:05 AM', role: 'Farmer', document: 'Certificate', status: 'Pending', requestedOn: 'April 3, 2025, 09:05 AM' },
+    { id: 8, name: 'Robert Brown', email: 'robert.brown@example.com', avatar: '/sampleproduct.png', listDate: 'Apr 2, 2025, 04:20 PM', role: 'Farmer', document: 'Tax Form', status: 'Approved', requestedOn: 'April 2, 2025, 04:20 PM' },
+    { id: 9, name: 'Linda White', email: 'linda.white@example.com', avatar: '/sampleproduct.png', listDate: 'Apr 1, 2025, 12:00 PM', role: 'Farmer', document: 'Lease Agreement', status: 'Rejected', requestedOn: 'April 1, 2025, 12:00 PM' },
+    { id: 10, name: 'Steven Garcia', email: 'steven.garcia@example.com', avatar: '/sampleproduct.png', listDate: 'Mar 31, 2025, 03:40 PM', role: 'Farmer', document: 'Employment Letter', status: 'Pending', requestedOn: 'March 31, 2025, 03:40 PM' },
+    { id: 11, name: 'Karen Martinez', email: 'karen.martinez@example.com', avatar: '/sampleproduct.png', listDate: 'Mar 30, 2025, 10:10 AM', role: 'Farmer', document: 'Insurance Document', status: 'Approved', requestedOn: 'March 30, 2025, 10:10 AM' },
+    { id: 12, name: 'Brian Rodriguez', email: 'brian.rodriguez@example.com', avatar: '/sampleproduct.png', listDate: 'Mar 29, 2025, 05:50 PM', role: 'Farmer', document: 'Bank Statement', status: 'Rejected', requestedOn: 'March 29, 2025, 05:50 PM' },
+    { id: 13, name: 'Michelle Nguyen', email: 'michelle.nguyen@example.com', avatar: '/sampleproduct.png', listDate: 'Mar 28, 2025, 07:25 AM', role: 'Farmer', document: 'Utility Bill', status: 'Pending', requestedOn: 'March 28, 2025, 07:25 AM' },
+    { id: 14, name: 'Chris Patel', email: 'chris.patel@example.com', avatar: '/sampleproduct.png', listDate: 'Mar 27, 2025, 06:15 PM', role: 'Farmer', document: 'Mortgage Contract', status: 'Approved', requestedOn: 'March 27, 2025, 06:15 PM' },
+    { id: 15, name: 'Jessica Kim', email: 'jessica.kim@example.com', avatar: '/sampleproduct.png', listDate: 'Mar 26, 2025, 01:05 PM', role: 'Farmer', document: 'Vehicle Registration', status: 'Rejected', requestedOn: 'March 26, 2025, 01:05 PM' }
   ]);
 
-  // ─── SORTING STATE ─────────────────────────────────────────────────────────────
-  const [sortOrder, setSortOrder] = useState('recent'); // 'recent' | 'atoz' | 'ztoa' | 'old'
+  const [sortOrder, setSortOrder] = useState('recent');
   const [recentDropdownOpen, setRecentDropdownOpen] = useState(false);
   const recentDropdownRef = useRef();
 
@@ -82,7 +78,6 @@ export default function Document() {
     return new Date(dateStr);
   }
 
-  // Filter + sort requests based on filter state and sortOrder
   const filteredSortedRequests = React.useMemo(() => {
     let filtered = requests.filter(r => {
       return (
@@ -107,11 +102,9 @@ export default function Document() {
         filtered.sort((a, b) => parseDateString(b.listDate) - parseDateString(a.listDate));
         break;
     }
-
     return filtered;
   }, [requests, searchQuery, selectedDocumentRequest, selectedStatus, sortOrder]);
 
-  // ─── HISTORY TABLE STATE & DELETE ─────────────────────────────────────────────
   const historyData = requests.map(r => ({ ...r, reason: 'Duplicate Request' }));
   const [historyPage, setHistoryPage] = useState(1);
   const itemsPerPageHistory = 7;
@@ -126,10 +119,8 @@ export default function Document() {
     setSelectedRowsHistory([]);
   };
 
-  // ─── DETAIL VIEW STATE ────────────────────────────────────────────────────────
   const [selectedRequest, setSelectedRequest] = useState(requests[0]);
 
-  // ─── APPROVE MODAL STATE ───────────────────────────────────────────────────────
   const [showApproveModal, setShowApproveModal] = useState(false);
   const handleApproveClick = () => setShowApproveModal(true);
   const handleDoApprove = () => {
@@ -138,7 +129,6 @@ export default function Document() {
     );
   };
 
-  // ─── REJECT MODAL STATE ────────────────────────────────────────────────────────
   const [showRejectModal, setShowRejectModal] = useState(false);
   const handleRejectClick = () => setShowRejectModal(true);
   const handleDoReject = (reason) => {
@@ -147,14 +137,12 @@ export default function Document() {
     );
   };
 
-  // Clear filters
   const clearFilters = () => {
     setSelectedDocumentRequest('');
     setSelectedStatus('');
     setShowFilters(false);
   };
 
-  // Get unique documents for filter dropdown
   const uniqueDocuments = React.useMemo(() => {
     const docs = new Set(requests.map(r => r.document));
     return Array.from(docs).sort();
@@ -180,10 +168,10 @@ export default function Document() {
             </svg>
           </button>
         </div>
-        <div className="px-6 pb-4 h-5 flex items-center">
+        <div className="px-6 pb-3 h-5 flex items-center">
           <h1 className="text-[40px] font-bold text-gray-800">Document Management</h1>
         </div>
-        <div className="mb-4 border-b border-gray-200 relative">
+        <div className="mb-2 border-b border-gray-200 relative">
           <ul ref={tabsRef} className="flex -mb-px text-sm font-medium text-center" role="tablist">
             <li className="mr-10" role="presentation">
               <button
@@ -211,12 +199,11 @@ export default function Document() {
         </div>
       </div>
 
-      <div className="px-6 py-4">
+      <div className="px-6 py-2 pb-4">
         {activeTab === 'pending' ? (
           <>
-            {/* Pending Toolbar */}
-            <div className="flex items-center justify-between mb-2 px-4 pt-2">
-              {/* Left: Show filter UI or "Pending Requests" text */}
+            {/* Toolbar */}
+            <div className="flex items-center justify-between px-4 pt-2 mb-1">
               <div className="flex items-center gap-2">
                 {showFilters ? (
                   <div className="flex items-center space-x-1 p-2 rounded-lg w-fit">
@@ -224,7 +211,6 @@ export default function Document() {
                       <SlidersHorizontal className="w-4 h-4 text-[#3b82f6]" />
                       <span className="mr-2 p-2 text-sm text-[#3b82f6] font-medium">Active Filters</span>
                     </div>
-                    {/* Document Request Filter */}
                     <select
                       value={selectedDocumentRequest}
                       onChange={e => setSelectedDocumentRequest(e.target.value)}
@@ -235,7 +221,6 @@ export default function Document() {
                         <option key={doc} value={doc}>{doc}</option>
                       ))}
                     </select>
-                    {/* Status Filter */}
                     <select
                       value={selectedStatus}
                       onChange={e => setSelectedStatus(e.target.value)}
@@ -264,30 +249,52 @@ export default function Document() {
                   </>
                 )}
               </div>
-
-              {/* Right: Search */}
-              <div className="ml-auto flex items-center gap-3">
-                <div className="relative w-[280px] flex items-center border rounded-full px-3 py-1 bg-white">
-                  <Search className="text-gray-500 w-5 h-5 mr-2" />
+              {/* ----------- UPDATED SEARCH BAR DESIGN START ----------- */}
+              <div className="ml-auto flex items-center gap-4">
+                <div className="relative" style={{ width: "240px" }}>
+                  <Search
+                    size={18}
+                    style={{
+                      position: "absolute",
+                      left: "0.75rem",
+                      top: "50%",
+                      transform: "translateY(-50%)",
+                      color: "#6B7280",
+                    }}
+                  />
                   <input
                     type="text"
                     placeholder="Search Document"
                     value={searchQuery}
                     onChange={e => setSearchQuery(e.target.value)}
-                    className="flex-1 outline-none bg-transparent"
-                    style={{ color: '#374151' }}
+                    style={{
+                      width: "100%",
+                      padding: "0.5rem 2.5rem 0.5rem 2.5rem",
+                      border: "1px solid #D1D5DB",
+                      borderRadius: "9999px",
+                      outline: "none",
+                      color: "#374151",
+                      background: "white"
+                    }}
                   />
-                  <button
+                  <SlidersHorizontal
+                    size={18}
                     onClick={() => setShowFilters(f => !f)}
-                    aria-label="Toggle filters"
-                  >
-                    <SlidersHorizontal className="text-gray-600 w-5 h-5" />
-                  </button>
+                    style={{
+                      position: "absolute",
+                      right: "0.75rem",
+                      top: "50%",
+                      transform: "translateY(-50%)",
+                      color: "#6B7280",
+                      cursor: "pointer",
+                    }}
+                  />
                 </div>
               </div>
+              {/* ----------- UPDATED SEARCH BAR DESIGN END ----------- */}
             </div>
-
-            {/* Pending List & Detail */}
+            {/* Heading */}
+            <h2 className="text-xl font-bold mb-2 px-4 pt-2">Pending Requests</h2>
             <div className="flex gap-4">
               {/* Left list */}
               <div
@@ -401,8 +408,6 @@ export default function Document() {
                   )}
                 </div>
               </div>
-
-              {/* Right detail */}
               <div className="flex-1 bg-white rounded-2xl border border-[#E5E7EB] p-6 shadow-sm flex flex-col">
                 <div className="flex items-center gap-4 mb-4">
                   <img src={selectedRequest.avatar} alt={selectedRequest.name} className="w-12 h-12 rounded-full" />
@@ -510,29 +515,52 @@ export default function Document() {
                   </span>
                 </div>
               )}
-              <div className="ml-auto flex items-center gap-3">
-                <div className="relative w-[280px] flex items-center border rounded-full px-3 py-1 bg-white">
-                  <Search className="text-gray-500 w-5 h-5 mr-2" />
+              {/* ----------- UPDATED SEARCH BAR DESIGN START ----------- */}
+              <div className="ml-auto flex items-center gap-4">
+                <div className="relative" style={{ width: "240px" }}>
+                  <Search
+                    size={18}
+                    style={{
+                      position: "absolute",
+                      left: "0.75rem",
+                      top: "50%",
+                      transform: "translateY(-50%)",
+                      color: "#6B7280",
+                    }}
+                  />
                   <input
                     type="text"
                     placeholder="Search Document"
                     value={searchQuery}
                     onChange={e => setSearchQuery(e.target.value)}
-                    className="flex-1 outline-none bg-transparent"
-                    style={{ color: '#374151' }}
+                    style={{
+                      width: "100%",
+                      padding: "0.5rem 2.5rem 0.5rem 2.5rem",
+                      border: "1px solid #D1D5DB",
+                      borderRadius: "9999px",
+                      outline: "none",
+                      color: "#374151",
+                      background: "white"
+                    }}
                   />
-                  <button onClick={() => setShowFilters(f => !f)}>
-                    <SlidersHorizontal className="text-gray-600 w-5 h-5" />
-                  </button>
+                  <SlidersHorizontal
+                    size={18}
+                    onClick={() => setShowFilters(f => !f)}
+                    style={{
+                      position: "absolute",
+                      right: "0.75rem",
+                      top: "50%",
+                      transform: "translateY(-50%)",
+                      color: "#6B7280",
+                      cursor: "pointer",
+                    }}
+                  />
                 </div>
               </div>
+              {/* ----------- UPDATED SEARCH BAR DESIGN END ----------- */}
             </div>
-
-            <div className="border-b border-gray-300 mt-2 mb-2" />
-
-            {/* History Table */}
+            <h2 className="text-xl font-bold mb-4 px-4 pt-2">Request History</h2>
             <div className="w-full rounded-xl overflow-visible">
-              <h2 className="text-xl font-bold mb-4 px-4 pt-2">Request History</h2>
               <table className="table w-full">
                 <thead className="bg-[#f7f7fb] text-sm text-gray-600 font-semibold">
                   <tr>
@@ -633,7 +661,6 @@ export default function Document() {
                         </td>
                         <td>{row.reason}</td>
                         <td style={{ minWidth: 160 }}>
-                          {/* Marketplace-like sliding effect */}
                           <div className="group flex items-center gap-4 justify-end cursor-pointer relative">
                             <div className="relative flex items-center">
                               <Copy
@@ -660,8 +687,6 @@ export default function Document() {
                   })}
                 </tbody>
               </table>
-
-              {/* Pagination */}
               <div className="flex justify-center my-6">
                 <div className="flex items-center gap-1">
                   <button
@@ -696,15 +721,11 @@ export default function Document() {
           </>
         )}
       </div>
-
-      {/* ─── APPROVE MODAL ───────────────────────────────────────────────────────── */}
       <ApproveModal
         isOpen={showApproveModal}
         onClose={() => setShowApproveModal(false)}
         onApprove={handleDoApprove}
       />
-
-      {/* ─── REJECT MODAL ────────────────────────────────────────────────────────── */}
       <RejectModal
         isOpen={showRejectModal}
         onClose={() => setShowRejectModal(false)}

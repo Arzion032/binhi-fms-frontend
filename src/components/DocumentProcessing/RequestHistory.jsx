@@ -21,34 +21,16 @@ export default function RequestHistory({
   );
 
   return (
-    <>
-      <div className="flex items-center justify-between mb-4 px-4 pt-2">
-        {selectedRowsHistory.length > 0 ? (
-          <div className="flex items-center gap-2">
-            <button
-              onClick={handleDeleteHistory}
-              className="flex items-center gap-2 border border-gray-200 rounded-2xl px-4 py-2 hover:bg-red-50"
-            >
-              <Trash2 size={18} stroke="#dc2626" />
-              <span style={{ color: '#dc2626' }}>Delete</span>
-              <span className="text-gray-500 ml-1">
-                {selectedRowsHistory.length} Selected
-              </span>
-            </button>
-            <button
-              onClick={() => setSelectedRowsHistory([])}
-              className="flex items-center gap-1 border border-gray-200 rounded-2xl px-4 py-2 hover:bg-gray-100"
-            >✕ Clear</button>
-          </div>
-        ) : (
-          <div className="flex items-center gap-2">
-            <RefreshCw size={20} stroke="#16A34A" />
-            <span className="font-medium text-base" style={{ color: '#111827' }}>
-              Request History {requests.length}
-            </span>
-          </div>
-        )}
-        <div className="ml-auto flex items-center gap-3">
+    <div className="px-6 pb-4">
+      {/* Toolbar */}
+      <div className="flex flex-wrap items-center justify-between my-1 gap-2 px-4 pt-0">
+        <div className="flex items-center gap-2 text-base font-medium">
+          <RefreshCw size={20} stroke="#16A34A" />
+          <span className="font-medium text-lg" style={{ color: '#111827' }}>
+            Request History {requests.length}
+          </span>
+        </div>
+        <div className="flex items-center gap-3 relative">
           <div className="relative w-[280px] flex items-center border rounded-full px-3 py-1 bg-white">
             <Search className="text-gray-500 w-5 h-5 mr-2" />
             <input
@@ -65,13 +47,12 @@ export default function RequestHistory({
           </div>
         </div>
       </div>
-      <div className="border-b border-gray-300 mt-2 mb-2" />
-
+      {/* Heading */}
+      <h2 className="text-xl font-bold mb-2 px-4 pt-2">Request History</h2>
       {/* History Table */}
       <div className="w-full rounded-xl overflow-visible">
-        <h2 className="text-xl font-bold mb-4 px-4 pt-2">Request History</h2>
         <table className="table w-full">
-          <thead className="bg-[#f7f7fb] text-sm text-gray-600 font-semibold">
+          <thead>
             <tr>
               <th>
                 <input
@@ -228,6 +209,6 @@ export default function RequestHistory({
           </div>
         </div>
       </div>
-    </>
+    </div>
   );
 }

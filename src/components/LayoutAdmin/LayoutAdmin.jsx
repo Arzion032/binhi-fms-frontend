@@ -2,6 +2,7 @@ import React from 'react';
 import SideBarAdmin from '../SideBarAdmin';
 
 const LayoutAdmin = ({ children }) => {
+
   return (
     <div className="flex">
       <SideBarAdmin />
@@ -13,3 +14,4 @@ const LayoutAdmin = ({ children }) => {
 };
 
 export default LayoutAdmin;
+

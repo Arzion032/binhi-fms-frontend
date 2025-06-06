@@ -31,7 +31,7 @@ export default function Financial() {
     return () => window.removeEventListener('resize', updateIndicator);
   }, [updateIndicator]);
 
-  // ─── OVERVIEW MODALS & ACTIONS ───────────────────────────────────────────────
+  // ─── MODALS & ACTIONS ───────────────────────────────────────────────
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [downloadDropdownOpen, setDownloadDropdownOpen] = useState(false);
   const [incomeModalOpen, setIncomeModalOpen] = useState(false);
@@ -50,12 +50,12 @@ export default function Financial() {
 
   // ─── HISTORY DATA & HANDLERS ────────────────────────────────────────────────
   const [transactions, setTransactions] = useState([
-    { name: 'Kaye Lagablab', email: 'juandcruz@gmail.com', avatar: '/Screenshot_195.png', type: 'Income', source: 'Marketplace', category: '-', amount: '12,999', date: 'Apr 17, 2025', relativeDate: '5 days ago' },
-    { name: 'Carlo Imnida',   email: 'juandcruz@gmail.com', avatar: '/Screenshot_195.png', type: 'Expense', source: '-', category: 'Farm Supply', amount: '5,400', date: 'Apr 16, 2025', relativeDate: '6 days ago' },
-    { name: 'Yna Boomboom',   email: 'juandcruz@gmail.com', avatar: '/Screenshot_195.png', type: 'Expense', source: '-', category: 'Farm Supply', amount: '7,000', date: 'Apr 15, 2025', relativeDate: '7 days ago' },
-    { name: 'Fred Ko Pal',    email: 'juandcruz@gmail.com', avatar: '/Screenshot_195.png', type: 'Expense', source: '-', category: 'Farm Supply', amount: '1,500', date: 'Apr 14, 2025', relativeDate: '8 days ago' },
-    { name: 'Ry Ban Tot',     email: 'juandcruz@gmail.com', avatar: '/Screenshot_195.png', type: 'Income', source: 'Marketplace', category: '-', amount: '2,500', date: 'Apr 13, 2025', relativeDate: '9 days ago' },
-    { name: 'Nisi B. Ding',   email: 'juandcruz@gmail.com', avatar: '/Screenshot_195.png', type: 'Income', source: 'Marketplace', category: '-', amount: '999',   date: 'Apr 12, 2025', relativeDate: '10 days ago' }
+    { name: 'Kaye Arroyo', email: 'juandcruz@gmail.com', avatar: '/sampleproduct.png', type: 'Income', source: 'Marketplace', category: 'Hunos', amount: '12,999', date: 'Apr 17, 2025', relativeDate: '5 days ago' },
+    { name: 'Carlo Bascuna',   email: 'juandcruz@gmail.com', avatar: '/sampleproduct.png', type: 'Expense', source: '-', category: 'Hunos', amount: '5,400', date: 'Apr 16, 2025', relativeDate: '6 days ago' },
+    { name: 'Yna Mae Nieves',   email: 'juandcruz@gmail.com', avatar: '/sampleproduct.png', type: 'Expense', source: '-', category: 'Hunos', amount: '7,000', date: 'Apr 15, 2025', relativeDate: '7 days ago' },
+    { name: 'Tanggol Montenegro',    email: 'juandcruz@gmail.com', avatar: '/sampleproduct.png', type: 'Expense', source: '-', category: 'Hunos', amount: '1,500', date: 'Apr 14, 2025', relativeDate: '8 days ago' },
+    { name: 'Aldrin Gueverra',     email: 'juandcruz@gmail.com', avatar: '/sampleproduct.png', type: 'Income', source: 'Marketplace', category: 'Hunos', amount: '2,500', date: 'Apr 13, 2025', relativeDate: '9 days ago' },
+    { name: 'Nisi Viloria',   email: 'juandcruz@gmail.com', avatar: '/sampleproduct.png', type: 'Income', source: 'Marketplace', category: 'Hunos', amount: '999',   date: 'Apr 12, 2025', relativeDate: '10 days ago' }
   ]);
   const itemsPerPage = 5;
   const [currentPage, setCurrentPage] = useState(1);
@@ -70,7 +70,7 @@ export default function Financial() {
 
   // Filtering the transactions based on filters & search
   const filteredTransactions = transactions.filter(t => {
-    const matchesRole = selectedRole ? (selectedRole === 'Income' ? true : true) /* role only has "Member", so always true */ : true;
+    const matchesRole = selectedRole ? (selectedRole === 'Income' ? true : true) : true;
     const matchesType = selectedType ? t.type === selectedType : true;
     const matchesSource = selectedSource ? t.source === selectedSource : true;
     const matchesSearch = searchTransaction.trim() === '' || t.name.toLowerCase().includes(searchTransaction.trim().toLowerCase());
@@ -144,6 +144,180 @@ export default function Financial() {
     { date: 'Apr 14, 2024', name: 'Grace', amount: '₱500',  color: 'green' }
   ];
 
+  // ─── HEADER ROWS (UPDATED DESIGN) ─────────────────────────────
+  // Overview Tab: Balance Info + Buttons
+  const headerRowOverview = (
+    <div className="flex flex-wrap items-center justify-between my-4 gap-2">
+      <div className="flex items-center gap-2 text-base font-medium">
+        <RefreshCw size={20} stroke="#3b82f6" />
+        <span className="font-medium text-lg" style={{ color: '#3b82f6' }}>Current Federation Balance:</span>
+        <span className="text-blue-700 font-bold text-lg">₱52,438</span>
+        <span className="text-gray-400 text-lg ml-2 opacity-60">Last Updated Apr 30</span>
+      </div>
+      <div className="flex gap-2">
+        {/* Add Transaction Button */}
+        <div className="relative z-20" ref={dropdownRef}>
+          <button
+            onClick={() => setDropdownOpen(!dropdownOpen)}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "0.5rem",
+              padding: "0.5rem 1.2rem",
+              backgroundColor: "#16A34A",
+              color: "#fff",
+              border: "none",
+              borderRadius: "9999px",
+              fontWeight: 600,
+              fontSize: "1rem",
+              cursor: "pointer",
+              boxShadow: "0 2px 8px 0 rgba(36,185,111,0.05)",
+            }}
+            className="font-semibold"
+          >
+            + Add Transaction
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={`w-4 h-4 ml-1 ${dropdownOpen ? 'rotate-180' : ''} transition-transform duration-200`}>
+              <polyline points="6 9 12 15 18 9" />
+            </svg>
+          </button>
+          {dropdownOpen && (
+            <ul className="absolute left-1/2 transform -translate-x-1/2 mt-2 menu p-2 shadow bg-white border border-black rounded-box w-52">
+              <li><a onClick={() => handleAddTransaction('income')}>Income</a></li>
+              <li><a onClick={() => handleAddTransaction('expense')}>Expense</a></li>
+            </ul>
+          )}
+        </div>
+        {/* Download Button */}
+        <div className="relative z-20" ref={downloadRef}>
+          <button
+            onClick={() => setDownloadDropdownOpen(!downloadDropdownOpen)}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "0.5rem",
+              padding: "0.5rem 1.2rem",
+              backgroundColor: "#fff",
+              color: "#16A34A",
+              border: "1.5px solid #16A34A",
+              borderRadius: "9999px",
+              fontWeight: 600,
+              fontSize: "1rem",
+              cursor: "pointer",
+              boxShadow: "0 2px 8px 0 rgba(36,185,111,0.05)",
+            }}
+          >
+            Download
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={`w-4 h-4 ml-1 ${downloadDropdownOpen ? 'rotate-180' : ''} transition-transform duration-200`}>
+              <polyline points="6 9 12 15 18 9" />
+            </svg>
+          </button>
+          {downloadDropdownOpen && (
+            <ul className="absolute left-1/2 transform -translate-x-1/2 mt-2 menu p-2 shadow bg-white border border-black rounded-box w-60">
+              <li>
+                <a onClick={() => handleOverviewDownload('PDF')} className="flex items-center gap-2">
+                  <FaFilePdf className="text-red-500" /> Download PDF
+                </a>
+              </li>
+              <li>
+                <a onClick={() => handleOverviewDownload('Excel')} className="flex items-center gap-2">
+                  <FaFileExcel className="text-green-600" /> Download Excel
+                </a>
+              </li>
+              <div className="border-t my-2" />
+              <li><a onClick={() => handleOverviewDownload('Custom Range')}>Custom Date Range</a></li>
+            </ul>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+
+  // Transaction History Tab: Balance left, Search+Download right, NO divider below
+  const headerRowHistory = (
+    <div className="flex flex-wrap items-center justify-between my-4 gap-2">
+      <div className="flex items-center gap-2 text-base font-medium">
+        <RefreshCw size={20} stroke="#3b82f6" />
+        <span className="font-medium text-lg" style={{ color: '#3b82f6' }}>Current Federation Balance:</span>
+        <span className="text-blue-700 font-bold text-lg">₱52,438</span>
+        <span className="text-gray-400 text-lg ml-2 opacity-60">Last Updated Apr 30</span>
+      </div>
+      <div className="flex items-center gap-4 relative">
+        {/* Search Bar */}
+        <div className="relative" style={{ width: "240px" }}>
+          <Search
+            size={18}
+            style={{
+              position: "absolute",
+              left: "0.75rem",
+              top: "50%",
+              transform: "translateY(-50%)",
+              color: "#6B7280",
+            }}
+          />
+          <input
+            type="text"
+            placeholder="Search Transaction"
+            className="flex-1 outline-none bg-white"
+            value={searchTransaction}
+            onChange={e => setSearchTransaction(e.target.value)}
+            style={{
+              width: "100%",
+              padding: "0.5rem 2.5rem 0.5rem 2.5rem",
+              border: "1px solid #D1D5DB",
+              borderRadius: "9999px",
+              outline: "none",
+            }}
+          />
+          <SlidersHorizontal
+            size={18}
+            onClick={() => setShowFilters(!showFilters)}
+            style={{
+              position: "absolute",
+              right: "0.75rem",
+              top: "50%",
+              transform: "translateY(-50%)",
+              color: "#6B7280",
+              cursor: "pointer",
+            }}
+          />
+        </div>
+        {/* Download */}
+        <div className="dropdown dropdown-end" ref={historyDownloadRef} style={{ zIndex: 9999 }}>
+          <button
+            onClick={() => setHistoryDownloadOpen(!historyDownloadOpen)}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "0.5rem",
+              padding: "0.5rem 1.2rem",
+              backgroundColor: "#fff",
+              color: "#16A34A",
+              border: "1.5px solid #16A34A",
+              borderRadius: "9999px",
+              fontWeight: 600,
+              fontSize: "1rem",
+              cursor: "pointer",
+              boxShadow: "0 2px 8px 0 rgba(36,185,111,0.05)",
+            }}
+            className="relative"
+          >
+            Download
+            <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+            </svg>
+          </button>
+          {historyDownloadOpen && (
+            <ul tabIndex={0} className="dropdown-content menu p-2 shadow bg-base-100 border w-52 rounded-box z-50 absolute right-0 mt-2">
+              <li><a onClick={() => handleHistoryDownload('PDF')}><FaFilePdf className="text-red-500" /> PDF</a></li>
+              <li><a onClick={() => handleHistoryDownload('Excel')}><FaFileExcel className="text-green-600" /> Excel</a></li>
+              <li><a onClick={() => handleHistoryDownload('Custom Range')}>Custom Range</a></li>
+            </ul>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+
   return (
     <div className="p-0">
       {/* Sticky Header & Tabs */}
@@ -205,67 +379,16 @@ export default function Financial() {
         </div>
       </div>
 
+      {/* Header Row */}
+      <div className="px-6">
+        {activeTab === 'overview' ? headerRowOverview : headerRowHistory}
+      </div>
+
       {/* Content */}
       {activeTab === 'overview' ? (
         <>
-          {/* Overview content unchanged */}
-          {/* Balance & Actions */}
-          <div className="flex flex-wrap items-center justify-between my-4 gap-2">
-            <div className="flex items-center gap-2 text-base font-medium">
-              <RefreshCw size={20} stroke="#3b82f6" />
-              <span className="font-medium text-lg" style={{ color: '#3b82f6' }}>Current Federation Balance:</span>
-              <span className="text-blue-700 font-bold text-lg">₱52,438</span>
-              <span className="text-gray-400 text-lg ml-2 opacity-60">Last Updated Apr 30</span>
-            </div>
-            <div className="flex gap-2">
-              <div className="relative z-20" ref={dropdownRef}>
-                <button
-                  onClick={() => setDropdownOpen(!dropdownOpen)} className="btn bg-green-600 text-white rounded-full px-4 py-2 font-semibold flex items-center gap-1 hover:bg-green-700"
-                >
-                  + Add Transaction
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={`w-4 h-4 ml-1 ${dropdownOpen ? 'rotate-180' : ''} transition-transform duration-200`}>
-                    <polyline points="6 9 12 15 18 9" />
-                  </svg>
-                </button>
-                {dropdownOpen && (
-                  <ul className="absolute left-1/2 transform -translate-x-1/2 mt-2 menu p-2 shadow bg-white border border-black rounded-box w-52">
-                    <li><a onClick={() => handleAddTransaction('income')}>Income</a></li>
-                    <li><a onClick={() => handleAddTransaction('expense')}>Expense</a></li>
-                  </ul>
-                )}
-              </div>
-              <div className="relative z-20" ref={downloadRef}>
-                <button
-                  onClick={() => setDownloadDropdownOpen(!downloadDropdownOpen)} className="btn bg-white border border-green-600 text-green-600 rounded-full px-6 py-2 font-semibold flex items-center gap-2 hover:bg-green-50"
-                >
-                  Download
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={`w-4 h-4 ml-1 ${downloadDropdownOpen ? 'rotate-180' : ''} transition-transform duration-200`}>
-                    <polyline points="6 9 12 15 18 9" />
-                  </svg>
-                </button>
-                {downloadDropdownOpen && (
-                  <ul className="absolute left-1/2 transform -translate-x-1/2 mt-2 menu p-2 shadow bg-white border border-black rounded-box w-60">
-                    <li>
-                      <a onClick={() => handleOverviewDownload('PDF')} className="flex items-center gap-2">
-                        <FaFilePdf className="text-red-500" /> Download PDF
-                      </a>
-                    </li>
-                    <li>
-                      <a onClick={() => handleOverviewDownload('Excel')} className="flex items-center gap-2">
-                        <FaFileExcel className="text-green-600" /> Download Excel
-                      </a>
-                    </li>
-                    <div className="border-t my-2" />
-                    <li><a onClick={() => handleOverviewDownload('Custom Range')}>Custom Date Range</a></li>
-                  </ul>
-                )}
-              </div>
-            </div>
-          </div>
-          <div className="border-b border-gray-300 my-2" />
-
           {/* Overview Charts & Cards */}
-          <div className="flex flex-col lg:flex-row gap-4 items-stretch mt-2">
+          <div className="flex flex-col lg:flex-row gap-4 items-stretch mt-2 px-6">
             <div className="flex-1 flex flex-col gap-4">
               <div className="flex flex-col md:flex-row gap-4">
                 {/* Income Card */}
@@ -273,7 +396,8 @@ export default function Financial() {
                   <div className="absolute left-0 top-0 h-full w-3 rounded-tl-2xl rounded-bl-2xl bg-[#4caf50]" />
                   <div className="absolute top-4 right-4 z-20 group">
                     <button
-                      onClick={() => setIncomeModalOpen(true)} className="flex items-center gap-2 px-3 py-1 text-green-600 border border-green-600 rounded-full transition-all duration-200 group-hover:px-4 hover:bg-green-600 hover:text-white"
+                      onClick={() => setIncomeModalOpen(true)}
+                      className="flex items-center gap-2 px-3 py-1 text-green-600 border border-green-600 rounded-full transition-all duration-200 group-hover:px-4 hover:bg-green-600 hover:text-white"
                     >
                       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" className="w-5 h-5">
                         <circle cx="12" cy="12" r="10" />
@@ -309,7 +433,8 @@ export default function Financial() {
                   <div className="absolute left-0 top-0 h-full w-3 rounded-tl-2xl rounded-bl-2xl bg-[#ff4d4f]" />
                   <div className="absolute top-4 right-4 z-20 group">
                     <button
-                      onClick={() => setExpenseModalOpen(true)} className="flex items-center gap-2 px-3 py-1 text-[#ff4d4f] border border-[#ff4d4f] rounded-full transition-all duration-200 group-hover:px-4 hover:bg-[#ff4d4f] hover:text-white"
+                      onClick={() => setExpenseModalOpen(true)}
+                      className="flex items-center gap-2 px-3 py-1 text-[#ff4d4f] border border-[#ff4d4f] rounded-full transition-all duration-200 group-hover:px-4 hover:bg-[#ff4d4f] hover:text-white"
                     >
                       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" className="w-5 h-5">
                         <circle cx="12" cy="12" r="10" />
@@ -388,100 +513,41 @@ export default function Financial() {
       ) : (
         <>
           {/* Transaction History Tab Controls and Table */}
-          <div className="flex flex-wrap items-center justify-between mb-2 gap-2 pt-4">
-            <div className="flex flex-col">
-              {selectedRows.length > 0 ? (
-                <div className="flex gap-2">
-                  <button onClick={handleDelete} className="flex items-center gap-2 border border-gray-200 rounded-2xl px-4 py-2 hover:bg-red-50 transition">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="#dc2626" viewBox="0 0 24 24">
-                      <path d="M6 7h12l-1 14H7L6 7zm3-3h6l1 1H8l1-1zm1 4v10h2V8h-2zm4 0v10h2V8h-2z" />
-                    </svg>
-                    <span style={{ color: '#dc2626' }}>Delete</span>
-                    <span className="text-gray-500 ml-1">
-                      {selectedRows.length} Transaction{selectedRows.length > 1 && 's'} Selected
-                    </span>
-                  </button>
-                  <button onClick={() => setSelectedRows([])} className="flex items-center gap-1 border border-gray-200 rounded-2xl px-4 py-2 hover:bg-gray-100 transition">
-                    ✕ Clear
-                  </button>
-                </div>
-              ) : showFilters ? (
-                <div className="flex items-center space-x-1 p-2 rounded-lg w-fit">
-                  <div className="flex items-center space-x-1 border rounded-l-3xl px-3 py-1 cursor-pointer bg-white border-[#858585] h-[35px]">
-                    <SlidersHorizontal className="w-4 h-4 text-[#3b82f6]" />
-                    <span className="mr-2 p-2 text-sm text-[#3b82f6] font-medium">Active Filters</span>
-                  </div>
-                  <select value={selectedRole} onChange={e => setSelectedRole(e.target.value)} className="border border-[#858585] h-[35px] text-sm bg-white text-[#858585] pl-2 pr-6">
-                    <option value="">Role</option>
-                    <option value="Income">Member</option>
-                  </select>
-                  <select value={selectedType} onChange={e => setSelectedType(e.target.value)} className="border border-[#858585] h-[35px] text-sm bg-white text-[#858585] pl-2 pr-6">
-                    <option value="">Type</option>
-                    <option value="Income">Income</option>
-                    <option value="Expense">Expense</option>
-                  </select>
-                  <select value={selectedSource} onChange={e => setSelectedSource(e.target.value)} className="border border-[#858585] h-[35px] text-sm	bg-white text-[#858585] pl-2 pr-6">
-                    <option value="">Source</option>
-                    <option value="Marketplace">Marketplace</option>
-                    <option value="-">-</option>
-                  </select>
-                  <button onClick={() => {
-                    setSelectedRole('');
-                    setSelectedType('');
-                    setSelectedSource('');
-                    setShowFilters(false);
-                    setSearchTransaction('');
-                  }} className="flex items-center space-x-1 border rounded-r-3xl px-3 py-1 text-sm border-[#858585] h-[35px] bg-white text-[#858585]">
-                    <X className="w-4 h-4 text-[#858585]" />
-                    <span>Clear</span>
-                  </button>
-                </div>
-              ) : (
-                <div className="flex items-center gap-2 text-base font-medium">
-                  <RefreshCw size={20} stroke="#3b82f6" />
-                  <span className="font-medium text-lg" style={{ color: '#3b82f6' }}>Current Federation Balance:</span>
-                  <span className="text-blue-700 font-bold text-lg">₱52,438</span>
-                </div>
-              )}
-            </div>
-            <div className="flex items-center gap-3 relative">
-              {/* Search + Filter */}
-              <div className="relative w-[280px] flex items-center border rounded-full px-3 py-1 bg-white">
-                <Search className="text-gray-500 w-5 h-5 mr-2" />
-                <input
-                  type="text"
-                  placeholder="Search Transaction"
-                  className="flex-1 outline-none bg-white"
-                  value={searchTransaction}
-                  onChange={e => setSearchTransaction(e.target.value)}
-                />
-                <button onClick={() => setShowFilters(!showFilters)}>
-                  <SlidersHorizontal className="text-gray-600 w-5 h-5" />
-                </button>
+          {showFilters && (
+            <div className="flex items-center space-x-1 p-2 rounded-lg w-fit px-6">
+              <div className="flex items-center space-x-1 border rounded-l-3xl px-3 py-1 cursor-pointer bg-white border-[#858585] h-[35px]">
+                <SlidersHorizontal className="w-4 h-4 text-[#3b82f6]" />
+                <span className="mr-2 p-2 text-sm text-[#3b82f6] font-medium">Active Filters</span>
               </div>
-              {/* Download */}
-              <div className="dropdown dropdown-end" ref={historyDownloadRef} style={{ zIndex: 9999 }}>
-                <label tabIndex={0} onClick={() => setHistoryDownloadOpen(!historyDownloadOpen)} className="btn btn-outline btn-success rounded-full relative">
-                  Download
-                  <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
-                  </svg>
-                </label>
-                {historyDownloadOpen && (
-                  <ul tabIndex={0} className="dropdown-content menu p-2 shadow bg-base-100 border w-52 rounded-box z-50 absolute right-0 mt-2">
-                    <li><a onClick={() => handleHistoryDownload('PDF')}><FaFilePdf className="text-red-500" /> PDF</a></li>
-                    <li><a onClick={() => handleHistoryDownload('Excel')}><FaFileExcel className="text-green-600" /> Excel</a></li>
-                    <li><a onClick={() => handleHistoryDownload('Custom Range')}>Custom Range</a></li>
-                  </ul>
-                )}
-              </div>
+              <select value={selectedRole} onChange={e => setSelectedRole(e.target.value)} className="border border-[#858585] h-[35px] text-sm bg-white text-[#858585] pl-2 pr-6">
+                <option value="">Role</option>
+                <option value="Income">Member</option>
+              </select>
+              <select value={selectedType} onChange={e => setSelectedType(e.target.value)} className="border border-[#858585] h-[35px] text-sm bg-white text-[#858585] pl-2 pr-6">
+                <option value="">Type</option>
+                <option value="Income">Income</option>
+                <option value="Expense">Expense</option>
+              </select>
+              <select value={selectedSource} onChange={e => setSelectedSource(e.target.value)} className="border border-[#858585] h-[35px] text-sm	bg-white text-[#858585] pl-2 pr-6">
+                <option value="">Source</option>
+                <option value="Marketplace">Marketplace</option>
+                <option value="-">-</option>
+              </select>
+              <button onClick={() => {
+                setSelectedRole('');
+                setSelectedType('');
+                setSelectedSource('');
+                setShowFilters(false);
+                setSearchTransaction('');
+              }} className="flex items-center space-x-1 border rounded-r-3xl px-3 py-1 text-sm border-[#858585] h-[35px] bg-white text-[#858585]">
+                <X className="w-4 h-4 text-[#858585]" />
+                <span>Clear</span>
+              </button>
             </div>
-          </div>
-
-          <div className="border-b border-gray-300 mt-2 mb-2" />
+          )}
 
           {/* Transaction Table */}
-          <div className="w-full overflow-x-auto rounded-xl">
+          <div className="w-full overflow-x-auto rounded-xl px-6">
             <h2 className="text-xl font-bold mb-4 px-4 pt-2">Transaction History</h2>
             <table className="table w-full">
               <thead className="bg-[#f7f7fb] text-sm text-gray-600 font-semibold">
@@ -493,10 +559,9 @@ export default function Financial() {
                     }} />
                   </th>
                   <th>User Name</th>
-                  <th>Role</th>
                   <th>Type</th>
                   <th>Source</th>
-                  <th>Category</th>
+                  <th>Payment Method</th>
                   <th>Amount</th>
                   <th>Date Added</th>
                 </tr>
@@ -524,18 +589,6 @@ export default function Financial() {
                       </div>
                     </td>
                     <td>
-                      <span className="px-4 py-1 rounded-full text-xs font-medium" style={{
-                        color: '#0066FF',
-                        border: '2px solid #0066FF',
-                        backgroundColor: '#E0F0FF',
-                        display: 'inline-block',
-                        minWidth: '80px',
-                        textAlign: 'center'
-                      }}>
-                        Member
-                      </span>
-                    </td>
-                    <td>
                       <span className="px-3 py-1 rounded-full text-xs font-medium" style={{
                         color: item.type === 'Income' ? '#15803d' : '#dc2626',
                         backgroundColor: item.type === 'Income' ? '#d1fae5' : '#fee2e2',
@@ -547,7 +600,7 @@ export default function Financial() {
                     </td>
                     <td>{item.source}</td>
                     <td>{item.category}</td>
-                    <td className="font-medium text-right">₱{item.amount}</td>
+                    <td className="font-medium text-left">₱{item.amount}</td>
                     <td>
                       <div>{item.date}</div>
                       <div className="text-xs text-gray-500">{item.relativeDate}</div>

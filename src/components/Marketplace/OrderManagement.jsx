@@ -25,10 +25,10 @@ const ORDER_BADGE_STYLES = {
 };
 
 const SAMPLE_ORDER_ROWS = [
-  { id: "#01234", customer: { name: "Juan Dela Cruz", email: "juandcruz@gmail.com", avatar: "/Screenshot_195.png", address: "Purok 3 Zone 6 Penafrancia Cupang Antipolo City", contact: "(+63) 948 122 9142" }, product: { name: "Premium Farm Fresh Sweet Corn", variation: "Yellow, White" }, date: "20 Aug 1999", time: "01:23:42 PM", status: "Pending", transaction: "Pending" },
-  { id: "#01235", customer: { name: "Maria Reyes", email: "mariareyes@gmail.com", avatar: "/Screenshot_195.png", address: "Purok 1, Poblacion, Bulacan", contact: "(+63) 912 345 6789" }, product: { name: "Premium Angus Beef Strips", variation: "Tenderloin, Ribeye" }, date: "23 Mar 2001", time: "10:30:10 AM", status: "Delivered", transaction: "Paid" },
-  { id: "#01236", customer: { name: "Pedro Santos", email: "pedrosantos@gmail.com", avatar: "/Screenshot_195.png", address: "San Roque, Bulacan", contact: "(+63) 999 888 7777" }, product: { name: "Organic Rainbow Carrots", variation: "Orange, Purple, White" }, date: "05 Jul 2020", time: "09:01:22 AM", status: "Processing", transaction: "Pending" },
-  { id: "#01237", customer: { name: "Anna Flores", email: "annaflores@gmail.com", avatar: "/Screenshot_195.png", address: "Sta. Maria, Bulacan", contact: "(+63) 922 222 4444" }, product: { name: "Artisan Wheat Flour", variation: "All-purpose, Bread" }, date: "09 Nov 2021", time: "04:45:12 PM", status: "Shipped", transaction: "Pending" },
+  { id: "#01234", customer: { name: "Juan Dela Cruz", email: "juandcruz@gmail.com", avatar: "/sampleproduct.png", address: "Purok 3 Zone 6 Penafrancia Cupang Antipolo City", contact: "(+63) 948 122 9142" }, product: { name: "Premium Farm Fresh Sweet Corn", variation: "Yellow, White" }, date: "20 Aug 1999", time: "01:23:42 PM", status: "Pending", transaction: "Pending" },
+  { id: "#01235", customer: { name: "Maria Reyes", email: "mariareyes@gmail.com", avatar: "/sampleproduct.png", address: "Purok 1, Poblacion, Bulacan", contact: "(+63) 912 345 6789" }, product: { name: "Premium Angus Beef Strips", variation: "Tenderloin, Ribeye" }, date: "23 Mar 2001", time: "10:30:10 AM", status: "Delivered", transaction: "Paid" },
+  { id: "#01236", customer: { name: "Pedro Santos", email: "pedrosantos@gmail.com", avatar: "/sampleproduct.png", address: "San Roque, Bulacan", contact: "(+63) 999 888 7777" }, product: { name: "Organic Rainbow Carrots", variation: "Orange, Purple, White" }, date: "05 Jul 2020", time: "09:01:22 AM", status: "Processing", transaction: "Pending" },
+  { id: "#01237", customer: { name: "Anna Flores", email: "annaflores@gmail.com", avatar: "/sampleproduct.png", address: "Sta. Maria, Bulacan", contact: "(+63) 922 222 4444" }, product: { name: "Artisan Wheat Flour", variation: "All-purpose, Bread" }, date: "09 Nov 2021", time: "04:45:12 PM", status: "Shipped", transaction: "Pending" },
 ];
 
 export default function OrderManagement() {
