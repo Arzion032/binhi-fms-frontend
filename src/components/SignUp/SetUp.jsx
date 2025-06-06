@@ -9,7 +9,7 @@ import Upload from '../../assets/Upload.png';
 import Success from '../../assets/Success.png';
 import Federation from '../../assets/Federation.png';
 import Farmer from '../../assets/Farmer.png';
-import Uploadfiles from '../../assets/Uploadfiles.png';
+import Uploadfiles from '../../assets/UploadFiles.png';
 import UploadDocument from '../../assets/UploadDocument.png';
 import { X } from "lucide-react";
 import Select from 'react-select';
