@@ -2,7 +2,6 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { FaFilePdf, FaFileExcel } from 'react-icons/fa6';
 import { Search, SlidersHorizontal, X, RefreshCw } from 'lucide-react';
-import Sidebar from './Sidebar';
 
 export default function Financial() {
   // ─── TAB STATE & INDICATOR ───────────────────────────────────────────────────
@@ -320,8 +319,6 @@ export default function Financial() {
   return (
     <div className="flex bg-[#f9fbf8] min-h-screen">
       {/* Sidebar */}
-      <Sidebar />
-
       {/* Main content. Add margin-left to avoid going under sidebar */}
       <div className="flex-1 ml-64">
         {/* Sticky Header & Tabs */}

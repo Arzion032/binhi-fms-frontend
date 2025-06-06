@@ -8,9 +8,8 @@ import {
   Pencil,
   Trash2,
 } from "lucide-react";
-import AddProductModal from "./AddProductModal";
+import AddCategoryModal from "./AddCategoryModal";
 import EditDetailsModal from "./EditDetailsModal";
-import DraftProductModal from "./DraftProductModal";
 
 const BADGE_STYLES = {
   Fruits: { color: "#7C3AED", background: "#F3E8FF", border: "#7C3AED" },
@@ -63,7 +62,7 @@ function generateFarmerCode(name = "Juan D Cruz") {
 }
 
 const RAW_PRODUCTS = [
-  { id: 41, name: "Yogurt", variation: "Plain", avatar: "/Screenshot_195.png", price: 7000, category: "Milks & Dairy", stock: 60, status: "Approved" },
+    { id: 41, name: "Yogurt", variation: "Plain", avatar: "/Screenshot_195.png", price: 7000, category: "Milks & Dairy", stock: 60, status: "Approved" },
   { id: 3, name: "Sticky Glutinous Rice", variation: "Sticky", avatar: "/Screenshot_195.png", price: 4800, category: "Grains", stock: 60, status: "Pending" },
   { id: 27, name: "Taro", variation: "Large", avatar: "/Screenshot_195.png", price: 800, category: "Root Crops", stock: 50, status: "Approved" },
   { id: 75, name: "Dilis", variation: "Anchovy", avatar: "/Screenshot_195.png", price: 900, category: "Fish", stock: 110, status: "Approved" },
@@ -155,10 +154,7 @@ const INITIAL_PRODUCTS = RAW_PRODUCTS.map((item) => {
     association: "Macamot Farmers Association",
     farmer: generateFarmerCode(farmerName),
     unit: "1kg",
-    farmerName,
-    images: [item.avatar], // so image support is present for new and old
-    variants: [{ name: item.variation, image: item.avatar, price: item.price, unitMeasurement: "1kg", stock: item.stock }],
-    description: "",
+    farmerName, // store the readable name if you want to show it
   };
 });
 
@@ -167,17 +163,11 @@ function getVariationMap(products) {
   const map = {};
   products.forEach((p) => {
     if (!map[p.name]) map[p.name] = [];
-    // This groups all variations with the same product name
-    if (Array.isArray(p.variants)) {
-      p.variants.forEach(v => {
-        if (v && v.name) map[p.name].push(v.name);
-      });
-    } else {
-      map[p.name].push(p.variation);
-    }
+    map[p.name].push(p.variation);
   });
   return map;
 }
+
 export default function ProductManagement() {
   const [searchQuery, setSearchQuery] = useState("");
   const [showFilters, setShowFilters] = useState(false);
@@ -185,15 +175,8 @@ export default function ProductManagement() {
   const [selectedRows, setSelectedRows] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedCategory, setSelectedCategory] = useState(null);
-  const [showDraftProducts, setShowDraftProducts] = useState(false);
-  const [showAddProduct, setShowAddProduct] = useState(false);
 
-  // For editing
-  const [showEditModal, setShowEditModal] = useState(false);
-  const [editProduct, setEditProduct] = useState(null);
-  const [editModalMode, setEditModalMode] = useState("edit");
-
-  // UseMemo for variation mapping
+  // Variation mapping
   const variationMap = useMemo(() => getVariationMap(products), [products]);
 
   const categoriesSummary = useMemo(() => {
@@ -228,45 +211,17 @@ export default function ProductManagement() {
     setCurrentPage(1);
   }, [searchQuery, selectedCategory]);
 
-  // Delete logic (batch)
   const handleDeleteSelected = () => {
     if (!window.confirm("Delete selected products?")) return;
     setProducts((prev) => prev.filter((p) => !selectedRows.includes(p.id)));
     setSelectedRows([]);
   };
 
-  // Single delete
-  const handleDelete = (id) => {
-    if (!window.confirm("Delete this product?")) return;
-    setProducts((prev) => prev.filter((p) => p.id !== id));
-    setSelectedRows((sel) => sel.filter((sid) => sid !== id));
-  };
-
-  // Add product callback (from modal)
-  const handleAddProduct = (newProduct) => {
-  const baseId = Math.max(0, ...products.map(p => p.id)) + 1;
-  const firstVariant = newProduct.variants && newProduct.variants[0] ? newProduct.variants[0] : {};
-  setProducts((prev) => [
-    ...prev,
-    {
-      id: baseId,
-      name: newProduct.name,
-      variation: firstVariant.name || "",
-      avatar: newProduct.images[0] || "/Screenshot_195.png",
-      price: firstVariant.price || "",
-      category: newProduct.category,
-      stock: firstVariant.stock || "",
-      status: "Approved",
-      association: "Macamot Farmers Association",
-      farmer: newProduct.farmer || generateFarmerCode("Juan D Cruz"),
-      unit: firstVariant.unitMeasurement || "1kg",
-      farmerName: "Juan D Cruz",
-      images: newProduct.images,
-      variants: newProduct.variants,
-      description: newProduct.description || "",
-    }
-  ]);
-};
+  const [showAddCategory, setShowAddCategory] = useState(false);
+  const [categoryModalMode, setCategoryModalMode] = useState("add");
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [editProduct, setEditProduct] = useState(null);
+  const [editModalMode, setEditModalMode] = useState("edit");
 
   const closeEditModal = () => {
     setShowEditModal(false);
@@ -284,7 +239,6 @@ export default function ProductManagement() {
     setSelectedRows([]);
   };
 
-  // --- RETURN ---
   return (
     <div className="px-6 pb-6">
       {/* Toolbar */}
@@ -368,9 +322,12 @@ export default function ProductManagement() {
                 cursor: "pointer",
                 boxShadow: "0 2px 8px 0 rgba(36,185,111,0.05)",
               }}
-              onClick={() => setShowAddProduct(true)}
+              onClick={() => {
+                setCategoryModalMode("add");
+                setShowAddCategory(true);
+              }}
             >
-              <Plus size={18} /> Add Products
+              <Plus size={18} /> Add Categories
             </button>
             <button
               style={{
@@ -387,9 +344,12 @@ export default function ProductManagement() {
                 cursor: "pointer",
                 boxShadow: "0 2px 8px 0 rgba(36,185,111,0.05)",
               }}
-              onClick={() => setShowDraftProducts(true)}
+              onClick={() => {
+                setCategoryModalMode("manage");
+                setShowAddCategory(true);
+              }}
             >
-              <BookOpen size={18} /> Draft Products
+              <BookOpen size={18} /> Manage Categories
             </button>
           </>
         </div>
@@ -497,12 +457,13 @@ export default function ProductManagement() {
             {visibleProducts.map((p) => {
               const style = BADGE_STYLES[p.category] || BADGE_STYLES["Grains"];
               const isSelected = selectedRows.includes(p.id);
-              // Use the actual variants stored on the row
-              const variantCount = Array.isArray(p.variants) ? p.variants.length : 1;
+              // Add "+N" to variation if more than 1 for this product name
+              const variations = variationMap[p.name] || [];
               let variationText = p.variation;
-              if (variationText && variantCount > 1) {
-                const extra = variantCount - 1;
-                variationText = `${p.variants[0]?.name} +${extra}`;
+              if (variations.length > 1) {
+                // show how many variations besides this
+                const extra = variations.length - 1;
+                variationText = `${p.variation} +${extra}`;
               }
               return (
                 <tr
@@ -693,12 +654,7 @@ export default function ProductManagement() {
                           Edit
                         </span>
                       </div>
-                      <Trash2
-                        size={18}
-                        stroke="#EF4444"
-                        className="cursor-pointer transition-transform duration-200 group-hover:translate-x-8"
-                        onClick={() => handleDelete(p.id)}
-                      />
+                      <Trash2 size={18} stroke="#EF4444" className="cursor-pointer transition-transform duration-200 group-hover:translate-x-8" />
                     </div>
                   </td>
                 </tr>
@@ -761,10 +717,11 @@ export default function ProductManagement() {
         </div>
       </div>
       {/* MODALS */}
-      <AddProductModal
-        isOpen={showAddProduct}
-        onClose={() => setShowAddProduct(false)}
-        onSaveProduct={handleAddProduct}
+      <AddCategoryModal
+        isOpen={showAddCategory}
+        mode={categoryModalMode}
+        onClose={() => setShowAddCategory(false)}
+        onSwitchMode={(mode) => setCategoryModalMode(mode)}
       />
       <EditDetailsModal
         isOpen={showEditModal}
@@ -779,7 +736,6 @@ export default function ProductManagement() {
         }}
         mode={editModalMode}
       />
-      <DraftProductModal isOpen={showDraftProducts} onClose={() => setShowDraftProducts(false)} />
     </div>
   );
 }

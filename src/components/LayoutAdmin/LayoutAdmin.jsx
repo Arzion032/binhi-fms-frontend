@@ -1,10 +1,10 @@
 import React from 'react';
-import SideBar from '../Sidebar';
+import SideBarAdmin from '../SideBarAdmin';
 
 const Layout = ({ children }) => {
   return (
     <div className="flex">
-      <SideBar />
+      <SideBarAdmin />
       <div className="ml-64 p-6 w-full">
         {children}
       </div>

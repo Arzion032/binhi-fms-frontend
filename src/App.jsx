@@ -7,6 +7,8 @@ import Financial from "./components/FinancialTracker/Financial";
 import Document from "./components/DocumentProcessing/Document";
 import Marketplace from "./components/Marketplace/Marketplace";
 import FinancialTracker from "./components/AdminView/FinancialTracker";
+import LayoutAdmin from "./components/LayoutAdmin/LayoutAdmin";
+import MarketplaceAdmin from "./components/AdminView/MarketplaceAdmin/MarketplaceAdmin";
 
 function App() {
   return (
@@ -19,6 +21,7 @@ function App() {
           <Route path="/inventory" element={<Layout><Inventory /></Layout>} />
           <Route path="/marketplace" element={<Layout><Marketplace /></Layout>} />
           <Route path="/financial-tracker" element={<LayoutAdmin><FinancialTracker /></LayoutAdmin>} />
+          <Route path="/marketplace-admin" element={<LayoutAdmin><MarketplaceAdmin /></LayoutAdmin>} />
         </Routes>
       </Router>
     </div>

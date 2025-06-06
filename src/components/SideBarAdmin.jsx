@@ -1,15 +1,15 @@
 import React from "react";
-import Logo from '../../assets/Logo.png';
-import Dashboard from '../../assets/Dashboard.png';
-import Membership from '../../assets/Membership.png';
-import Financial from '../../assets/Financial.png';
-import Inventory from '../../assets/Inventory.png';
-import Document from '../../assets/Document.png';
-import Products from '../../assets/Products.png';
-import Customers from '../../assets/Customers.png';
-import Orders from '../../assets/Orders.png';
-import Payout from '../../assets/Payout.png';
-import Settings from '../../assets/Settings.png';
+import Logo from '../assets/Logo.png';
+import Dashboard from '../assets/Dashboard.png';
+import Membership from '../assets/Membership.png';
+import Financial from '../assets/Financial.png';
+import Inventory from '../assets/Inventory.png';
+import Document from '../assets/Document.png';
+import Products from '../assets/Products.png';
+import Customers from '../assets/Customers.png';
+import Orders from '../assets/Orders.png';
+import Payout from '../assets/Payout.png';
+import Settings from '../assets/Settings.png';
 import { Link } from "react-router-dom";
 
 
@@ -155,9 +155,7 @@ const Sidebar = () => {
             </ul>
           </details>
         </li>
-        <div>
-            <Sidebar />
-        </div>
+
         {/* Inventory Menu */}
         <li>
           <details className="group [&_summary::-webkit-details-marker]:hidden">
