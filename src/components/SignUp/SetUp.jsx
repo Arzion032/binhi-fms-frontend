@@ -580,7 +580,7 @@ useEffect(() => {
               </p>
               <button
                 className="w-full mt-1 bg-[#4CAE4F] text-white py-3 rounded-full hover:bg-green-700 transition mx-auto"
-                onClick={() => navigate("/signup")}
+                onClick={() => navigate("/LogIn")}
               >
                 Okay
               </button>

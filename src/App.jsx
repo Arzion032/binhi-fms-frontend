@@ -7,6 +7,7 @@ import Document from "./components/DocumentProcessing/Document";
 import Marketplace from "./components/Marketplace/Marketplace";
 import Inventory from './components/Inventory';
 import SignUp from './components/SignUp/SignUpPage';
+import Login from './components/SignUp/Login';
 import NextStep from './components/SignUp/NextStep';
 import SetPassword from './components/SignUp/SetPassword';
 import SetUp from './components/SignUp/SetUp';
@@ -27,6 +28,7 @@ function App() {
         <Route path="/marketplace" element={<Layout><Marketplace/></Layout>} />
         <Route path="/machinery" element={<Layout><Inventory/></Layout>} />
         <Route path="/signup" element={<SignUp/>} />
+        <Route path="/LogIn" element={<Login/>} />
         <Route path="/verification" element={<NextStep />} />
         <Route path="/password" element={<SetPassword />} />
         <Route path="/setup" element={<SetUp />} />
