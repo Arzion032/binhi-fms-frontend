@@ -14,20 +14,23 @@ const PlusIcon = ({ className = "" }) => (
   </svg>
 );
 
+// List of categories with their UUIDs
 const categories = [
-  "Vegetable", "Root Crops", "Milks & Dairy", "Meats", "Fruits", "Grains", "Fish"
+  { name: "Grains", uuid: "your-grains-uuid" },
+  { name: "Vegetable", uuid: "your-vegetable-uuid" },
+  { name: "Root Crops", uuid: "your-root-crops-uuid" },
+  { name: "Milks & Dairy", uuid: "your-milks-dairy-uuid" },
+  { name: "Meats", uuid: "your-meats-uuid" },
+  { name: "Fruits", uuid: "your-fruits-uuid" },
+  { name: "Fish", uuid: "your-fish-uuid" }
 ];
 
-// Variation Modal (internal)
 function VariationModal({ isOpen, onClose, onConfirm, variationNumber, initialValue }) {
   const [name, setName] = useState(initialValue?.name || '');
   const [image, setImage] = useState(initialValue?.image || null);
   const [price, setPrice] = useState(initialValue?.price || '');
   const [unitMeasurement, setUnitMeasurement] = useState(initialValue?.unitMeasurement || '');
   const [stock, setStock] = useState(initialValue?.stock || '');
-
-
-  // Error state for unit measurement
   const [error, setError] = useState('');
 
   useEffect(() => {
@@ -64,43 +67,23 @@ function VariationModal({ isOpen, onClose, onConfirm, variationNumber, initialVa
 
   return (
     <div className="fixed z-50 inset-0 flex items-center justify-center bg-black bg-opacity-40">
-      <div
-        className="relative bg-white w-full max-w-[520px] mx-auto rounded-[2.2rem] shadow-xl p-9 pt-8"
-        style={{ minWidth: 320, border: '1px solid #ececec' }}
-      >
-        {/* Close Button */}
-        <button
-          type="button"
-          onClick={onClose}
-          className="absolute right-7 top-7 text-gray-400 hover:text-gray-700 rounded-full focus:outline-none text-2xl"
-          aria-label="Close"
-        >
+      <div className="relative bg-white w-full max-w-[520px] mx-auto rounded-[2.2rem] shadow-xl p-9 pt-8" style={{ minWidth: 320, border: '1px solid #ececec' }}>
+        <button type="button" onClick={onClose} className="absolute right-7 top-7 text-gray-400 hover:text-gray-700 rounded-full focus:outline-none text-2xl" aria-label="Close">
           <svg width={26} height={26} fill="none" viewBox="0 0 24 24">
             <path stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" d="M6 6l12 12M6 18L18 6" />
           </svg>
         </button>
-
         <h2 className="text-[1.6rem] font-bold text-[#193319] mb-0 leading-tight" style={{ letterSpacing: "-1px" }}>
           Variation {variationNumber}
         </h2>
         <p className="text-base text-gray-600 mb-2">Please enter the details of Variation {variationNumber}.</p>
         <hr className="mb-6 mt-1 border-[#D8D8D8]" />
-
-        {/* Product Name */}
         <div className="mb-4">
           <label className="font-semibold text-[17px] mb-1 block text-[#222A35]">
             Product Name <span className="text-[#F64B4B]">*</span>
           </label>
-          <input
-            className={inputBox}
-            value={name}
-            onChange={e => setName(e.target.value)}
-            placeholder="Enter the Equipment"
-            required
-          />
+          <input className={inputBox} value={name} onChange={e => setName(e.target.value)} placeholder="Enter the Equipment" required />
         </div>
-
-        {/* Product Picture */}
         <div className="mb-4">
           <label className="font-semibold text-[17px] mb-1 block text-[#222A35]">
             Product Picture <span className="text-[#F64B4B]">*</span>
@@ -115,23 +98,15 @@ function VariationModal({ isOpen, onClose, onConfirm, variationNumber, initialVa
                   <span>Add Image</span>
                 </>
               )}
-              <input
-                type="file"
-                accept="image/*"
-                className="hidden"
-                onChange={handleImageChange}
-              />
+              <input type="file" accept="image/*" className="hidden" onChange={handleImageChange} />
             </label>
           </div>
         </div>
-
-        {/* Unit Price */}
         <div className="mb-4">
           <label className="font-semibold text-[17px] mb-1 block text-[#222A35]">Unit Price</label>
           <div className="flex items-center relative">
             <span className="absolute left-6 text-gray-500 text-lg font-bold">₱</span>
-            <input
-              className="w-full pl-10 pr-4 py-3 rounded-[2rem] border border-[#D1D5DB] focus:border-[#16A34A] focus:ring-2 focus:ring-[#16A34A] text-base bg-white placeholder-[#B7B7B7] font-medium"
+            <input className="w-full pl-10 pr-4 py-3 rounded-[2rem] border border-[#D1D5DB] focus:border-[#16A34A] focus:ring-2 focus:ring-[#16A34A] text-base bg-white placeholder-[#B7B7B7] font-medium"
               value={price}
               onChange={e => setPrice(e.target.value.replace(/[^\d.]/g, ""))}
               placeholder="Enter Unit Price"
@@ -139,44 +114,20 @@ function VariationModal({ isOpen, onClose, onConfirm, variationNumber, initialVa
             />
           </div>
         </div>
-
-        {/* Unit Measurement */}
         <div className="mb-4">
           <label className="font-semibold text-[17px] mb-1 block text-[#222A35]">
             Unit Measurement <span className="text-[#F64B4B]">*</span>
           </label>
-          <input
-            className={inputBox}
-            value={unitMeasurement}
-            onChange={e => {
-              setUnitMeasurement(e.target.value);
-              if (error) setError('');
-            }}
-            placeholder="e.g. kg, pcs, liter"
-            required
-          />
+          <input className={inputBox} value={unitMeasurement} onChange={e => { setUnitMeasurement(e.target.value); if (error) setError(''); }} placeholder="e.g. kg, pcs, liter" required />
           {error && <p className="text-red-500 text-sm mt-1">{error}</p>}
         </div>
-
-        {/* Stock */}
         <div className="mb-8">
           <label className="font-semibold text-[17px] mb-1 block text-[#222A35]">Stock</label>
-          <input
-            className={inputBox}
-            value={stock}
-            onChange={e => setStock(e.target.value.replace(/\D/, ""))}
-            placeholder="0"
-            inputMode="numeric"
-          />
+          <input className={inputBox} value={stock} onChange={e => setStock(e.target.value.replace(/\D/, ""))} placeholder="0" inputMode="numeric" />
         </div>
-
         <div className="flex gap-4 mt-4">
-          <button type="button" className={discardBtn} onClick={onClose}>
-            Disregard
-          </button>
-          <button type="button" className={confirmBtn} onClick={handleConfirm}>
-            Confirm
-          </button>
+          <button type="button" className={discardBtn} onClick={onClose}>Disregard</button>
+          <button type="button" className={confirmBtn} onClick={handleConfirm}>Confirm</button>
         </div>
       </div>
     </div>
@@ -186,8 +137,6 @@ function VariationModal({ isOpen, onClose, onConfirm, variationNumber, initialVa
 export default function AddProductModal({ isOpen, onClose, onSaveProduct }) {
   const [productName, setProductName] = useState('');
   const [category, setCategory] = useState('');
-  const [showCategoryDropdown, setShowCategoryDropdown] = useState(false);
-  const dropdownRef = useRef();
   const [images, setImages] = useState(Array(5).fill(null));
   const [description, setDescription] = useState('');
   const [association] = useState('Macamot Farmers Association');
@@ -196,23 +145,9 @@ export default function AddProductModal({ isOpen, onClose, onSaveProduct }) {
   const [showVariationModal, setShowVariationModal] = useState(false);
   const [editingVariantIndex, setEditingVariantIndex] = useState(null);
   const [error, setError] = useState('');
-  const [drafts, setDrafts] = useState([]);
+  const [backendError, setBackendError] = useState('');
 
-  // Handle click outside dropdown
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-        setShowCategoryDropdown(false);
-      }
-    };
-    if (showCategoryDropdown) {
-      document.addEventListener('mousedown', handleClickOutside);
-    } else {
-      document.removeEventListener('mousedown', handleClickOutside);
-    }
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, [showCategoryDropdown]);
-
+  // Handle image change
   const handleImageChange = (e, idx) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -223,31 +158,10 @@ export default function AddProductModal({ isOpen, onClose, onSaveProduct }) {
     reader.readAsDataURL(file);
   };
 
-  const handleAddVariant = () => {
-    setVariants(prev => [...prev, {}, {}, {}]);
-  };
-
   // Remove a variant
   const handleDeleteVariant = (idx) => {
-    setVariants(prev =>
-      prev.map((item, i) => (i === idx ? {} : item))
-    );
+    setVariants(prev => prev.map((item, i) => (i === idx ? {} : item)));
   };
-
-  // Variants grid scroll settings
-  const maxRows = 2;
-  const rowHeight = 82;
-  const showScrollable = variants.length > maxRows * 3;
-  const scrollBoxHeight = showScrollable
-    ? (rowHeight * 2.6)
-    : 'auto';
-
-  const inputBox =
-    "w-full px-6 py-3 rounded-[2rem] border border-[#D1D5DB] focus:border-[#16A34A] focus:ring-2 focus:ring-[#16A34A] text-base bg-white placeholder-[#B7B7B7] font-medium";
-  const labelStyle = "font-semibold text-[17px] mb-1 block text-[#222A35]";
-  const discardBtn = "flex-1 font-bold rounded-full py-4 text-lg bg-[#F64B4B] text-white hover:bg-[#DD2626] transition";
-  const draftBtn = "flex-1 font-bold rounded-full py-4 text-lg bg-white border-2 border-green-600 text-green-600 hover:bg-green-50 transition";
-  const submitBtn = "flex-1 font-bold rounded-full py-4 text-lg bg-[#159945] text-white hover:bg-green-700 transition";
 
   // Validate form for save and submit
   function validateProduct(isDraft = false) {
@@ -278,66 +192,56 @@ export default function AddProductModal({ isOpen, onClose, onSaveProduct }) {
   }
 
   // Handle Save and Submit
-  const handleSaveSubmit = (e) => {
+  const handleSaveSubmit = async (e) => {
     e.preventDefault();
+    setBackendError('');
     if (!validateProduct(false)) return;
 
-    const filledVariants = variants.filter(v => v && v.name);
+    const filledVariants = variants
+      .filter(v => v && v.name)
+      .map(v => ({
+        name: v.name,
+        unit_price: v.price,
+        stock: v.stock,
+        unit_measurement: v.unitMeasurement,
+        is_available: true,
+        is_default: true,
+        status: "active"
+      }));
+
+    // Find the selected category object to get its UUID
+    const selectedCategory = categories.find(cat => cat.name === category);
 
     const newProduct = {
       name: productName,
-      category,
+      category: selectedCategory ? selectedCategory.uuid : category, // send UUID
+      vendor: farmerCode, // send farmer code
       images: images.filter(Boolean),
       description,
       association,
-      farmer: farmerCode,
-      variants: filledVariants,
-      status: "Approved"
+      variations: filledVariants
     };
 
-    if (onSaveProduct) onSaveProduct(newProduct);
-
-    // Reset state and close
-    setProductName('');
-    setCategory('');
-    setImages(Array(5).fill(null));
-    setDescription('');
-    setFarmerCode('');
-    setVariants([{}, {}, {}]);
-    setError('');
-    onClose && onClose();
+    try {
+      if (onSaveProduct) await onSaveProduct(newProduct);
+      // Reset state and close
+      setProductName('');
+      setCategory('');
+      setImages(Array(5).fill(null));
+      setDescription('');
+      setFarmerCode('');
+      setVariants([{}, {}, {}]);
+      setError('');
+      onClose && onClose();
+    } catch (err) {
+      setBackendError(err?.response?.data?.detail || 'Failed to add product.');
+    }
   };
 
-  // Handle Save as Draft
-  const handleSaveDraft = (e) => {
-    e.preventDefault();
-
-    const newDraft = {
-      name: productName,
-      category,
-      images: images.filter(Boolean),
-      description,
-      association,
-      farmer: farmerCode,
-      variants: variants.filter(v => v && v.name),
-      status: "Draft"
-    };
-
-    setDrafts(prev => [...prev, newDraft]);
-
-    // Optionally, you can send the draft to parent
-    // if (onSaveProduct) onSaveProduct(newDraft);
-
-    // Reset state and close
-    setProductName('');
-    setCategory('');
-    setImages(Array(5).fill(null));
-    setDescription('');
-    setFarmerCode('');
-    setVariants([{}, {}, {}]);
-    setError('');
-    onClose && onClose();
-  };
+  const inputBox = "w-full px-6 py-3 rounded-[2rem] border border-[#D1D5DB] focus:border-[#16A34A] focus:ring-2 focus:ring-[#16A34A] text-base bg-white placeholder-[#B7B7B7] font-medium";
+  const labelStyle = "font-semibold text-[17px] mb-1 block text-[#222A35]";
+  const discardBtn = "flex-1 font-bold rounded-full py-4 text-lg bg-[#F64B4B] text-white hover:bg-[#DD2626] transition";
+  const submitBtn = "flex-1 font-bold rounded-full py-4 text-lg bg-[#159945] text-white hover:bg-green-700 transition";
 
   return !isOpen ? null : (
     <div className="fixed z-50 inset-0 flex items-center justify-center bg-black bg-opacity-50">
@@ -346,7 +250,6 @@ export default function AddProductModal({ isOpen, onClose, onSaveProduct }) {
         style={{ border: '1px solid #f0f0f0', minWidth: 370, transition: 'height 0.25s cubic-bezier(.4,2.3,.3,1)' }}
         onSubmit={handleSaveSubmit}
       >
-        {/* Close Button */}
         <button
           type="button"
           onClick={onClose}
@@ -357,7 +260,6 @@ export default function AddProductModal({ isOpen, onClose, onSaveProduct }) {
             <path stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" d="M6 6l12 12M6 18L18 6" />
           </svg>
         </button>
-
         <h2 className="text-[2rem] font-bold text-[#193319] mb-0 leading-tight" style={{ letterSpacing: "-1px" }}>Add Product</h2>
         <p className="text-base text-gray-600 mb-2">Please enter the new product.</p>
         <hr className="mb-6 mt-1 border-[#D8D8D8]" />
@@ -376,51 +278,18 @@ export default function AddProductModal({ isOpen, onClose, onSaveProduct }) {
           </div>
           <div>
             <label className={labelStyle}>Category <span className="text-[#F64B4B]">*</span></label>
-            <div className="relative" ref={dropdownRef}>
-              <button
-                type="button"
-                onClick={() => setShowCategoryDropdown(open => !open)}
-                className="flex justify-between items-center w-full px-6 py-3 rounded-[2rem] border border-[#D1D5DB] bg-white text-left text-base font-medium focus:border-[#16A34A] focus:ring-2 focus:ring-[#16A34A] transition"
-                style={{ color: category ? "#222A35" : "#B7B7B7" }}
+            <div className="relative">
+              <select
+                className={inputBox}
+                value={category}
+                onChange={e => setCategory(e.target.value)}
+                required
               >
-                {category ? category : "Please select a category"}
-                <svg
-                  className={`ml-2 transition-transform ${showCategoryDropdown ? "rotate-180" : ""}`}
-                  width="22"
-                  height="22"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="#222A35"
-                  strokeWidth="2"
-                >
-                  <polyline points="6 9 12 15 18 9" />
-                </svg>
-              </button>
-              {showCategoryDropdown && (
-                <ul className="absolute left-0 top-[110%] z-40 w-full bg-white border border-[#16A34A] rounded-xl shadow-lg animate-dropdown">
-                  {categories.map(cat => (
-                    <li
-                      key={cat}
-                      className={`px-6 py-2 cursor-pointer hover:bg-[#16A34A] hover:text-white transition rounded-xl ${category === cat ? "bg-[#e9faef] font-bold text-[#159945]" : "text-[#222A35]"}`}
-                      onClick={() => {
-                        setCategory(cat);
-                        setShowCategoryDropdown(false);
-                      }}
-                    >
-                      {cat}
-                    </li>
-                  ))}
-                </ul>
-              )}
-              <style>{`
-                .animate-dropdown {
-                  animation: dropdown-fade 0.16s cubic-bezier(.22,.74,.6,1.05);
-                }
-                @keyframes dropdown-fade {
-                  0% { opacity: 0; transform: translateY(-8px);}
-                  100% { opacity: 1; transform: translateY(0);}
-                }
-              `}</style>
+                <option value="">Please select a category</option>
+                {categories.map(cat => (
+                  <option key={cat.uuid} value={cat.name}>{cat.name}</option>
+                ))}
+              </select>
             </div>
           </div>
         </div>
@@ -502,13 +371,6 @@ export default function AddProductModal({ isOpen, onClose, onSaveProduct }) {
           <div
             id="variant-row"
             className="grid grid-cols-3 gap-x-4 gap-y-2"
-            style={{
-              maxHeight: showScrollable ? scrollBoxHeight : 'none',
-              overflowY: showScrollable ? 'auto' : 'visible',
-              paddingRight: showScrollable ? 6 : 0,
-              marginBottom: 6,
-              transition: 'max-height 0.25s cubic-bezier(.4,2.3,.3,1)'
-            }}
           >
             {variants.map((variant, idx) => (
               <div
@@ -578,45 +440,23 @@ export default function AddProductModal({ isOpen, onClose, onSaveProduct }) {
               </div>
             ))}
           </div>
-          {/* Only one clickable "add variant" trigger (with HRs, always at bottom) */}
-          <div className="flex items-center mt-2">
-            <hr className="flex-1 border-t border-[#D1D5DB]" />
-            <button
-              type="button"
-              className="mx-3 text-[#787878] text-base font-semibold hover:underline transition px-1"
-              onClick={handleAddVariant}
-              style={{
-                background: "none",
-                border: "none",
-                cursor: "pointer",
-                outline: "none",
-                lineHeight: 1.2
-              }}
-            >
-              Click here to add more variants
-            </button>
-            <hr className="flex-1 border-t border-[#D1D5DB]" />
-          </div>
         </div>
-
         {/* Error message */}
         {error && (
           <div className="text-red-500 text-base mb-3 text-center">{error}</div>
         )}
-
+        {backendError && (
+          <div className="text-red-500 text-base mb-3 text-center">{backendError}</div>
+        )}
         {/* Modal Buttons */}
         <div className="flex gap-4 mt-8">
           <button type="button" className={discardBtn} onClick={onClose}>
             Disregard
           </button>
-          <button type="button" className={draftBtn} onClick={handleSaveDraft}>
-            Save as Draft
-          </button>
           <button type="submit" className={submitBtn}>
             Save and Submit
           </button>
         </div>
-
         {/* Variation Modal */}
         <VariationModal
           isOpen={showVariationModal}

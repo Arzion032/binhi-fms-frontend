@@ -1933,4 +1933,3 @@ export default function MemberTabs() {
     </div>
   );
 }
-
