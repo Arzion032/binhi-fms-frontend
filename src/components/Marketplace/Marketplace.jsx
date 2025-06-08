@@ -1,4 +1,4 @@
-import React, { useRef, useState, useCallback, useEffect } from "react";
+import React, { useRef, useState, useEffect, useCallback } from "react";
 import ProductManagement from "./ProductManagement";
 import CustomerManagement from "./CustomerManagement";
 import OrderManagement from "./OrderManagement";
@@ -7,33 +7,45 @@ import FarmerPayout from "./FarmerPayout";
 export default function Marketplace() {
   const tabs = [
     "Product Management",
-    "Customer Management",
     "Order Management",
-    "Farmer Payout",
   ];
   const [activeTab, setActiveTab] = useState(tabs[0]);
   const tabsRef = useRef();
   const tabRefs = useRef([]);
   const [indicator, setIndicator] = useState({ left: 0, width: 0 });
 
-  const updateIndicator = useCallback(() => {
+  const calculateAndSetIndicator = useCallback(() => {
     const container = tabsRef.current;
     const idx = tabs.indexOf(activeTab);
     const btn = tabRefs.current[idx];
+
     if (container && btn) {
       const c = container.getBoundingClientRect();
       const b = btn.getBoundingClientRect();
-      setIndicator({
-        left: b.left - c.left + container.scrollLeft,
-        width: b.width,
+      const newLeft = b.left - c.left + container.scrollLeft;
+      const newWidth = b.width;
+
+      setIndicator(prevIndicator => {
+        if (newLeft !== prevIndicator.left || newWidth !== prevIndicator.width) {
+          return {
+            left: newLeft,
+            width: newWidth,
+          };
+        }
+        return prevIndicator;
       });
     }
   }, [activeTab, tabs]);
+
   useEffect(() => {
-    updateIndicator();
-    window.addEventListener("resize", updateIndicator);
-    return () => window.removeEventListener("resize", updateIndicator);
-  }, [updateIndicator]);
+    calculateAndSetIndicator();
+
+    window.addEventListener("resize", calculateAndSetIndicator);
+
+    return () => {
+      window.removeEventListener("resize", calculateAndSetIndicator);
+    };
+  }, [calculateAndSetIndicator]);
 
   return (
     <div className="p-0">
@@ -46,7 +58,7 @@ export default function Marketplace() {
                 <a className="text-green-600 underline">Dashboard</a>
               </li>
               <li>
-                <a className="text-green-600 underline">Marketplace</a>
+                <a className="text-green-600 underline">Marketplace Center</a>
               </li>
               <li className="text-gray-400">{activeTab}</li>
             </ul>
@@ -69,7 +81,7 @@ export default function Marketplace() {
           </button>
         </div>
         <div className="px-6 pb-4 h-5 flex items-center">
-          <h1 className="text-[40px] font-bold text-gray-800">Marketplace</h1>
+          <h1 className="text-[40px] font-bold text-gray-800">Marketplace Center</h1>
         </div>
         <div className="mb-4 border-b border-gray-200 relative">
           <ul
@@ -104,9 +116,9 @@ export default function Marketplace() {
 
       {/* Tab Panels */}
       {activeTab === "Product Management" && <ProductManagement />}
-      {activeTab === "Customer Management" && <CustomerManagement />}
+      {/* {activeTab === "Customer Management" && <CustomerManagement />} */}
       {activeTab === "Order Management" && <OrderManagement />}
-      {activeTab === "Farmer Payout" && <FarmerPayout />}
+     {/* {activeTab === "Farmer Payout" && <FarmerPayout />} */}
     </div>
   );
 }

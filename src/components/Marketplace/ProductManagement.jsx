@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useCallback } from "react";
 import {
   Search,
   SlidersHorizontal,
@@ -7,11 +7,21 @@ import {
   BookOpen,
   Pencil,
   Trash2,
+  X,
 } from "lucide-react";
 import AddProductModal from "./AddProductModal";
 import EditDetailsModal from "./EditDetailsModal";
 import DraftProductModal from "./DraftProductModal";
 import axios from "axios";
+
+// Helper to normalize category names for consistent lookup in BADGE_STYLES
+// This function is specifically to handle cases like "Vegetables" from backend matching "Vegetable" in BADGE_STYLES
+const normalizeCategoryNameForLookup = (name) => {
+  if (!name) return "";
+  if (name === "Vegetables") return "Vegetable";
+  if (name === "Dairy") return "Milks & Dairy"; // Ensure consistency for lookup
+  return name; // Return as is for other categories
+};
 
 const BADGE_STYLES = {
   Fruits: { color: "#7C3AED", background: "#F3E8FF", border: "#7C3AED" },
@@ -23,20 +33,30 @@ const BADGE_STYLES = {
   Fish: { color: "#0284C7", background: "#DEF5FF", border: "#0284C7" },
 };
 
+const STATUS_STYLES = {
+  pending_approval: { color: "#F97316", background: "#FFEDD5", border: "#F97316", text: "Pending" }, // Orange for pending
+  approved: { color: "#16A34A", background: "#D1FAE5", border: "#16A34A", text: "Approved" }, // Green for approved
+  hidden: { color: "#DC2626", background: "#FEE2E2", border: "#DC2626", text: "Hidden" },       // Red for hidden
+  published: { color: "#3B82F6", background: "#DDECFF", border: "#3B82F6", text: "Published" },   // Blue for published
+  out_of_stock: { color: "#6B7280", background: "#E5E7EB", border: "#6B7280", text: "Out of Stock" }, // Gray for out of stock
+  rejected: { color: "#EF4444", background: "#FEE2E2", border: "#EF4444", text: "Rejected" },     // Lighter red for rejected
+};
+
 const CATEGORY_NAMES = [
   "Grains",
-  "Vegetable",
+  "Vegetables",
   "Root Crops",
-  "Milks & Dairy",
+  "Dairy",
   "Meats",
   "Fruits",
   "Fish",
 ];
 
-const API_BASE_URL = "http://localhost:8000/api"; // Update this with your backend URL
+const API_BASE_URL = "http://127.0.0.1:8000"; // Updated to match your backend URL
 
 export default function ProductManagement() {
   const [searchQuery, setSearchQuery] = useState("");
+  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState("");
   const [showFilters, setShowFilters] = useState(false);
   const [products, setProducts] = useState([]);
   const [selectedRows, setSelectedRows] = useState([]);
@@ -48,47 +68,303 @@ export default function ProductManagement() {
   const [error, setError] = useState(null);
   const [totalPages, setTotalPages] = useState(1);
   const [totalProducts, setTotalProducts] = useState(0);
+  const [categories, setCategories] = useState([]);
+  const [summaryProducts, setSummaryProducts] = useState([]);
+  const [selectedStatus, setSelectedStatus] = useState(null);
 
   // For editing
   const [showEditModal, setShowEditModal] = useState(false);
   const [editProduct, setEditProduct] = useState(null);
   const [editModalMode, setEditModalMode] = useState("edit");
 
-  // Fetch products from backend
-  const fetchProducts = async () => {
+  // For image preview
+  const [showImagePreview, setShowImagePreview] = useState(false);
+  const [imagePreviewUrl, setImagePreviewUrl] = useState("");
+  const [imageLoadErrors, setImageLoadErrors] = useState({}); // Stores image errors
+
+  // Helper to handle image loading errors
+  const handleImageError = useCallback((productId) => {
+    setImageLoadErrors((prevErrors) => ({
+      ...prevErrors,
+      [productId]: true,
+    }));
+  }, []);
+
+  const openImagePreview = useCallback((url) => {
+    setImagePreviewUrl(url);
+    setShowImagePreview(true);
+  }, []);
+
+  const closeImagePreview = useCallback(() => {
+    setShowImagePreview(false);
+    setImagePreviewUrl("");
+  }, []);
+
+  // Image Preview Modal Component
+  const ImagePreviewModal = useCallback(({ isOpen, onClose, imageUrl }) => {
+    if (!isOpen) return null;
+
+    return (
+      <div
+        style={{
+          position: "fixed",
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: "rgba(0, 0, 0, 0.7)",
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          zIndex: 1000,
+        }}
+        onClick={onClose}
+      >
+        <div
+          style={{
+            backgroundColor: "#fff",
+            padding: "1rem",
+            borderRadius: "0.5rem",
+            position: "relative",
+            maxHeight: "90%",
+            maxWidth: "90%",
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+          }}
+          onClick={(e) => e.stopPropagation()} // Prevent click from closing modal
+        >
+          <button
+            onClick={onClose}
+            style={{
+              position: "absolute",
+              top: "0.5rem",
+              right: "0.5rem",
+              background: "none",
+              border: "none",
+              fontSize: "1.5rem",
+              cursor: "pointer",
+              color: "#333",
+            }}
+          >
+            <X size={24} />
+          </button>
+          <img
+            src={imageUrl}
+            alt="Product Preview"
+            style={{
+              maxWidth: "100%",
+              maxHeight: "80vh",
+              objectFit: "contain",
+            }}
+          />
+        </div>
+      </div>
+    );
+  }, []); // No dependencies, as it's a pure presentational component with props
+
+  const closeEditModal = useCallback(() => {
+    setShowEditModal(false);
+    setEditProduct(null);
+  }, []);
+
+  const handleEdit = useCallback((product) => {
+    setEditProduct(product);
+    setEditModalMode("edit");
+    setShowEditModal(true);
+  }, []);
+
+  const handleCategoryClick = useCallback((cat) => {
+    setSelectedCategory((prev) => (prev === cat ? null : cat));
+    setSearchQuery(""); // Clear search query when category is selected or deselected
+    setSelectedRows([]);
+  }, []);
+
+  const handlePageChange = useCallback((newPage) => {
+    console.log('Changing page to:', newPage);
+    setCurrentPage(newPage);
+  }, []);
+
+  // Add debounced search effect
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearchQuery(searchQuery);
+    }, 300); // 300ms delay
+
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
+
+  // Update fetchProducts to use debouncedSearchQuery
+  const fetchProducts = useCallback(async () => {
+    console.log('fetchProducts dependencies:', { currentPage, debouncedSearchQuery, selectedCategory, selectedStatus });
     try {
       setLoading(true);
-      const params = {
+      console.log('Fetching products...');
+      
+      // Build query parameters
+      const params = new URLSearchParams({
         page: currentPage,
         per_page: 7,
-        search: searchQuery,
-        category: selectedCategory,
-      };
+        ...(debouncedSearchQuery && { search: debouncedSearchQuery }),
+        ...(selectedCategory && { category: selectedCategory }),
+        ...(selectedStatus && { status: selectedStatus })
+      });
 
-      const response = await axios.get(`${API_BASE_URL}/products/`, { params });
-      setProducts(response.data.products);
-      setTotalPages(response.data.total_pages);
-      setTotalProducts(response.data.total);
-      setError(null);
-    } catch (err) {
-      setError("Failed to fetch products");
-      console.error("Error fetching products:", err);
+      const url = `${API_BASE_URL}/products/?${params}`;
+      console.log('Fetching products from URL:', url);
+
+      const response = await fetch(url);
+      if (!response.ok) {
+        throw new Error('Failed to fetch products');
+      }
+      const data = await response.json();
+      console.log('Fetched products raw data:', data);
+      
+      if (data.products) {
+        setProducts(data.products);
+        setTotalPages(data.total_pages);
+        setTotalProducts(data.total);
+        console.log('Products state set to:', data.products);
+      } else {
+        setProducts([]);
+        setTotalPages(1);
+        setTotalProducts(0);
+        console.log('Products state set to empty array (no data.products).');
+      }
+    } catch (error) {
+      console.error('Error fetching products:', error);
+      setError(error.message);
+      setProducts([]);
+      console.log('Products state set to empty array due to error.');
     } finally {
       setLoading(false);
     }
-  };
+  }, [currentPage, debouncedSearchQuery, selectedCategory, selectedStatus]); // Use debouncedSearchQuery instead of searchQuery
 
-  // Initial fetch and refetch when dependencies change
+  // Fetch categories
+  const fetchCategories = useCallback(async () => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/products/categories/`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch categories');
+      }
+      const data = await response.json();
+      setCategories(data);
+      console.log('Fetched categories for summary:', data);
+    } catch (err) {
+      console.error('Error fetching categories for summary:', err);
+      setError('Failed to load categories for summary. Please try again.');
+    }
+  }, []); // No dependencies, runs once on mount
+
+  // Fetch all products for summary counts
+  const fetchSummaryProducts = useCallback(async () => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/products/?summarize=true`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch summary products');
+      }
+      const data = await response.json();
+      setSummaryProducts(data.products || []);
+      console.log('Fetched summary products:', data.products.length);
+    } catch (err) {
+      console.error('Error fetching summary products:', err);
+    } finally {
+    }
+  }, []); // No dependencies, runs once on mount
+
+  // Fetch products on mount and when filters change
   useEffect(() => {
+    console.log('useEffect (fetchProducts) triggered.');
     fetchProducts();
-  }, [currentPage, searchQuery, selectedCategory]);
+  }, [fetchProducts]); // Depend only on the memoized fetchProducts function
+
+  // Fetch categories and summary products on mount
+  useEffect(() => {
+    fetchCategories();
+    fetchSummaryProducts(); 
+  }, [fetchCategories, fetchSummaryProducts]); // Depend on memoized functions
+
+  // Memoize filtered products
+  const filteredProducts = useMemo(() => {
+    if (!Array.isArray(products)) return [];
+    return products; 
+  }, [products]);
 
   const categoriesSummary = useMemo(() => {
-    return CATEGORY_NAMES.map((cat) => ({
-      name: cat,
-      count: products.filter((p) => p.category_name === cat).length,
-    }));
-  }, [products]);
+    // Use summaryProducts for counts
+    return CATEGORY_NAMES.map((catName) => {
+      const lookupCategoryName = normalizeCategoryNameForLookup(catName);
+      const style = BADGE_STYLES[lookupCategoryName] || BADGE_STYLES["Grains"];
+      // Count products by normalizing their category name for comparison against summaryProducts
+      const count = summaryProducts.filter((p) => normalizeCategoryNameForLookup(p.category_name) === lookupCategoryName).length;
+      const isActive = selectedCategory === catName; // Use catName directly for active state
+
+      return (
+        <div
+          key={catName} // Use catName as key
+          onClick={() => handleCategoryClick(catName)} // Use catName for click handler
+          style={{
+            position: "relative",
+            border: isActive ? `2px solid ${style.border}` : "1px solid #858585",
+            borderRadius: "1.6rem",
+            minWidth: "150px",
+            height: "80px",
+            padding: "0 1.5rem",
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "center",
+            backgroundColor: isActive ? style.background : "#FFFFFF",
+            flex: "1",
+            overflow: "hidden",
+            cursor: "pointer",
+            boxShadow: isActive ? "0 2px 8px 0 rgba(2,132,199,0.08)" : undefined,
+            transition: "border 0.18s, background 0.18s",
+          }}
+        >
+          {loading && (
+            <div
+              style={{
+                position: "absolute",
+                top: "0",
+                left: "0",
+                right: "0",
+                bottom: "0",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                backgroundColor: "rgba(255, 255, 255, 0.8)", // Optional: semi-transparent overlay
+                borderRadius: "1.6rem", // Match the card's border radius
+              }}
+            >
+              <img
+                src="/categoryloading-unscreen.gif"
+                alt="Loading"
+                style={{ 
+                  width: "80px", 
+                  height: "80px",
+                  objectFit: "contain"
+                }}
+              />
+            </div>
+          )}
+          <div
+            style={{
+              position: "absolute",
+              left: "0",
+              top: "0",
+              bottom: "0",
+              width: "20px",
+              backgroundColor: style.background,
+              borderRadius: "1.6rem 0 0 1.6rem",
+            }}
+          />
+          <span style={{ fontSize: "0.81rem", color: "#9CA3AF", fontWeight: 500, marginLeft: "8px" }}>{catName}</span> {/* Use catName for display */}
+          <span style={{ fontSize: "1.4rem", fontWeight: 900, color: "#000000", marginLeft: "8px" }}>{count}</span>
+        </div>
+      );
+    });
+  }, [summaryProducts, selectedCategory, handleCategoryClick]);
 
   const itemsPerPage = 7;
   const emptyRows = itemsPerPage - products.length > 0 ? itemsPerPage - products.length : 0;
@@ -133,23 +409,6 @@ export default function ProductManagement() {
     }
   };
 
-  const closeEditModal = () => {
-    setShowEditModal(false);
-    setEditProduct(null);
-  };
-
-  const handleEdit = (product) => {
-    setEditProduct(product);
-    setEditModalMode("edit");
-    setShowEditModal(true);
-  };
-
-  const handleCategoryClick = (cat) => {
-    setSelectedCategory((prev) => (prev === cat ? null : cat));
-    setSelectedRows([]);
-  };
-
-  // --- RETURN ---
   return (
     <div className="px-6 pb-6">
       {/* Toolbar */}
@@ -196,7 +455,11 @@ export default function ProductManagement() {
               type="text"
               placeholder="Search Product"
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              onChange={(e) => {
+                const value = e.target.value;
+                console.log('Search input changed:', value);
+                setSearchQuery(value);
+              }}
               style={{
                 width: "100%",
                 padding: "0.5rem 2.5rem 0.5rem 2.5rem",
@@ -263,47 +526,7 @@ export default function ProductManagement() {
       {/* CATEGORY SUMMARY */}
       <div className="pb-4">
         <div className="flex gap-4 overflow-x-auto">
-          {categoriesSummary.map((cat) => {
-            const style = BADGE_STYLES[cat.name] || BADGE_STYLES["Grains"];
-            const isActive = selectedCategory === cat.name;
-            return (
-              <div
-                key={cat.name}
-                onClick={() => handleCategoryClick(cat.name)}
-                style={{
-                  position: "relative",
-                  border: isActive ? `2px solid ${style.border}` : "1px solid #858585",
-                  borderRadius: "1.6rem",
-                  minWidth: "150px",
-                  height: "80px",
-                  padding: "0 1.5rem",
-                  display: "flex",
-                  flexDirection: "column",
-                  justifyContent: "center",
-                  backgroundColor: isActive ? style.background : "#FFFFFF",
-                  flex: "1",
-                  overflow: "hidden",
-                  cursor: "pointer",
-                  boxShadow: isActive ? "0 2px 8px 0 rgba(2,132,199,0.08)" : undefined,
-                  transition: "border 0.18s, background 0.18s",
-                }}
-              >
-                <div
-                  style={{
-                    position: "absolute",
-                    left: "0",
-                    top: "0",
-                    bottom: "0",
-                    width: "20px",
-                    backgroundColor: style.background,
-                    borderRadius: "1.6rem 0 0 1.6rem",
-                  }}
-                />
-                <span style={{ fontSize: "0.81rem", color: "#9CA3AF", fontWeight: 500, marginLeft: "8px" }}>{cat.name}</span>
-                <span style={{ fontSize: "1.4rem", fontWeight: 900, color: "#000000", marginLeft: "8px" }}>{cat.count}</span>
-              </div>
-            );
-          })}
+          {categoriesSummary}
         </div>
       </div>
 
@@ -312,7 +535,11 @@ export default function ProductManagement() {
         <h2 className="px-4 pt-4 text-xl font-bold text-gray-900">Product List</h2>
         {loading ? (
           <div className="flex justify-center items-center h-64">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-500"></div>
+            <img
+              src="/BINHI-LOADING-unscreen.gif"
+              alt="Loading..."
+              style={{ width: 120, height: 120, objectFit: "contain" }}
+            />
           </div>
         ) : error ? (
           <div className="flex justify-center items-center h-64 text-red-500">
@@ -365,13 +592,16 @@ export default function ProductManagement() {
                 <th style={{ padding: "0.55rem", textAlign: "left", verticalAlign: "middle", fontWeight: 600, fontSize: "0.97rem", whiteSpace: "nowrap" }}>Price</th>
                 <th style={{ padding: "0.55rem", textAlign: "left", verticalAlign: "middle", fontWeight: 600, fontSize: "0.97rem", whiteSpace: "nowrap" }}>Category</th>
                 <th style={{ padding: "0.55rem", textAlign: "left", verticalAlign: "middle", fontWeight: 600, fontSize: "0.97rem", whiteSpace: "nowrap" }}>Stock</th>
-                <th style={{ padding: "0.55rem", textAlign: "left", verticalAlign: "middle", fontWeight: 600, fontSize: "0.97rem", whiteSpace: "nowrap" }}>Status</th>
+                <th style={{ padding: "0.55rem", textAlign: "center", verticalAlign: "middle", fontWeight: 600, fontSize: "0.97rem", whiteSpace: "nowrap" }}>Status</th>
                 <th style={{ padding: "0.55rem", textAlign: "left", verticalAlign: "middle", fontWeight: 600, fontSize: "0.97rem", whiteSpace: "nowrap" }}>Actions</th>
               </tr>
             </thead>
             <tbody>
-              {products.map((p) => {
-                const style = BADGE_STYLES[p.category_name] || BADGE_STYLES["Grains"];
+              {filteredProducts.map((p) => {
+                const lookupCategoryName = normalizeCategoryNameForLookup(p.category_name);
+                const style = BADGE_STYLES[lookupCategoryName] || BADGE_STYLES["Grains"];
+                // Correctly use STATUS_STYLES for status display
+                const statusStyle = STATUS_STYLES[p.status] || { color: "#6B7280", background: "#E5E7EB", border: "#6B7280", text: p.status };
                 const isSelected = selectedRows.includes(p.id);
                 const variantCount = p.variations?.length || 1;
                 let variationText = p.variations?.[0]?.name || "";
@@ -379,6 +609,9 @@ export default function ProductManagement() {
                   const extra = variantCount - 1;
                   variationText = `${p.variations[0]?.name} +${extra}`;
                 }
+                const imageUrl = p.images?.[0]?.image;
+                const hasImageError = false; // No imageLoadErrors state anymore
+
                 return (
                   <tr
                     key={p.id}
@@ -421,11 +654,19 @@ export default function ProductManagement() {
                         gap: "0.65rem",
                         minHeight: "34px"
                       }}>
-                        <img
-                          src={p.images?.[0]?.image || "/sampleproduct.png"}
-                          alt={p.name}
-                          style={{ width: 28, height: 28, borderRadius: "50%" }}
-                        />
+                        {hasImageError || !imageUrl ? (
+                            <div style={{ width: 28, height: 28, borderRadius: "50%", backgroundColor: '#e0e0e0', display: 'flex', justifyContent: 'center', alignItems: 'center', fontSize: '0.7rem', color: '#757575' }}>
+                                No Img
+                            </div>
+                        ) : (
+                            <img
+                                src={imageUrl}
+                                alt={p.name}
+                                style={{ width: 28, height: 28, borderRadius: "50%", cursor: 'pointer' }}
+                                onClick={() => {}} // Removed openImagePreview
+                                onError={() => {}} // Removed handleImageError
+                            />
+                        )}
                         <div>
                           <div style={{
                             color: "#111827",
@@ -452,8 +693,8 @@ export default function ProductManagement() {
                       overflow: "hidden",
                       textOverflow: "ellipsis",
                       whiteSpace: "nowrap"
-                    }} title={p.association}>
-                      {p.association}
+                    }} title={p.vendor_name}>
+                      {p.vendor_name}
                     </td>
                     <td style={{
                       padding: "0.55rem",
@@ -463,8 +704,8 @@ export default function ProductManagement() {
                       overflow: "hidden",
                       textOverflow: "ellipsis",
                       whiteSpace: "nowrap"
-                    }} title={p.vendor_code}>
-                      {p.vendor_code}
+                    }} title={p.farmer}>
+                      {p.farmer}
                     </td>
                     <td style={{
                       padding: "0.55rem",
@@ -515,7 +756,8 @@ export default function ProductManagement() {
                       padding: "0.55rem",
                       verticalAlign: "middle",
                       fontSize: "0.95rem",
-                      whiteSpace: "nowrap"
+                      whiteSpace: "nowrap",
+                      textAlign: "center"
                     }}>
                       <span
                         style={{
@@ -523,29 +765,13 @@ export default function ProductManagement() {
                           padding: "0.16rem 0.6rem",
                           fontSize: "0.88rem",
                           borderRadius: "9999px",
-                          color:
-                            p.status === "pending_approval"
-                              ? "#92400E"
-                              : p.status === "published"
-                              ? "#15803D"
-                              : "#DC2626",
-                          backgroundColor:
-                            p.status === "pending_approval"
-                              ? "#FEF3C7"
-                              : p.status === "published"
-                              ? "#D1FAE5"
-                              : "#FEE2E2",
-                          border: `1px solid ${
-                            p.status === "pending_approval"
-                              ? "#92400E"
-                              : p.status === "published"
-                              ? "#15803D"
-                              : "#DC2626"
-                          }`,
+                          color: statusStyle.color,
+                          backgroundColor: statusStyle.background,
+                          border: `1px solid ${statusStyle.border}`,
                           whiteSpace: "nowrap"
                         }}
                       >
-                        {p.status === "pending_approval" ? "Pending" : p.status === "published" ? "Approved" : p.status}
+                        {statusStyle.text}
                       </span>
                     </td>
                     <td style={{
@@ -591,10 +817,9 @@ export default function ProductManagement() {
                   <td style={{ padding: "0.55rem" }}></td>
                   <td style={{ padding: "0.55rem" }}></td>
                   <td style={{ padding: "0.55rem" }}></td>
-                  <td style={{ padding: "0.55rem" }}></td>
                 </tr>
               ))}
-              {products.length === 0 && !loading && (
+              {filteredProducts.length === 0 && !loading && (
                 <tr>
                   <td colSpan={11} style={{ textAlign: "center", padding: "2rem", color: "#888" }}>
                     No products found.
@@ -609,7 +834,7 @@ export default function ProductManagement() {
         <div className="flex justify-center my-6">
           <div className="flex items-center gap-1">
             <button
-              onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+              onClick={() => handlePageChange(currentPage - 1)}
               className="btn btn-sm"
               disabled={currentPage === 1}
             >
@@ -620,7 +845,7 @@ export default function ProductManagement() {
               return (
                 <button
                   key={page}
-                  onClick={() => setCurrentPage(page)}
+                  onClick={() => handlePageChange(page)}
                   className={`btn btn-sm ${page === currentPage ? "bg-gray-300 text-black" : "btn-ghost text-gray-600"}`}
                 >
                   {page}
@@ -628,7 +853,7 @@ export default function ProductManagement() {
               );
             })}
             <button
-              onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+              onClick={() => handlePageChange(currentPage + 1)}
               className="btn btn-sm"
               disabled={currentPage === totalPages}
             >
@@ -650,9 +875,62 @@ export default function ProductManagement() {
         product={editProduct}
         onConfirm={async (updatedProduct) => {
           try {
+            const formData = new FormData();
+
+            // Append product fields
+            formData.append('id', updatedProduct.id);
+            formData.append('name', updatedProduct.name);
+            formData.append('description', updatedProduct.description);
+            formData.append('category', updatedProduct.category);
+            formData.append('association', updatedProduct.association);
+            formData.append('farmer_code', updatedProduct.farmer_code);
+
+            // Handle variations
+            const variationsToSerialize = [];
+            updatedProduct.variations.forEach((variation, index) => {
+              const currentVariationData = { ...variation };
+              if (variation.newFile) {
+                formData.append(`variations_new_image_${variation.id || index}`, variation.newFile);
+                // Remove the blob URL and newFile from the data to be serialized
+                delete currentVariationData.image;
+                delete currentVariationData.newFile;
+                // Add a reference to the new file in the JSON data, e.g., for the backend to map
+                currentVariationData.image_file_key = `variations_new_image_${variation.id || index}`;
+              } else if (variation.image) {
+                // If it's an existing image, keep its URL or ID in the JSON data
+                currentVariationData.image = variation.image;
+              }
+              variationsToSerialize.push(currentVariationData);
+            });
+            formData.append('variations', JSON.stringify(variationsToSerialize));
+
+            // Handle main product images (if applicable, based on product.images)
+            // Assuming updatedProduct has an 'images' array for main product images
+            const imagesToSerialize = [];
+            if (updatedProduct.images && updatedProduct.images.length > 0) {
+              updatedProduct.images.forEach((image, index) => {
+                const currentImageData = { ...image };
+                if (image.newFile) {
+                  formData.append(`images_new_image_${image.id || index}`, image.newFile);
+                  delete currentImageData.image;
+                  delete currentImageData.newFile;
+                  currentImageData.image_file_key = `images_new_image_${image.id || index}`;
+                } else if (image.image) {
+                  currentImageData.image = image.image;
+                }
+                imagesToSerialize.push(currentImageData);
+              });
+            }
+            formData.append('images', JSON.stringify(imagesToSerialize));
+
             const response = await axios.put(
               `${API_BASE_URL}/products/update/${updatedProduct.id}/`,
-              updatedProduct
+              formData, // Send FormData
+              {
+                headers: {
+                  'Content-Type': 'multipart/form-data', // Axios will set this automatically, but explicitly
+                },
+              }
             );
             setProducts((prev) =>
               prev.map((p) =>
@@ -661,7 +939,7 @@ export default function ProductManagement() {
             );
             closeEditModal();
           } catch (err) {
-            console.error("Error updating product:", err);
+            console.error("Error updating product:", err.response ? err.response.data : err.message);
             alert("Failed to update product");
           }
         }}
@@ -670,4 +948,4 @@ export default function ProductManagement() {
       <DraftProductModal isOpen={showDraftProducts} onClose={() => setShowDraftProducts(false)} />
     </div>
   );
-} 
+}

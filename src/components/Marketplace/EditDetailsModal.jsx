@@ -1,12 +1,20 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
+import { X, Pencil, Trash2 } from 'lucide-react';
+import axios from 'axios'; // Import axios
 
-const categories = [
-  'Fruits',
-  'Milks & Dairy',
-  'Vegetable',
-  'Grains',
-  'Root Crops',
-  'Meats'
+const API_BASE_URL = "http://127.0.0.1:8000";
+
+// Categories will now be fetched from backend
+const initialCategories = []; 
+
+const units = [
+  "Kilogram",
+  "Gram",
+  "Liter",
+  "Milliliter",
+  "Piece",
+  "Dozen",
+  "Pack",
 ];
 
 export default function EditDetailsModal({
@@ -20,17 +28,19 @@ export default function EditDetailsModal({
   const [price, setPrice] = useState('');
   const [stock, setStock] = useState('');
   const [category, setCategory] = useState('');
-  const [variation, setVariation] = useState('');
+  const [unitMeasurement, setUnitMeasurement] = useState('');
+  const [variations, setVariations] = useState([]);
   const [avatar, setAvatar] = useState('');
+  const [association, setAssociation] = useState('');
+  const [farmerCode, setFarmerCode] = useState('');
+  const [description, setDescription] = useState('');
   const [error, setError] = useState('');
   const [showDisregardModal, setShowDisregardModal] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [availableCategories, setAvailableCategories] = useState(initialCategories); // New state for fetched categories
 
-  // Fix money formatting by storing the raw value and formatting on display
   function formatPeso(value) {
-    // Accept empty string
     if (!value) return "";
-    // Accept "0", "1234", "1,234.50" etc
     let num = Number(String(value).replace(/,/g, ''));
     if (isNaN(num)) return "";
     return num.toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -39,7 +49,7 @@ export default function EditDetailsModal({
   useEffect(() => {
     if (product && isOpen) {
       setName(product.name || '');
-      setVariation(product.variation || '');
+      setVariations(product.variations || []);
       setAvatar(product.avatar || '');
       setPrice(
         typeof product.price === 'number'
@@ -51,11 +61,34 @@ export default function EditDetailsModal({
           ? product.stock.toString()
           : product.stock || ''
       );
-      setCategory(product.category || '');
+      setCategory(product.category?.id || '');
+      console.log("product.category on modal open:", product.category);
+      setUnitMeasurement(product.unit_measurement || '');
+      setAssociation(product.association || '');
+      setFarmerCode(product.farmer_code || '');
+      setDescription(product.description || '');
       setError('');
+      setShowSuccessModal(false);
+      console.log("Product in EditDetailsModal:", product);
+      console.log("Variants in EditDetailsModal:", product.variations);
     }
     if (!isOpen) setError('');
   }, [product, isOpen]);
+
+  // Fetch categories when modal opens
+  useEffect(() => {
+    if (isOpen) {
+      const fetchCategories = async () => {
+        try {
+          const response = await axios.get(`${API_BASE_URL}/products/categories/`);
+          setAvailableCategories(response.data);
+        } catch (err) {
+          console.error("Error fetching categories in EditDetailsModal:", err);
+        }
+      };
+      fetchCategories();
+    }
+  }, [isOpen]);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -68,8 +101,23 @@ export default function EditDetailsModal({
 
   function handleConfirm(e) {
     e.preventDefault();
-    // For both modes: allow Approve, but only update data in edit mode
-    if (!price.trim() || !stock.trim() || !category.trim()) {
+
+    // Get values from the first variation for validation
+    const firstVariant = variations[0] || {};
+    const numericPrice = Number(String(firstVariant.unit_price || '').replace(/,/g, ''));
+    const stockValue = String(firstVariant.stock || '').trim();
+    const unitMeasurementValue = String(firstVariant.unit_measurement || '').trim();
+    const categoryTrimmed = category.trim();
+    const descriptionTrimmed = description.trim();
+
+    console.log('Validating fields:');
+    console.log('Variant Price (numeric):', numericPrice, '> 0: ', numericPrice > 0, 'isNaN:', isNaN(numericPrice));
+    console.log('Variant Stock:', stockValue, '!stockValue:', !stockValue);
+    console.log('Category:', categoryTrimmed, '!categoryTrimmed:', !categoryTrimmed);
+    console.log('Variant Unit Measurement:', unitMeasurementValue, '!unitMeasurementValue:', !unitMeasurementValue);
+    console.log('Description:', descriptionTrimmed, '!descriptionTrimmed:', !descriptionTrimmed);
+
+    if (numericPrice <= 0 || isNaN(numericPrice) || !stockValue || !categoryTrimmed || !unitMeasurementValue || !descriptionTrimmed) {
       setError('Please fill out all required fields.');
       return;
     }
@@ -79,46 +127,185 @@ export default function EditDetailsModal({
         ...product,
         price: Number(String(price).replace(/,/g, '')),
         stock: Number(stock),
-        category
+        category,
+        unit_measurement: unitMeasurement,
+        association,
+        farmer_code: farmerCode,
+        description,
+        variations,
       });
     }
     setShowSuccessModal(true);
   }
 
   function handlePriceChange(e) {
-    let val = e.target.value.replace(/[^\d.]/g, ''); // accept numbers and dots only
-    if (val.split('.').length > 2) val = val.replace(/\.+$/, ''); // remove trailing dots if more than one
-    // Only allow 2 decimal places max
+    let val = e.target.value.replace(/[^\\d.]/g, ''); 
+    if (val.split('.').length > 2) val = val.replace(/\\.+$/, '');
     if (val.includes('.')) {
       const [intPart, decPart] = val.split('.');
       val = intPart + '.' + decPart.slice(0,2);
     }
-    // Format with commas on display, but keep decimals
     let formatted = '';
     if (val) {
       let [intPart, decPart] = val.split('.');
-      intPart = intPart ? String(Number(intPart)).replace(/\B(?=(\d{3})+(?!\d))/g, ",") : '';
+      intPart = intPart ? String(Number(intPart)).replace(/\\B(?=(\\d{3})+(?!\\d))/g, ",") : '';
       formatted = decPart !== undefined ? `${intPart}.${decPart}` : intPart;
     }
     setPrice(formatted);
   }
 
   function handleStockChange(e) {
-    let val = e.target.value.replace(/[^\d]/g, '');
+    let val = e.target.value.replace(/[^\\d]/g, '');
     setStock(val);
   }
+
+  const handleVariantNameChange = useCallback((index, value) => {
+    setVariations(prevVariants => {
+      const newVariants = [...prevVariants];
+      newVariants[index] = { ...newVariants[index], name: value };
+      return newVariants;
+    });
+  }, []);
+
+  const handleVariantPriceChange = useCallback((index, value) => {
+    setVariations(prevVariants => {
+      const newVariants = [...prevVariants];
+      newVariants[index] = { ...newVariants[index], unit_price: value }; // Changed to unit_price
+      return newVariants;
+    });
+  }, []);
+
+  const handleVariantStockChange = useCallback((index, value) => {
+    setVariations(prevVariants => {
+      const newVariants = [...prevVariants];
+      newVariants[index] = { ...newVariants[index], stock: value };
+      return newVariants;
+    });
+  }, []);
+
+  const handleVariantImageChange = useCallback((index, file) => {
+    if (file) {
+      const newImageUrl = URL.createObjectURL(file);
+      setVariations(prevVariants => {
+        const newVariants = [...prevVariants];
+        newVariants[index] = { ...newVariants[index], image: newImageUrl, newFile: file }; // newFile to hold the actual File object if needed for upload
+        return newVariants;
+      });
+    }
+  }, []);
 
   if (!isOpen) return null;
 
   const isDetails = mode === 'details';
+
+  const variationRows = variations.map((variant, idx) => {
+    // Find the main image or default to the first image
+    const variantDisplayImage = variant.images?.find(img => img.is_main)?.image || variant.images?.[0]?.image || `${window.location.origin}/sampleproduct.png`;
+
+    return (
+      <div key={idx} className="grid grid-cols-4 gap-x-4 mb-4"> {/* Changed to grid for horizontal alignment of each variant's fields */}
+        <div> {/* Wrapper for Variant Name and Image */}
+          <label className="font-semibold text-base mb-1 block">
+            Variant {idx + 1} <span style={{ color: '#EF4444' }}>*</span>
+          </label>
+          <div className="flex items-center px-4 py-1 rounded-[2rem] border border-[#D1D5DB] text-base">
+            <label className="cursor-pointer mr-3 flex-shrink-0">
+              <img src={variantDisplayImage} alt={variant.name} className="rounded-full" style={{ width: 40, height: 40, objectFit: "cover" }} />
+              <input
+                type="file"
+                className="hidden"
+                accept="image/*"
+                onChange={(e) => handleVariantImageChange(idx, e.target.files[0])}
+                disabled={isDetails}
+              />
+            </label>
+            <input
+              type="text"
+              className="flex-1 outline-none bg-transparent pl-2"
+              value={variant.name}
+              onChange={(e) => handleVariantNameChange(idx, e.target.value)}
+              placeholder="Variant Name"
+              disabled={isDetails}
+            />
+          </div>
+        </div>
+        <div> {/* Price field for this variant */}
+          <label className="font-semibold text-base mb-1 block">
+            Price <span style={{ color: '#EF4444' }}>*</span>
+          </label>
+          <div className="flex items-center relative">
+            <span className="absolute left-6 text-gray-500 text-lg">₱</span>
+            <input
+              className="w-full pl-12 pr-6 py-3 rounded-[2rem] border border-[#D1D5DB] focus:border-[#16A34A] focus:ring-2 focus:ring-[#16A34A] text-base"
+              value={variant.unit_price} // Use variant's unit_price
+              onChange={isDetails ? undefined : e => handleVariantPriceChange(idx, e.target.value)}
+              placeholder="0.00"
+              required
+              inputMode="decimal"
+              style={{
+                color: '#222A35',
+                background: isDetails ? "#f3f4f6" : "#fff",
+                pointerEvents: isDetails ? "none" : "auto"
+              }}
+              readOnly={isDetails}
+              disabled={isDetails}
+            />
+          </div>
+        </div>
+        <div> {/* Unit field for this variant */}
+          <label className="font-semibold text-base mb-1 block">
+            Unit <span style={{ color: '#EF4444' }}>*</span>
+          </label>
+          <select
+            className="block w-full rounded-[2rem] border border-[#D1D5DB] px-6 py-3 text-base focus:border-[#16A34A] focus:outline-none"
+            value={variant.unit_measurement}
+            onChange={isDetails ? undefined : e => setVariations(prev => { const newV = [...prev]; newV[idx].unit_measurement = e.target.value; return newV; })}
+            required
+            style={{
+              color: variant.unit_measurement ? '#222A35' : '#888',
+              background: isDetails ? "#f3f4f6" : "#fff",
+              pointerEvents: isDetails ? "none" : "auto"
+            }}
+            disabled={isDetails}
+          >
+            <option value="">Select Unit</option>
+            {units.map(unit => (
+              <option value={unit} key={unit}>{unit}</option>
+            ))}
+          </select>
+        </div>
+        <div> {/* Stock field for this variant */}
+          <label className="font-semibold text-base mb-1 block">
+            Stock <span style={{ color: '#EF4444' }}>*</span>
+          </label>
+          <input
+            type="number"
+            className="w-full px-6 py-3 rounded-[2rem] border border-[#D1D5DB] text-base"
+            value={variant.stock}
+            onChange={isDetails ? undefined : e => handleVariantStockChange(idx, e.target.value)}
+            placeholder="0"
+            required
+            style={{
+              background: isDetails ? "#f3f4f6" : "#fff",
+              color: '#222A35',
+              pointerEvents: isDetails ? "none" : "auto"
+            }}
+            readOnly={isDetails}
+            disabled={isDetails}
+          />
+        </div>
+      </div>
+    );
+  });
+
   return (
     <div className="fixed z-50 inset-0 flex items-center justify-center bg-black bg-opacity-30">
       {/* Main Modal */}
       <form
-        className="relative bg-white w-full max-w-xl mx-auto rounded-[2.2rem] shadow-xl p-10 pt-9"
+        className="relative bg-white w-full mx-auto rounded-[2rem] shadow-xl p-10 pt-9"
         style={{
           minWidth: 370,
-          maxWidth: 490,
+          maxWidth: 1000, // Further widened modal
           border: '1px solid #858585'
         }}
         onSubmit={handleConfirm}
@@ -127,19 +314,17 @@ export default function EditDetailsModal({
         <button
           type="button"
           onClick={onClose}
-          className="absolute right-8 top-7 text-gray-500 hover:text-gray-900 rounded-full focus:outline-none text-2xl"
+          className="absolute right-8 top-7 text-gray-500 hover:text-gray-900 rounded-full focus:outline-none"
           aria-label="Close"
         >
-          <svg width={22} height={22} fill="none" viewBox="0 0 24 24">
-            <path stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" d="M6 6l12 12M6 18L18 6" />
-          </svg>
+          <X size={24} />
         </button>
         {/* Title and subtitle */}
         <h2 className="text-2xl font-bold leading-tight mb-0">
-          {isDetails ? "Product Preview" : "Edit Product Details"}
+          Edit Product
         </h2>
         <p className="text-base text-gray-600 mb-4">
-          {isDetails ? "Here’s the details of the product." : "Update the product information below."}
+          Please edit the product.
         </p>
         <hr className="mb-6 mt-1" />
 
@@ -153,30 +338,96 @@ export default function EditDetailsModal({
           />
           <div>
             <div className="text-[1.3rem] font-bold text-[#222A35] leading-tight">{name}</div>
-            {variation && (
-              <div className="text-[1rem] text-gray-600" style={{ marginTop: 2 }}>Variation: {variation}</div>
+            {variations.length > 0 && (
+              <div className="text-[1rem] text-gray-600" style={{ marginTop: 2 }}>Variation: {variations.map(v => v.name).join(", ")}</div>
             )}
           </div>
         </div>
 
         {/* Fields */}
         <div className="space-y-5">
-          <div>
-            <label className="font-semibold text-base mb-1 block">
-              Price <span style={{ color: '#EF4444' }}>*</span>
-            </label>
-            <div className="flex items-center relative">
-              <span className="absolute left-6 text-gray-500 text-lg">₱</span>
+          {/* Product Name and Category */}
+          <div className="grid grid-cols-2 gap-x-4">
+            <div>
+              <label className="font-semibold text-base mb-1 block">
+                Product Name <span style={{ color: '#EF4444' }}>*</span>
+              </label>
               <input
-                className="w-full pl-12 pr-4 py-3 rounded-2xl border border-[#D1D5DB] focus:border-[#16A34A] focus:ring-2 focus:ring-[#16A34A] text-base"
-                value={price}
-                onChange={isDetails ? undefined : handlePriceChange}
-                placeholder="0.00"
-                required
-                inputMode="decimal"
+                type="text"
+                className="w-full px-6 py-3 rounded-[2rem] border border-[#D1D5DB] text-base"
+                value={name}
+                readOnly
+                disabled
                 style={{
+                  background: "#f3f4f6",
                   color: '#222A35',
+                  pointerEvents: "none",
+                }}
+              />
+            </div>
+            <div>
+              <label className="font-semibold text-base mb-1 block">
+                Category <span style={{ color: '#EF4444' }}>*</span>
+              </label>
+              <select
+                className="block w-full rounded-[2rem] border border-[#D1D5DB] px-6 py-3 text-base focus:border-[#16A34A] focus:outline-none"
+                value={category}
+                onChange={isDetails ? undefined : e => setCategory(e.target.value)}
+                required
+                style={{
+                  color: category ? '#222A35' : '#888',
                   background: isDetails ? "#f3f4f6" : "#fff",
+                  pointerEvents: isDetails ? "none" : "auto"
+                }}
+                disabled={isDetails}
+              >
+                <option value="">Please select a category</option>
+                {availableCategories.map(cat => (
+                  <option value={cat.id} key={cat.id}>{cat.name}</option> // Use cat.id for value, cat.name for display
+                ))}
+              </select>
+            </div>
+          </div>
+
+          {/* Variation 1, Price, Unit, Stock */}
+          {variations.length > 0 && variationRows}
+
+          {/* Association and Farmer Code */}
+          <div className="grid grid-cols-2 gap-x-4">
+            <div>
+              <label className="font-semibold text-base mb-1 block">
+                Association <span style={{ color: '#EF4444' }}>*</span>
+              </label>
+              <input
+                type="text"
+                className="w-full px-6 py-3 rounded-[2rem] border border-[#D1D5DB] text-base"
+                value={association}
+                onChange={isDetails ? undefined : e => setAssociation(e.target.value)}
+                placeholder="Pantok Farmers Association"
+                required
+                style={{
+                  background: "#f3f4f6",
+                  color: '#222A35',
+                  pointerEvents: "none",
+                }}
+                readOnly
+                disabled
+              />
+            </div>
+            <div>
+              <label className="font-semibold text-base mb-1 block">
+                Farmer Code <span style={{ color: '#EF4444' }}>*</span>
+              </label>
+              <input
+                type="text"
+                className="w-full px-6 py-3 rounded-[2rem] border border-[#D1D5DB] text-base"
+                value={farmerCode}
+                onChange={isDetails ? undefined : e => setFarmerCode(e.target.value)}
+                placeholder="e.g. JDC158"
+                required
+                style={{
+                  background: isDetails ? "#f3f4f6" : "#fff",
+                  color: '#222A35',
                   pointerEvents: isDetails ? "none" : "auto"
                 }}
                 readOnly={isDetails}
@@ -184,78 +435,83 @@ export default function EditDetailsModal({
               />
             </div>
           </div>
+
+          {/* Description */}
           <div>
             <label className="font-semibold text-base mb-1 block">
-              Category <span style={{ color: '#EF4444' }}>*</span>
+              Description <span style={{ color: '#EF4444' }}>*</span>
             </label>
-            <select
-              className="block w-full rounded-2xl border border-[#D1D5DB] px-6 py-3 text-base focus:border-[#16A34A] focus:outline-none"
-              value={category}
-              onChange={isDetails ? undefined : e => setCategory(e.target.value)}
-              required
-              style={{
-                color: category ? '#222A35' : '#888',
-                background: isDetails ? "#f3f4f6" : "#fff",
-                pointerEvents: isDetails ? "none" : "auto"
-              }}
-              disabled={isDetails}
-            >
-              <option value="">Please select a category</option>
-              {categories.map(cat => (
-                <option value={cat} key={cat}>{cat}</option>
-              ))}
-            </select>
-          </div>
-          <div>
-            <label className="font-semibold text-base mb-1 block">
-              Stock <span style={{ color: '#EF4444' }}>*</span>
-            </label>
-            <input
-              className="w-full px-6 py-3 rounded-2xl border border-[#D1D5DB] focus:border-[#16A34A] focus:ring-2 focus:ring-[#16A34A] text-base"
-              value={stock}
-              onChange={isDetails ? undefined : handleStockChange}
+            <textarea
+              className="w-full px-6 py-3 rounded-[2rem] border border-[#D1D5DB] text-base resize-none"
+              rows="4"
+              value={description}
+              onChange={isDetails ? undefined : e => setDescription(e.target.value)}
               placeholder="0"
               required
-              inputMode="numeric"
               style={{
-                color: '#222A35',
                 background: isDetails ? "#f3f4f6" : "#fff",
+                color: '#222A35',
                 pointerEvents: isDetails ? "none" : "auto"
               }}
               readOnly={isDetails}
               disabled={isDetails}
-            />
+            ></textarea>
           </div>
-          {error && (
-            <div className="text-red-500 text-base">{error}</div>
-          )}
+
         </div>
 
-        {/* Footer buttons - always show */}
-        <div className="flex justify-between gap-4 mt-12">
+        {/* Buttons */}
+        <div className="flex justify-center gap-8 mt-6">
           <button
             type="button"
             onClick={() => setShowDisregardModal(true)}
-            className="flex-1 bg-[#EF4444] text-white font-semibold rounded-full py-4 text-lg transition hover:bg-[#DC2626] focus:outline-none focus:ring-2 focus:ring-[#DC2626]"
-            style={{ fontSize: "1.15rem" }}
+            className="px-12 py-5 rounded-[2rem] font-semibold text-lg"
+            style={{
+              backgroundColor: "#ef4444",
+              color: "#fff",
+            }}
           >
             Disregard
           </button>
           <button
             type="submit"
-            className="flex-1 bg-[#16A34A] text-white font-semibold rounded-full py-4 text-lg transition hover:bg-[#15803D] focus:outline-none focus:ring-2 focus:ring-[#15803D]"
-            style={{ fontSize: "1.15rem" }}
+            className="px-12 py-5 rounded-[2rem] font-semibold text-lg"
+            style={{
+              backgroundColor: "#16A34A",
+              color: "#fff",
+            }}
           >
-            Approve
+            Confirm
           </button>
         </div>
+
+        {error && <p className="text-red-500 text-center mt-4 text-sm">{error}</p>}
+
+        {/* Success Modal */}
+        {showSuccessModal && (
+          <div className="fixed z-50 inset-0 flex items-center justify-center bg-black bg-opacity-30">
+            <div className="bg-white p-8 rounded-lg shadow-lg text-center">
+              <h3 className="text-xl font-bold mb-4">Success!</h3>
+              <p>Product details have been updated.</p>
+              <button
+                onClick={() => {
+                  setShowSuccessModal(false);
+                  onClose();
+                }}
+                className="mt-4 px-4 py-2 bg-green-500 text-white rounded"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        )}
       </form>
 
       {/* Disregard Confirmation Modal */}
       {showDisregardModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-30">
           <div className="bg-white rounded-3xl shadow-xl relative p-10 w-full max-w-xl text-center border" style={{ borderColor: "#b5b5b5" }}>
-            {/* Close Button */}
+
             <button
               onClick={() => setShowDisregardModal(false)}
               className="absolute top-6 right-6 text-gray-400 hover:text-gray-600 text-2xl"
@@ -264,7 +520,6 @@ export default function EditDetailsModal({
             >
               &times;
             </button>
-            {/* Red Exclamation Icon */}
             <div className="flex justify-center mb-6">
               <div className="bg-[#FF4B4B] rounded-full flex items-center justify-center mb-2" style={{ width: 110, height: 110 }}>
                 <svg xmlns="http://www.w3.org/2000/svg" width="60" height="60" fill="none" viewBox="0 0 24 24">
@@ -309,55 +564,6 @@ export default function EditDetailsModal({
                 }}
               >
                 Disregard
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Approve Success Modal */}
-      {showSuccessModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-30">
-          <div className="bg-white rounded-3xl shadow-xl relative p-10 w-full max-w-xl text-center border" style={{ borderColor: "#b5b5b5" }}>
-            {/* Close Button */}
-            <button
-              onClick={() => setShowSuccessModal(false)}
-              className="absolute top-6 right-6 text-gray-400 hover:text-gray-600 text-2xl"
-              aria-label="Close"
-              style={{ background: "none", border: "none" }}
-            >
-              &times;
-            </button>
-            {/* Green Check Icon */}
-            <div className="flex justify-center mb-6">
-              <div className="bg-[#43B864] rounded-full flex items-center justify-center mb-2" style={{ width: 110, height: 110 }}>
-                <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" fill="none" viewBox="0 0 24 24">
-                  <circle cx="12" cy="12" r="12" fill="#43B864" />
-                  <polyline points="17 9.5 12 15 9 12.2" fill="none" stroke="#fff" strokeWidth={2.8} strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
-              </div>
-            </div>
-            <h2 className="text-2xl font-bold mb-2 mt-1" style={{ color: "#111", fontSize: "2rem" }}>Product approved successfully!</h2>
-            <p className="text-gray-700 mb-8" style={{ fontSize: "1.15rem" }}>
-              Everything’s set. Feel free to check it!
-            </p>
-            <div className="flex justify-center gap-5 mt-2">
-              <button
-                onClick={() => setShowSuccessModal(false)}
-                className="border-2 border-[#43B864] font-semibold rounded-full px-12 py-4 text-base bg-white text-[#43B864] transition"
-                style={{ minWidth: 140, fontSize: "1.12rem" }}
-              >
-                Back
-              </button>
-              <button
-                onClick={() => {
-                  setShowSuccessModal(false);
-                  onClose && onClose();
-                }}
-                className="bg-[#43B864] text-white font-semibold rounded-full px-12 py-4 text-base hover:bg-[#369C52] transition"
-                style={{ minWidth: 140, fontSize: "1.12rem" }}
-              >
-                Done
               </button>
             </div>
           </div>

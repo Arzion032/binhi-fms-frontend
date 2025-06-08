@@ -14,17 +14,6 @@ const PlusIcon = ({ className = "" }) => (
   </svg>
 );
 
-// List of categories with their UUIDs
-const categories = [
-  { name: "Grains", uuid: "your-grains-uuid" },
-  { name: "Vegetable", uuid: "your-vegetable-uuid" },
-  { name: "Root Crops", uuid: "your-root-crops-uuid" },
-  { name: "Milks & Dairy", uuid: "your-milks-dairy-uuid" },
-  { name: "Meats", uuid: "your-meats-uuid" },
-  { name: "Fruits", uuid: "your-fruits-uuid" },
-  { name: "Fish", uuid: "your-fish-uuid" }
-];
-
 function VariationModal({ isOpen, onClose, onConfirm, variationNumber, initialValue }) {
   const [name, setName] = useState(initialValue?.name || '');
   const [image, setImage] = useState(initialValue?.image || null);
@@ -82,7 +71,7 @@ function VariationModal({ isOpen, onClose, onConfirm, variationNumber, initialVa
           <label className="font-semibold text-[17px] mb-1 block text-[#222A35]">
             Product Name <span className="text-[#F64B4B]">*</span>
           </label>
-          <input className={inputBox} value={name} onChange={e => setName(e.target.value)} placeholder="Enter the Equipment" required />
+          <input className={inputBox} value={name} onChange={e => setName(e.target.value)} placeholder="Enter the Product" required />
         </div>
         <div className="mb-4">
           <label className="font-semibold text-[17px] mb-1 block text-[#222A35]">
@@ -146,6 +135,29 @@ export default function AddProductModal({ isOpen, onClose, onSaveProduct }) {
   const [editingVariantIndex, setEditingVariantIndex] = useState(null);
   const [error, setError] = useState('');
   const [backendError, setBackendError] = useState('');
+  const [categories, setCategories] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+
+  // Fetch categories on component mount
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const response = await fetch('http://127.0.0.1:8000/products/categories/');
+        if (!response.ok) {
+          throw new Error('Failed to fetch categories');
+        }
+        const data = await response.json();
+        setCategories(data);
+      } catch (err) {
+        console.error('Error fetching categories:', err);
+        setError('Failed to load categories. Please try again.');
+      }
+    };
+
+    if (isOpen) {
+      fetchCategories();
+    }
+  }, [isOpen]);
 
   // Handle image change
   const handleImageChange = (e, idx) => {
@@ -193,48 +205,104 @@ export default function AddProductModal({ isOpen, onClose, onSaveProduct }) {
 
   // Handle Save and Submit
   const handleSaveSubmit = async (e) => {
-    e.preventDefault();
+    e.preventDefault(); // Prevent default form submission behavior
+
+    // Clear previous errors
+    setError('');
     setBackendError('');
-    if (!validateProduct(false)) return;
 
-    const filledVariants = variants
-      .filter(v => v && v.name)
-      .map(v => ({
-        name: v.name,
-        unit_price: v.price,
-        stock: v.stock,
-        unit_measurement: v.unitMeasurement,
-        is_available: true,
-        is_default: true,
-        status: "active"
-      }));
-
-    // Find the selected category object to get its UUID
-    const selectedCategory = categories.find(cat => cat.name === category);
-
-    const newProduct = {
-      name: productName,
-      category: selectedCategory ? selectedCategory.uuid : category, // send UUID
-      vendor: farmerCode, // send farmer code
-      images: images.filter(Boolean),
-      description,
-      association,
-      variations: filledVariants
-    };
+    // Frontend validation using the existing validateProduct function
+    if (!validateProduct()) {
+      // If validation fails, an error message is already set by validateProduct
+      console.log('Frontend validation failed. Not sending request.');
+      return;
+    }
 
     try {
-      if (onSaveProduct) await onSaveProduct(newProduct);
-      // Reset state and close
-      setProductName('');
-      setCategory('');
-      setImages(Array(5).fill(null));
-      setDescription('');
-      setFarmerCode('');
-      setVariants([{}, {}, {}]);
-      setError('');
-      onClose && onClose();
-    } catch (err) {
-      setBackendError(err?.response?.data?.detail || 'Failed to add product.');
+      // Filter out empty variants
+      const filledVariants = variants
+        .filter(v => v && v.name && v.price)
+        .map(v => ({
+          name: v.name,
+          unit_price: parseFloat(v.price) || 0,
+          stock: parseInt(v.stock) || 0,
+          unit_measurement: v.unitMeasurement,
+          is_available: true,
+          is_default: true,
+          status: "active"
+        }));
+
+      // Convert base64 images to File objects
+      const imageFiles = await Promise.all(
+        images
+          .filter(Boolean)
+          .map(async (base64Image, index) => {
+            const response = await fetch(base64Image);
+            const blob = await response.blob();
+            return new File([blob], `image-${index}.jpg`, { type: 'image/jpeg' });
+          })
+      );
+
+      if (imageFiles.length === 0) {
+        setError('At least one image is required');
+        console.log('No images provided. Not sending request.');
+        return; // Stop if no images
+      }
+
+      // Create FormData object
+      const formDataToSend = new FormData();
+      formDataToSend.append('name', productName.trim());
+      formDataToSend.append('description', description.trim());
+      formDataToSend.append('category', category);
+      formDataToSend.append('farmer_code', farmerCode.trim());
+      
+      // Add images
+      imageFiles.forEach((file) => {
+        formDataToSend.append('images', file);
+      });
+
+      // Add variations if any
+      if (filledVariants.length > 0) {
+        formDataToSend.append('variations', JSON.stringify(filledVariants));
+      }
+
+      console.log('--- Preparing to send product data ---');
+      console.log('Product Name:', productName.trim());
+      console.log('Category ID:', category);
+      console.log('Farmer Code (from state):', farmerCode.trim());
+      console.log('Number of Images (after processing):', imageFiles.length);
+      console.log('Number of Variations (filtered):', filledVariants.length);
+
+      // Log FormData contents for debugging
+      console.log('--- FormData contents (before fetch) ---');
+      for (let pair of formDataToSend.entries()) {
+        console.log(pair[0] + ': ' + pair[1]);
+      }
+      console.log('--------------------------------------');
+
+      console.log('--- Sending request ---');
+
+      const response = await fetch('http://127.0.0.1:8000/products/create/', {
+        method: 'POST',
+        body: formDataToSend,
+      });
+
+      console.log('Response status:', response.status);
+      const responseData = await response.json();
+      console.log('Response data:', responseData);
+
+      if (!response.ok) {
+        setBackendError(responseData.error || responseData.detail || 'Failed to create product');
+        console.error('Backend error:', responseData);
+        return; // Stop if backend returns an error
+      }
+
+      console.log('Product created successfully:', responseData);
+      onSaveProduct && onSaveProduct(responseData); // Pass data to parent
+      onClose(); // Close the modal
+    } catch (error) {
+      console.error('Error creating product (frontend catch):', error);
+      setBackendError(error.message || 'Failed to add product due to an unexpected error.');
     }
   };
 
@@ -272,7 +340,7 @@ export default function AddProductModal({ isOpen, onClose, onSaveProduct }) {
               className={inputBox}
               value={productName}
               onChange={e => setProductName(e.target.value)}
-              placeholder="Enter the Equipment"
+              placeholder="Enter the Product"
               required
             />
           </div>
@@ -284,10 +352,11 @@ export default function AddProductModal({ isOpen, onClose, onSaveProduct }) {
                 value={category}
                 onChange={e => setCategory(e.target.value)}
                 required
+                disabled={isLoading}
               >
                 <option value="">Please select a category</option>
                 {categories.map(cat => (
-                  <option key={cat.uuid} value={cat.name}>{cat.name}</option>
+                  <option key={cat.id} value={cat.id}>{cat.name}</option>
                 ))}
               </select>
             </div>
@@ -475,4 +544,4 @@ export default function AddProductModal({ isOpen, onClose, onSaveProduct }) {
       </form>
     </div>
   );
-}
+} 
