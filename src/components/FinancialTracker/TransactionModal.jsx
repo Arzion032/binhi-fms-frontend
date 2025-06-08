@@ -1,6 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
+import { X } from 'lucide-react';
+import axios from 'axios';
 
-const IncomeModal = ({ isOpen, onClose }) => {
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+
+const TransactionModal = ({ isOpen, onClose, type, onSuccess }) => {
   const [amount, setAmount] = useState('');
   const [source, setSource] = useState('');
   const [paymentMethod, setPaymentMethod] = useState('');
@@ -9,6 +13,10 @@ const IncomeModal = ({ isOpen, onClose }) => {
   const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
   const [isCancelConfirmOpen, setIsCancelConfirmOpen] = useState(false);
   const [selectedFiles, setSelectedFiles] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [name, setName] = useState("");
+  const [nameError, setNameError] = useState("");
 
   // Reset all form fields and file list
   const resetForm = () => {
@@ -17,21 +25,97 @@ const IncomeModal = ({ isOpen, onClose }) => {
     setPaymentMethod('');
     setRemarks('');
     setSelectedFiles([]);
+    setError(null);
+    setName("");
+    setNameError("");
   };
 
-  // Finalize “Disregard” action
+  // Finalize "Disregard" action
   const performDisregard = () => {
     resetForm();
     setIsCancelConfirmOpen(false);
     onClose();
   };
 
-  const handleConfirm = () => {
-    if (!amount || !source || !paymentMethod || selectedFiles.length === 0) {
-      alert("Please complete all required fields and add at least one file.");
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setError(null);
+    setNameError("");
+    
+    // Validate required fields
+    if (!name.trim()) {
+      setNameError("Name is required.");
+      setLoading(false);
       return;
     }
-    setIsSuccessModalOpen(true);
+    if (!amount || amount <= 0) {
+      setError("Please enter a valid amount.");
+      setLoading(false);
+      return;
+    }
+    if (!source.trim()) {
+      setError("Source is required.");
+      setLoading(false);
+      return;
+    }
+    if (!remarks.trim()) {
+      setError("Description is required.");
+      setLoading(false);
+      return;
+    }
+
+    try {
+      // Create a simple object
+      const transactionData = {
+        name: name.trim(),
+        amount: amount.toString(),
+        type: type.toLowerCase(),
+        source: source.trim(),
+        description: remarks.trim(),
+        payment_method: paymentMethod
+      };
+
+      console.log('Transaction data:', transactionData);
+
+      const response = await axios.post(
+        `${API_URL}/financials/add_transaction/`,
+        transactionData,
+        {
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          withCredentials: true,
+        }
+      );
+
+      console.log('Response:', response);
+
+      if (response.status === 201) {
+        setIsSuccessModalOpen(true);
+        if (onSuccess) onSuccess();
+        onClose();
+      } else {
+        const errorMessage = response.data?.error || 'Failed to add transaction. Please try again.';
+        setError(errorMessage);
+      }
+    } catch (err) {
+      console.error('Error adding transaction:', err);
+      console.error('Error response:', err.response);
+      
+      let errorMessage = 'Failed to add transaction. Please try again.';
+      if (err.response?.data?.error) {
+        errorMessage = err.response.data.error;
+      } else if (err.response?.data?.message) {
+        errorMessage = err.response.data.message;
+      } else if (err.message) {
+        errorMessage = err.message;
+      }
+      
+      setError(errorMessage);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleDone = () => {
@@ -55,46 +139,38 @@ const IncomeModal = ({ isOpen, onClose }) => {
 
   if (!isOpen) return null;
 
- // 1) Disregard Confirmation Modal
-if (isCancelConfirmOpen) {
+  // 1) Disregard Confirmation Modal
+  if (isCancelConfirmOpen) {
     return (
       <div className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50 transition-all duration-300">
         <div className="bg-white rounded-3xl p-8 w-full max-w-md mx-4 shadow-lg relative">
-          {/* Close Button */}
           <button
             onClick={() => setIsCancelConfirmOpen(false)}
             className="absolute top-4 right-4 text-gray-400 hover:text-gray-600"
-          >✕</button>
-  
+          >
+            ✕
+          </button>
+
           <div className="flex flex-col items-center">
-            {/* Big Red Exclamation Icon */}
             <div className="bg-[#FF4B4B] rounded-full p-6 mb-6 flex items-center justify-center shadow-md">
-                <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="#FFFFFF">
-                    <circle cx="12" cy="12" r="12" fill="#FF4B4B" />
-                    <path d="M12 6a1.5 1.5 0 0 1 1.5 1.5v7a1.5 1.5 0 0 1-3 0v-7A1.5 1.5 0 0 1 12 6z" />
-                    <circle cx="12" cy="18" r="1.5" fill="#FFFFFF" />
-                </svg>
+              <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="#FFFFFF">
+                <circle cx="12" cy="12" r="12" fill="#FF4B4B" />
+                <path d="M12 6a1.5 1.5 0 0 1 1.5 1.5v7a1.5 1.5 0 0 1-3 0v-7A1.5 1.5 0 0 1 12 6z" />
+                <circle cx="12" cy="18" r="1.5" fill="#FFFFFF" />
+              </svg>
             </div>
-            {/* Title */}
-            <h2 className="text-2xl font-bold text-black mb-2">Disregard added income?</h2>
-  
-            {/* Description */}
+            <h2 className="text-2xl font-bold text-black mb-2">Disregard added {type.toLowerCase()}?</h2>
             <p className="text-center text-gray-600 mb-8">
               This action cannot be undone.<br />
-              The income details will be lost.
+              The {type.toLowerCase()} details will be lost.
             </p>
-  
-            {/* Buttons */}
             <div className="flex gap-4">
-              {/* Cancel Button */}
               <button
                 onClick={() => setIsCancelConfirmOpen(false)}
                 className="px-8 py-2 bg-[#FF4B4B] text-white rounded-full font-medium hover:bg-[#E53E3E] transition-all"
               >
                 Cancel
               </button>
-  
-              {/* Disregard Button */}
               <button
                 onClick={performDisregard}
                 className="px-8 py-2 border-2 border-[#FF4B4B] text-[#FF4B4B] rounded-full font-medium hover:bg-[#FF4B4B] hover:text-white transition-all"
@@ -106,8 +182,8 @@ if (isCancelConfirmOpen) {
         </div>
       </div>
     );
-  }  
-  
+  }
+
   // 2) Success Modal
   if (isSuccessModalOpen) {
     return (
@@ -116,15 +192,17 @@ if (isCancelConfirmOpen) {
           <button
             onClick={handleDone}
             className="absolute top-4 right-4 text-gray-400 hover:text-gray-600"
-          >✕</button>
+          >
+            ✕
+          </button>
           <div className="flex flex-col items-center">
             <div className="bg-green-500 rounded-full p-6 mb-6">
               <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-                <polyline points="20 6 9 17 4 12"></polyline>
+                <polyline points="20 6 9 17 4 12" />
               </svg>
             </div>
-            <h2 className="text-2xl font-bold mb-2">Income recorded successfully!</h2>
-            <p className="text-center text-gray-600 mb-8">Everything's set. Feel free to check your income!</p>
+            <h2 className="text-2xl font-bold mb-2">{type} recorded successfully!</h2>
+            <p className="text-center text-gray-600 mb-8">Everything's set. Feel free to check your {type.toLowerCase()}!</p>
             <div className="flex gap-4">
               <button
                 onClick={handleDone}
@@ -182,16 +260,35 @@ if (isCancelConfirmOpen) {
     );
   }
 
-  // 4) Main Income Modal
+  // 4) Main Transaction Modal
   return (
     <div className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50">
       <div className="bg-white rounded-2xl p-6 w-full max-w-md mx-4 border-[0.5px] border-gray-300 shadow-md">
         <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-bold">Add Income</h2>
+          <h2 className="text-xl font-bold">Add {type}</h2>
           <button onClick={onClose} className="text-gray-400">✕</button>
         </div>
-        <p className="mb-4 text-sm text-gray-500">Please enter the income.</p>
+        <p className="mb-4 text-sm text-gray-500">Please enter the {type.toLowerCase()}.</p>
         <div className="mb-4 border-b border-gray-200" />
+
+        {error && (
+          <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-600 text-sm">
+            {error}
+          </div>
+        )}
+
+        {/* Name */}
+        <div className="mb-4">
+          <label className="block text-sm font-medium mb-1">Name</label>
+          <input
+            type="text"
+            className={`input input-bordered w-full ${nameError ? 'border-red-500' : ''}`}
+            value={name}
+            onChange={e => setName(e.target.value)}
+            required
+          />
+          {nameError && <p className="text-red-500 text-xs mt-1">{nameError}</p>}
+        </div>
 
         {/* Amount */}
         <div className="mb-4">
@@ -221,8 +318,14 @@ if (isCancelConfirmOpen) {
               value={source} onChange={e => setSource(e.target.value)}
             >
               <option value="" disabled>Select the Source</option>
-              <option value="marketplace">Marketplace</option>
-              <option value="rental">Rental</option>
+              {type === 'Income' ? (
+                <>
+                  <option value="marketplace">Marketplace</option>
+                  <option value="rental">Rental</option>
+                </>
+              ) : (
+                <option value="expense">Expense</option>
+              )}
             </select>
             <div className="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none">
               <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -286,11 +389,17 @@ if (isCancelConfirmOpen) {
             Disregard
           </button>
           <button
-            onClick={handleConfirm}
-            disabled={!amount || !source || !paymentMethod || selectedFiles.length === 0}
+            onClick={handleSubmit}
+            disabled={!amount || !source || !paymentMethod || loading}
             className="flex-1 py-3 bg-green-500 text-white rounded-full font-medium hover:bg-green-600 disabled:opacity-50"
           >
-            Confirm
+            {loading ? (
+              <div className="flex items-center justify-center">
+                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+              </div>
+            ) : (
+              'Add Transaction'
+            )}
           </button>
         </div>
       </div>
@@ -298,4 +407,4 @@ if (isCancelConfirmOpen) {
   );
 };
 
-export default IncomeModal;
+export default TransactionModal; 

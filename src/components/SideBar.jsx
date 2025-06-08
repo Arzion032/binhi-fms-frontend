@@ -28,23 +28,7 @@ const Sidebar = () => {
         <li>
           <details className="group [&_summary::-webkit-details-marker]:hidden">
             <summary className="flex cursor-pointer items-center justify-between rounded-lg px-3 py-1.5 text-gray-500 hover:bg-gray-100 hover:text-gray-700">
-              <Link to="/login" className="flex items-center space-x-2">
-              <img src={Dashboard} alt="Dashboard" className="w-5 h-5" />
-                <span className="text-sm font-Inter font-bold">Dashboard</span>
-              </Link>
               <span className="shrink-0 transition duration-300 group-open:-rotate-180">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="w-5 h-5"
-                  viewBox="0 0 20 20"
-                  fill="currentColor"
-                >
-                  <path
-                    fillRule="evenodd"
-                    d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-                    clipRule="evenodd"
-                  />
-                </svg>
               </span>
             </summary>
             <ul className="mt-1 space-y-1 px-3">
@@ -204,23 +188,7 @@ const Sidebar = () => {
         <li>
           <details className="group [&_summary::-webkit-details-marker]:hidden">
             <summary className="flex cursor-pointer items-center justify-between rounded-lg px-3 py-1.5 text-gray-500 hover:bg-gray-100 hover:text-gray-700">
-              <Link to="/document" className="flex items-center space-x-2">
-              <img src={Document} alt="Document" className="w-5 h-5" />
-                <span className="text-sm font-Inter font-bold">Document</span>
-              </Link>
               <span className="shrink-0 transition duration-300 group-open:-rotate-180">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="w-5 h-5"
-                  viewBox="0 0 20 20"
-                  fill="currentColor"
-                >
-                  <path
-                    fillRule="evenodd"
-                    d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-                    clipRule="evenodd"
-                  />
-                </svg>
               </span>
             </summary>
             <ul className="mt-1 space-y-1 px-3">

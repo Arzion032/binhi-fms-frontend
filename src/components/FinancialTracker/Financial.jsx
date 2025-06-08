@@ -2,8 +2,10 @@ import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { FaFilePdf, FaFileExcel } from 'react-icons/fa6';
 import { Search, SlidersHorizontal, X, RefreshCw } from 'lucide-react';
 import StatisticsChart from './StatisticsChart';
-import IncomeModal from './IncomeModal';
-import ExpensesModal from './ExpensesModal';
+import TransactionModal from './TransactionModal';
+import axios from 'axios';
+
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
 export default function Financial() {
   // ─── TAB STATE & INDICATOR ───────────────────────────────────────────────────
@@ -33,10 +35,12 @@ export default function Financial() {
   // ─── MODALS & ACTIONS ───────────────────────────────────────────────
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [downloadDropdownOpen, setDownloadDropdownOpen] = useState(false);
+  const [historyDownloadOpen, setHistoryDownloadOpen] = useState(false);
   const [incomeModalOpen, setIncomeModalOpen] = useState(false);
   const [expenseModalOpen, setExpenseModalOpen] = useState(false);
   const dropdownRef = useRef();
   const downloadRef = useRef();
+  const historyDownloadRef = useRef();
   const handleAddTransaction = (type) => {
     setDropdownOpen(false);
     if (type === 'income') setIncomeModalOpen(true);
@@ -47,15 +51,60 @@ export default function Financial() {
     setDownloadDropdownOpen(false);
   };
 
+  // ─── DATA STATES ───────────────────────────────────────────────────
+  const [balance, setBalance] = useState(0);
+  const [transactions, setTransactions] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [lastUpdated, setLastUpdated] = useState(null);
+  const [statisticsTrigger, setStatisticsTrigger] = useState(0);
+
+  // ─── FETCH DATA ───────────────────────────────────────────────────
+  const fetchBalance = async () => {
+    console.log("Financial.jsx: Attempting to fetch balance...");
+    try {
+      const response = await axios.get(`${API_URL}/financials/federation_balance/`);
+      console.log("Financial.jsx: Balance fetched successfully:", response.data.balance);
+      setBalance(response.data.balance);
+      setLastUpdated(new Date());
+    } catch (error) {
+      console.error('Financial.jsx: Error fetching balance:', error);
+      setError('Failed to fetch balance');
+    }
+  };
+
+  const fetchTransactions = async () => {
+    console.log("Financial.jsx: Attempting to fetch transactions...");
+    try {
+      const response = await axios.get(`${API_URL}/financials/transactions`);
+      console.log("Financial.jsx: Transactions fetched successfully:", response.data);
+      setTransactions(response.data);
+      setLastUpdated(new Date());
+    } catch (error) {
+      console.error('Financial.jsx: Error fetching transactions:', error);
+      setError('Failed to fetch transactions');
+    } finally {
+      setLoading(false);
+      console.log("Financial.jsx: Finished fetching transactions.");
+    }
+  };
+
+  // Initial data fetch
+  useEffect(() => {
+    fetchBalance();
+    fetchTransactions();
+  }, []);
+
+  // Auto-refresh every 5 minutes
+  useEffect(() => {
+    const interval = setInterval(() => {
+      fetchBalance();
+      fetchTransactions();
+    }, 5 * 60 * 1000);
+    return () => clearInterval(interval);
+  }, []);
+
   // ─── HISTORY DATA & HANDLERS ────────────────────────────────────────────────
-  const [transactions, setTransactions] = useState([
-    { name: 'Kaye Arroyo', email: 'juandcruz@gmail.com', avatar: '/sampleproduct.png', type: 'Income', source: 'Marketplace', category: 'Hunos', amount: '12,999', date: 'Apr 17, 2025', relativeDate: '5 days ago' },
-    { name: 'Carlo Bascuna', email: 'juandcruz@gmail.com', avatar: '/sampleproduct.png', type: 'Expense', source: '-', category: 'Hunos', amount: '5,400', date: 'Apr 16, 2025', relativeDate: '6 days ago' },
-    { name: 'Yna Mae Nieves', email: 'juandcruz@gmail.com', avatar: '/sampleproduct.png', type: 'Expense', source: '-', category: 'Hunos', amount: '7,000', date: 'Apr 15, 2025', relativeDate: '7 days ago' },
-    { name: 'Tanggol Montenegro', email: 'juandcruz@gmail.com', avatar: '/sampleproduct.png', type: 'Expense', source: '-', category: 'Hunos', amount: '1,500', date: 'Apr 14, 2025', relativeDate: '8 days ago' },
-    { name: 'Aldrin Gueverra', email: 'juandcruz@gmail.com', avatar: '/sampleproduct.png', type: 'Income', source: 'Marketplace', category: 'Hunos', amount: '2,500', date: 'Apr 13, 2025', relativeDate: '9 days ago' },
-    { name: 'Nisi Viloria', email: 'juandcruz@gmail.com', avatar: '/sampleproduct.png', type: 'Income', source: 'Marketplace', category: 'Hunos', amount: '999', date: 'Apr 12, 2025', relativeDate: '10 days ago' }
-  ]);
   const itemsPerPage = 5;
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedRows, setSelectedRows] = useState([]);
@@ -72,7 +121,7 @@ export default function Financial() {
     const matchesRole = selectedRole ? (selectedRole === 'Income' ? true : true) : true;
     const matchesType = selectedType ? t.type === selectedType : true;
     const matchesSource = selectedSource ? t.source === selectedSource : true;
-    const matchesSearch = searchTransaction.trim() === '' || t.name.toLowerCase().includes(searchTransaction.trim().toLowerCase());
+    const matchesSearch = searchTransaction.trim() === '' || t.admin.username.toLowerCase().includes(searchTransaction.trim().toLowerCase());
     return matchesRole && matchesType && matchesSource && matchesSearch;
   });
 
@@ -88,34 +137,30 @@ export default function Financial() {
     setSelectedRows([]);
   }, [searchTransaction, selectedRole, selectedType, selectedSource]);
 
-  const handleDelete = () => {
-    if (!window.confirm('Are you sure you want to delete the selected transactions?')) return;
-    const updated = [...transactions];
-    paginatedTransactions.forEach((_, idx) => {
-      if (selectedRows.includes(idx)) {
-        updated.splice((currentPage - 1) * itemsPerPage + idx, 1);
-      }
-    });
-    setTransactions(updated);
-    setSelectedRows([]);
+  const handleDeleteTransaction = async (id) => {
+    try {
+      await axios.post(`${API_URL}/financials/del_transaction`, { id });
+      await fetchTransactions();
+      await fetchBalance();
+    } catch (error) {
+      console.error('Error deleting transaction:', error);
+      setError('Failed to delete transaction');
+    }
   };
+
+  const handleTransactionSuccess = async () => {
+    console.log("Financial.jsx: handleTransactionSuccess called!");
+    await fetchTransactions();
+    await fetchBalance();
+    setStatisticsTrigger(prev => prev + 1);
+    console.log("Financial.jsx: Data refetched after transaction success.");
+  };
+
   const handlePageChange = (page) => {
     if (page >= 1 && page <= filteredTotalPages) {
       setCurrentPage(page);
       setSelectedRows([]);
     }
-  };
-
-  const [historyDownloadOpen, setHistoryDownloadOpen] = useState(false);
-  const historyDownloadRef = useRef();
-  const handleHistoryDownload = (type) => {
-    console.log(`Downloading ${type}`);
-    setHistoryDownloadOpen(false);
-  };
-
-  // Add Transaction to history
-  const addTransactionToHistory = (transaction) => {
-    setTransactions((prev) => [transaction, ...prev]);
   };
 
   // ─── CLICK‐OUTSIDE DROPDOWNS ─────────────────────────────────────────────────
@@ -129,24 +174,10 @@ export default function Financial() {
     return () => document.removeEventListener('mousedown', onClick);
   }, []);
 
-  // ─── STATIC HISTORY PREVIEW LIST ────────────────────────────────────────────
-  const previewList = [
-    { date: 'Apr 12, 2024', name: 'Juan', amount: '₱800', color: 'green' },
-    { date: 'Apr 13, 2024', name: 'Emman', amount: '₱1,203', color: 'red' },
-    { date: 'Apr 14, 2024', name: 'Grace', amount: '₱500', color: 'green' },
-    { date: 'Apr 14, 2024', name: 'Grace', amount: '₱500', color: 'green' },
-    { date: 'Apr 14, 2024', name: 'Grace', amount: '₱500', color: 'green' },
-    { date: 'Apr 14, 2024', name: 'Grace', amount: '₱500', color: 'green' },
-    { date: 'Apr 13, 2024', name: 'Emman', amount: '₱1,203', color: 'red' },
-    { date: 'Apr 14, 2024', name: 'Grace', amount: '₱500', color: 'green' },
-    { date: 'Apr 13, 2024', name: 'Emman', amount: '₱1,203', color: 'red' },
-    { date: 'Apr 14, 2024', name: 'Grace', amount: '₱500', color: 'green' },
-    { date: 'Apr 13, 2024', name: 'Emman', amount: '₱1,203', color: 'red' },
-    { date: 'Apr 14, 2024', name: 'Grace', amount: '₱500', color: 'green' },
-    { date: 'Apr 14, 2024', name: 'Grace', amount: '₱500', color: 'green' },
-    { date: 'Apr 13, 2024', name: 'Emman', amount: '₱1,203', color: 'red' },
-    { date: 'Apr 14, 2024', name: 'Grace', amount: '₱500', color: 'green' }
-  ];
+  const handleHistoryDownload = (type) => {
+    console.log(`Downloading ${type}`);
+    setHistoryDownloadOpen(false);
+  };
 
   // ─── HEADER ROWS (UPDATED DESIGN) ─────────────────────────────
   // Overview Tab: Balance Info + Buttons
@@ -154,9 +185,13 @@ export default function Financial() {
     <div className="flex flex-wrap items-center justify-between my-4 gap-2">
       <div className="flex items-center gap-2 text-base font-medium">
         <RefreshCw size={20} stroke="#3b82f6" />
-        <span className="font-medium text-lg" style={{ color: '#3b82f6' }}>Current Federation Balance:</span>
-        <span className="text-blue-700 font-bold text-lg">₱{calculateTotalIncome() - calculateTotalExpense()}</span>
-        <span className="text-gray-400 text-lg ml-2 opacity-60">Last Updated Apr 30</span>
+        <span className="font-medium text-lg" style={{ color: '#3b82f6' }}>Current Association Balance:</span>
+        <span className="text-blue-700 font-bold text-lg">₱{balance.toLocaleString()}</span>
+        {lastUpdated && (
+          <span className="text-gray-400 text-lg ml-2 opacity-60">
+            Last Updated {lastUpdated.toLocaleTimeString()}
+          </span>
+        )}
       </div>
       <div className="flex gap-2">
         {/* Add Transaction Button */}
@@ -236,14 +271,130 @@ export default function Financial() {
     </div>
   );
 
-  // Calculate Total Income and Expense
-  const calculateTotalIncome = () => {
-    return transactions.filter(t => t.type === 'Income').reduce((acc, curr) => acc + parseFloat(curr.amount.replace(/,/g, '')), 0);
-  };
+  // Transaction History Tab: Balance left, Search+Download right, NO divider below
+  const headerRowHistory = (
+    <div className="flex flex-wrap items-center justify-between my-4 gap-2">
+      <div className="flex items-center gap-2 text-base font-medium">
+        <RefreshCw size={20} stroke="#3b82f6" />
+        <span className="font-medium text-lg" style={{ color: '#3b82f6' }}>Current Federation Balance:</span>
+        <span className="text-blue-700 font-bold text-lg">₱{balance.toLocaleString()}</span>
+        {lastUpdated && (
+          <span className="text-gray-400 text-lg ml-2 opacity-60">
+            Last Updated {lastUpdated.toLocaleTimeString()}
+          </span>
+        )}
+      </div>
+      <div className="flex items-center gap-4 relative">
+        {/* Search Bar */}
+        <div className="relative" style={{ width: "240px" }}>
+          <Search
+            size={18}
+            style={{
+              position: "absolute",
+              left: "0.75rem",
+              top: "50%",
+              transform: "translateY(-50%)",
+              color: "#6B7280",
+            }}
+          />
+          <input
+            type="text"
+            placeholder="Search Transaction"
+            className="flex-1 outline-none bg-white"
+            value={searchTransaction}
+            onChange={e => setSearchTransaction(e.target.value)}
+            style={{
+              width: "100%",
+              padding: "0.5rem 2.5rem 0.5rem 2.5rem",
+              border: "1px solid #D1D5DB",
+              borderRadius: "9999px",
+              outline: "none",
+            }}
+          />
+          <SlidersHorizontal
+            size={18}
+            onClick={() => setShowFilters(!showFilters)}
+            style={{
+              position: "absolute",
+              right: "0.75rem",
+              top: "50%",
+              transform: "translateY(-50%)",
+              color: "#6B7280",
+              cursor: "pointer",
+            }}
+          />
+        </div>
+        {/* Download */}
+        <div className="dropdown dropdown-end" ref={historyDownloadRef} style={{ zIndex: 9999 }}>
+          <button
+            onClick={() => setHistoryDownloadOpen(!historyDownloadOpen)}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "0.5rem",
+              padding: "0.5rem 1.2rem",
+              backgroundColor: "#fff",
+              color: "#16A34A",
+              border: "1.5px solid #16A34A",
+              borderRadius: "9999px",
+              fontWeight: 600,
+              fontSize: "1rem",
+              cursor: "pointer",
+              boxShadow: "0 2px 8px 0 rgba(36,185,111,0.05)",
+            }}
+            className="relative"
+          >
+            Download
+            <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+            </svg>
+          </button>
+          {historyDownloadOpen && (
+            <ul tabIndex={0} className="dropdown-content menu p-2 shadow bg-base-100 border w-52 rounded-box z-50 absolute right-0 mt-2">
+              <li><a onClick={() => handleHistoryDownload('PDF')}><FaFilePdf className="text-red-500" /> PDF</a></li>
+              <li><a onClick={() => handleHistoryDownload('Excel')}><FaFileExcel className="text-green-600" /> Excel</a></li>
+              <li><a onClick={() => handleHistoryDownload('Custom Range')}>Custom Range</a></li>
+            </ul>
+          )}
+        </div>
+      </div>
+    </div>
+  );
 
-  const calculateTotalExpense = () => {
-    return transactions.filter(t => t.type === 'Expense').reduce((acc, curr) => acc + parseFloat(curr.amount.replace(/,/g, '')), 0);
-  };
+  console.log("Transactions data for rendering:", transactions);
+  console.log("Paginated Transactions data for rendering:", paginatedTransactions);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-screen bg-white">
+        <div className="flex flex-col items-center gap-4">
+          <img 
+            src="/BINHI-LOADING-unscreen.gif" 
+            alt="Loading..." 
+            className="w-32 h-32 object-contain"
+          />
+          <p className="text-gray-600 font-medium">Loading financial data...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="text-red-500 text-center p-4">
+        Error: {error}
+        <button 
+          onClick={() => {
+            setError(null);
+            fetchTransactions();
+          }}
+          className="ml-4 px-4 py-2 bg-red-100 text-red-600 rounded-lg hover:bg-red-200"
+        >
+          Retry
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div className="p-0">
@@ -340,7 +491,12 @@ export default function Financial() {
                         <span className="font-semibold text-gray-700">Total Income</span>
                         <span className="text-yellow-400 text-base">🔔</span>
                       </div>
-                      <div className="text-3xl font-bold text-black mb-1">₱{calculateTotalIncome()}</div>
+                      <div className="text-3xl font-bold text-black mb-1">
+                        ₱{transactions
+                          .filter(t => t.type === 'income')
+                          .reduce((sum, t) => sum + parseFloat(t.amount), 0)
+                          .toLocaleString()}
+                      </div>
                     </div>
                     <div className="flex items-end justify-between">
                       <div className="text-xs text-gray-500 flex items-center gap-1">
@@ -377,7 +533,12 @@ export default function Financial() {
                         <span className="font-semibold text-gray-700">Total Expenses</span>
                         <span className="text-yellow-400 text-base">🔔</span>
                       </div>
-                      <div className="text-3xl font-bold text-black mb-1">₱{calculateTotalExpense()}</div>
+                      <div className="text-3xl font-bold text-black mb-1">
+                        ₱{transactions
+                          .filter(t => t.type === 'expense')
+                          .reduce((sum, t) => sum + parseFloat(t.amount), 0)
+                          .toLocaleString()}
+                      </div>
                     </div>
                     <div className="flex items-end justify-between">
                       <div className="text-xs text-gray-500 flex items-center gap-1">
@@ -395,7 +556,7 @@ export default function Financial() {
               </div>
               {/* Chart */}
               <div className="flex-1 bg-white rounded-2xl border border-gray-300 p-6 shadow-sm w-full h-full min-h-[550px] overflow-visible relative">
-                <StatisticsChart />
+                <StatisticsChart statisticsTrigger={statisticsTrigger} />
               </div>
             </div>
             {/* History Preview aside */}
@@ -419,16 +580,19 @@ export default function Financial() {
                     </tr>
                   </thead>
                   <tbody>
-                    {previewList.map((item, i) => (
-                      <tr key={i}>
+                    {transactions.slice(0, 5).map((transaction) => (
+                      <tr key={transaction.id}>
                         <td className="py-1">
                           <div className="flex items-center gap-2">
-                            <span className="w-2 h-2 rounded-full" style={{ backgroundColor: item.color === 'green' ? '#4caf50' : '#ff4d4f' }} />
-                            {item.date}
+                            <span 
+                              className="w-2 h-2 rounded-full" 
+                              style={{ backgroundColor: transaction.type === 'income' ? '#4caf50' : '#ff4d4f' }} 
+                            />
+                            {new Date(transaction.created_at).toLocaleDateString()}
                           </div>
                         </td>
-                        <td className="py-1">{item.name}</td>
-                        <td className="py-1">{item.amount}</td>
+                        <td className="py-1">{transaction.name || 'N/A'}</td>
+                        <td className="py-1">₱{parseFloat(transaction.amount).toLocaleString()}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -452,8 +616,8 @@ export default function Financial() {
               </select>
               <select value={selectedType} onChange={e => setSelectedType(e.target.value)} className="border border-[#858585] h-[35px] text-sm bg-white text-[#858585] pl-2 pr-6">
                 <option value="">Type</option>
-                <option value="Income">Income</option>
-                <option value="Expense">Expense</option>
+                <option value="income">Income</option>
+                <option value="expense">Expense</option>
               </select>
               <select value={selectedSource} onChange={e => setSelectedSource(e.target.value)} className="border border-[#858585] h-[35px] text-sm	bg-white text-[#858585] pl-2 pr-6">
                 <option value="">Source</option>
@@ -485,17 +649,17 @@ export default function Financial() {
                       else setSelectedRows([]);
                     }} />
                   </th>
-                  <th>User Name</th>
+                  <th>Name</th>
                   <th>Type</th>
                   <th>Source</th>
-                  <th>Payment Method</th>
+                  <th>Description</th>
                   <th>Amount</th>
                   <th>Date Added</th>
                 </tr>
               </thead>
               <tbody>
-                {paginatedTransactions.map((item, idx) => (
-                  <tr key={idx} className={selectedRows.includes(idx) ? 'bg-[#f0fdfa]' : ''}>
+                {paginatedTransactions.map((transaction, idx) => (
+                  <tr key={transaction.id} className={selectedRows.includes(idx) ? 'bg-[#f0fdfa]' : ''}>
                     <td>
                       <input type="checkbox" className="checkbox checkbox-sm rounded" checked={selectedRows.includes(idx)} onChange={e => {
                         if (e.target.checked) setSelectedRows([...selectedRows, idx]);
@@ -506,37 +670,39 @@ export default function Financial() {
                       <div className="flex items-center gap-3">
                         <div className="avatar">
                           <div className="w-8 h-8 mask mask-squircle">
-                            <img src={item.avatar} alt={item.name} />
+                            <img src="/sampleproduct.png" alt={transaction.name || 'N/A'} />
                           </div>
                         </div>
                         <div>
-                          <div className="font-semibold">{item.name}</div>
-                          <div className="text-sm text-gray-500">{item.email}</div>
+                          <div className="font-semibold">{transaction.name || 'N/A'}</div>
+                          <div className="text-sm text-gray-500">{transaction.admin.email}</div>
                         </div>
                       </div>
                     </td>
                     <td>
                       <span className="px-3 py-1 rounded-full text-xs font-medium" style={{
-                        color: item.type === 'Income' ? '#15803d' : '#dc2626',
-                        backgroundColor: item.type === 'Income' ? '#d1fae5' : '#fee2e2',
-                        border: `1px solid ${item.type === 'Income' ? '#15803d' : '#dc2626'}`,
+                        color: transaction.type === 'income' ? '#15803d' : '#dc2626',
+                        backgroundColor: transaction.type === 'income' ? '#d1fae5' : '#fee2e2',
+                        border: `1px solid ${transaction.type === 'income' ? '#15803d' : '#dc2626'}`,
                         display: 'inline-block'
                       }}>
-                        {item.type}
+                        {transaction.type}
                       </span>
                     </td>
-                    <td>{item.source}</td>
-                    <td>{item.category}</td>
-                    <td className="font-medium text-left">₱{item.amount}</td>
+                    <td>{transaction.source}</td>
+                    <td>{transaction.description}</td>
+                    <td className="font-medium text-left">₱{parseFloat(transaction.amount).toLocaleString()}</td>
                     <td>
-                      <div>{item.date}</div>
-                      <div className="text-xs text-gray-500">{item.relativeDate}</div>
+                      <div>{new Date(transaction.created_at).toLocaleDateString()}</div>
+                      <div className="text-xs text-gray-500">
+                        {new Date(transaction.created_at).toLocaleTimeString()}
+                      </div>
                     </td>
                   </tr>
                 ))}
                 {paginatedTransactions.length === 0 && (
                   <tr>
-                    <td colSpan={8} className="text-center text-gray-500 p-6">
+                    <td colSpan={7} className="text-center text-gray-500 p-6">
                       No transactions found.
                     </td>
                   </tr>
@@ -564,8 +730,24 @@ export default function Financial() {
       )}
 
       {/* Modals */}
-      <IncomeModal isOpen={incomeModalOpen} onClose={() => setIncomeModalOpen(false)} />
-      <ExpensesModal isOpen={expenseModalOpen} onClose={() => setExpenseModalOpen(false)} />
+      <TransactionModal 
+        isOpen={incomeModalOpen} 
+        onClose={() => setIncomeModalOpen(false)} 
+        type="Income"
+        onSuccess={() => {
+          fetchBalance();
+          fetchTransactions();
+        }}
+      />
+      <TransactionModal 
+        isOpen={expenseModalOpen} 
+        onClose={() => setExpenseModalOpen(false)} 
+        type="Expense"
+        onSuccess={() => {
+          fetchBalance();
+          fetchTransactions();
+        }}
+      />
     </div>
   );
-}
+} 
