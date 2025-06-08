@@ -1,4 +1,7 @@
 import React, { useState } from "react";
+import axios from "axios";
+
+const API_BASE_URL = "http://127.0.0.1:8000";
 
 const ORDER_STATUSES = ["Pending", "Processing", "Shipped", "Delivered", "Cancelled"];
 const TRANSACTIONS = ["Pending", "Paid", "Refunded"];
@@ -7,11 +10,12 @@ export default function OrderManagementModal({
   isOpen,
   onClose,
   order,
-  onConfirm,
-  onDisregard,
+  onStatusUpdate,
 }) {
   const [orderStatus, setOrderStatus] = useState(order?.status || "Processing");
   const [transaction, setTransaction] = useState(order?.transaction || "Pending");
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
 
   // Modal flows
   const [showDisregardModal, setShowDisregardModal] = useState(false);
@@ -22,18 +26,38 @@ export default function OrderManagementModal({
   if (!isOpen || !order) return null;
 
   // --- Handlers ---
-  function handleConfirmSubmit() {
-    setShowConfirmModal(false);
-    setSuccessType("confirm");
-    setShowSuccessModal(true);
-    if (onConfirm) onConfirm(orderStatus, transaction);
+  async function handleConfirmSubmit() {
+    try {
+      setIsLoading(true);
+      setError(null);
+
+      // PATCH to order status endpoint, **no Authorization header**
+      await axios.patch(
+        `http://127.0.0.1:8000/orders/orders/${order.id}/status/`,
+        { status: orderStatus.toLowerCase() }
+      );
+
+      setShowConfirmModal(false);
+      setSuccessType("confirm");
+      setShowSuccessModal(true);
+
+      // Notify parent component to refresh the order list
+      if (onStatusUpdate) {
+        onStatusUpdate(order.id, orderStatus, transaction);
+      }
+    } catch (err) {
+      setError('Failed to update order. Please try again.');
+      console.error('Error updating order:', err);
+    } finally {
+      setIsLoading(false);
+    }
   }
 
   function handleDisregardSubmit() {
     setShowDisregardModal(false);
     setSuccessType("disregard");
     setShowSuccessModal(true);
-    if (onDisregard) onDisregard();
+    onClose();
   }
 
   // --- Modal Content ---
@@ -44,12 +68,27 @@ export default function OrderManagementModal({
         className="relative bg-white w-full max-w-md mx-auto rounded-[2.2rem] shadow-xl p-9 pt-8 border"
         style={{ minWidth: 370, maxWidth: 490, borderColor: "#b5b5b5" }}
       >
+        {/* Error Message */}
+        {error && (
+          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mb-4">
+            {error}
+          </div>
+        )}
+
+        {/* Loading State */}
+        {isLoading && (
+          <div className="absolute inset-0 bg-white bg-opacity-75 flex items-center justify-center rounded-[2.2rem]">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-500"></div>
+          </div>
+        )}
+
         {/* Close button */}
         <button
           type="button"
           onClick={onClose}
           className="absolute right-7 top-7 text-gray-500 hover:text-gray-900 rounded-full focus:outline-none text-2xl"
           aria-label="Close"
+          disabled={isLoading}
         >
           <svg width={22} height={22} fill="none" viewBox="0 0 24 24">
             <path stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" d="M6 6l12 12M6 18L18 6" />
@@ -86,16 +125,16 @@ export default function OrderManagementModal({
             <div>{order.customer.name}</div>
           </div>
           <div>
-            <span className="font-semibold text-black">Order ID</span>
-            <div>{order.id}</div>
+            <span className="font-semibold text-black">Order Code</span>
+            <div>{order.orderId || order.id}</div>
           </div>
           <div>
             <span className="font-semibold text-black">Address</span>
-            <div>Purok 3 Zone 6 Penafrancia<br />Cupang Antipolo City</div>
+            <div>{order.customer.address}</div>
           </div>
           <div>
             <span className="font-semibold text-black">Contact Number</span>
-            <div>(+63) 948 122 9142</div>
+            <div>{order.customer.contact}</div>
           </div>
         </div>
         <div className="text-gray-900 font-semibold mt-1 mb-2 text-sm">
@@ -114,6 +153,7 @@ export default function OrderManagementModal({
             className="w-full rounded-full border px-4 py-2 text-base bg-white focus:outline-none focus:ring-2 focus:ring-green-200"
             value={orderStatus}
             onChange={e => setOrderStatus(e.target.value)}
+            disabled={isLoading}
           >
             {ORDER_STATUSES.map(os => (
               <option key={os} value={os}>{os}</option>
@@ -128,6 +168,7 @@ export default function OrderManagementModal({
             className="w-full rounded-full border px-4 py-2 text-base bg-white focus:outline-none focus:ring-2 focus:ring-green-200"
             value={transaction}
             onChange={e => setTransaction(e.target.value)}
+            disabled={isLoading}
           >
             {TRANSACTIONS.map(tr => (
               <option key={tr} value={tr}>{tr}</option>
@@ -142,6 +183,7 @@ export default function OrderManagementModal({
             onClick={() => setShowDisregardModal(true)}
             className="flex-1 bg-[#EF4444] text-white font-semibold rounded-full py-4 text-lg transition hover:bg-[#DC2626] focus:outline-none focus:ring-2 focus:ring-[#DC2626]"
             style={{ fontSize: "1.15rem" }}
+            disabled={isLoading}
           >
             Disregard
           </button>
@@ -150,6 +192,7 @@ export default function OrderManagementModal({
             onClick={() => setShowConfirmModal(true)}
             className="flex-1 bg-[#16A34A] text-white font-semibold rounded-full py-4 text-lg transition hover:bg-[#15803D] focus:outline-none focus:ring-2 focus:ring-[#15803D]"
             style={{ fontSize: "1.15rem" }}
+            disabled={isLoading}
           >
             Confirm
           </button>
@@ -166,6 +209,7 @@ export default function OrderManagementModal({
               className="absolute top-6 right-6 text-gray-400 hover:text-gray-600 text-2xl"
               aria-label="Close"
               style={{ background: "none", border: "none" }}
+              disabled={isLoading}
             >
               &times;
             </button>
@@ -188,6 +232,7 @@ export default function OrderManagementModal({
                 onClick={() => setShowDisregardModal(false)}
                 className="bg-[#FF3B3F] text-white font-semibold rounded-full px-12 py-4 text-base hover:bg-[#ff5c5c] transition"
                 style={{ minWidth: 140, fontSize: "1.12rem" }}
+                disabled={isLoading}
               >
                 Cancel
               </button>
@@ -199,6 +244,7 @@ export default function OrderManagementModal({
                   color: '#FF3B3F',
                   fontSize: "1.12rem"
                 }}
+                disabled={isLoading}
                 onMouseEnter={e => {
                   e.currentTarget.style.background = '#FF3B3F';
                   e.currentTarget.style.color = '#fff';
@@ -227,6 +273,7 @@ export default function OrderManagementModal({
               className="absolute top-6 right-6 text-gray-400 hover:text-gray-600 text-2xl"
               aria-label="Close"
               style={{ background: "none", border: "none" }}
+              disabled={isLoading}
             >
               &times;
             </button>
@@ -248,6 +295,7 @@ export default function OrderManagementModal({
                 onClick={() => setShowConfirmModal(false)}
                 className="border-2 border-[#43B864] font-semibold rounded-full px-12 py-4 text-base bg-white text-[#43B864] transition"
                 style={{ minWidth: 140, fontSize: "1.12rem" }}
+                disabled={isLoading}
               >
                 Cancel
               </button>
@@ -255,6 +303,7 @@ export default function OrderManagementModal({
                 onClick={handleConfirmSubmit}
                 className="bg-[#43B864] text-white font-semibold rounded-full px-12 py-4 text-base hover:bg-[#369C52] transition"
                 style={{ minWidth: 140, fontSize: "1.12rem" }}
+                disabled={isLoading}
               >
                 Confirm
               </button>
@@ -276,6 +325,7 @@ export default function OrderManagementModal({
               className="absolute top-6 right-6 text-gray-400 hover:text-gray-600 text-2xl"
               aria-label="Close"
               style={{ background: "none", border: "none" }}
+              disabled={isLoading}
             >
               &times;
             </button>
@@ -293,7 +343,7 @@ export default function OrderManagementModal({
             </h2>
             <p className="text-gray-700 mb-8" style={{ fontSize: "1.15rem" }}>
               {successType === "confirm"
-                ? "Everything’s set. Feel free to check it!"
+                ? "Everything's set. Feel free to check it!"
                 : "The order changes have been disregarded."}
             </p>
             <div className="flex justify-center gap-5 mt-2">
@@ -301,6 +351,7 @@ export default function OrderManagementModal({
                 onClick={() => setShowSuccessModal(false)}
                 className="border-2 border-[#43B864] font-semibold rounded-full px-12 py-4 text-base bg-white text-[#43B864] transition"
                 style={{ minWidth: 140, fontSize: "1.12rem" }}
+                disabled={isLoading}
               >
                 Back
               </button>
@@ -311,6 +362,7 @@ export default function OrderManagementModal({
                 }}
                 className="bg-[#43B864] text-white font-semibold rounded-full px-12 py-4 text-base hover:bg-[#369C52] transition"
                 style={{ minWidth: 140, fontSize: "1.12rem" }}
+                disabled={isLoading}
               >
                 Done
               </button>

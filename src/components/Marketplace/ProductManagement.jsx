@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useCallback } from "react";
 import {
   Search,
   SlidersHorizontal,
@@ -7,10 +7,21 @@ import {
   BookOpen,
   Pencil,
   Trash2,
+  X,
 } from "lucide-react";
 import AddProductModal from "./AddProductModal";
 import EditDetailsModal from "./EditDetailsModal";
 import DraftProductModal from "./DraftProductModal";
+import axios from "axios";
+
+// Helper to normalize category names for consistent lookup in BADGE_STYLES
+// This function is specifically to handle cases like "Vegetables" from backend matching "Vegetable" in BADGE_STYLES
+const normalizeCategoryNameForLookup = (name) => {
+  if (!name) return "";
+  if (name === "Vegetables") return "Vegetable";
+  if (name === "Dairy") return "Milks & Dairy"; // Ensure consistency for lookup
+  return name; // Return as is for other categories
+};
 
 const BADGE_STYLES = {
   Fruits: { color: "#7C3AED", background: "#F3E8FF", border: "#7C3AED" },
@@ -22,268 +33,397 @@ const BADGE_STYLES = {
   Fish: { color: "#0284C7", background: "#DEF5FF", border: "#0284C7" },
 };
 
+const STATUS_STYLES = {
+  pending_approval: { color: "#F97316", background: "#FFEDD5", border: "#F97316", text: "Pending" }, // Orange for pending
+  approved: { color: "#16A34A", background: "#D1FAE5", border: "#16A34A", text: "Approved" }, // Green for approved
+  hidden: { color: "#DC2626", background: "#FEE2E2", border: "#DC2626", text: "Hidden" },       // Red for hidden
+  published: { color: "#3B82F6", background: "#DDECFF", border: "#3B82F6", text: "Published" },   // Blue for published
+  out_of_stock: { color: "#6B7280", background: "#E5E7EB", border: "#6B7280", text: "Out of Stock" }, // Gray for out of stock
+  rejected: { color: "#EF4444", background: "#FEE2E2", border: "#EF4444", text: "Rejected" },     // Lighter red for rejected
+};
+
 const CATEGORY_NAMES = [
   "Grains",
-  "Vegetable",
+  "Vegetables",
   "Root Crops",
-  "Milks & Dairy",
+  "Dairy",
   "Meats",
   "Fruits",
   "Fish",
 ];
 
-const FARMER_NAMES = [
-  "Juan D Cruz",
-  "Maria L Santos",
-  "Pedro M Ramos",
-  "Elena P Villanueva",
-  "Josefina B Lopez",
-  "Ricardo A Mendoza",
-  "Angelica F Reyes",
-  "Carlos T Bautista",
-  "Rosario G Flores",
-  "Manuel C Garcia",
-  "Consuelo R Torres",
-  "Benito Q Morales"
-];
+const API_BASE_URL = "http://127.0.0.1:8000"; // Updated to match your backend URL
 
-function getRandomFarmerName() {
-  const idx = Math.floor(Math.random() * FARMER_NAMES.length);
-  return FARMER_NAMES[idx];
-}
-
-function generateFarmerCode(name = "Juan D Cruz") {
-  const [first, mid, last] = name.split(" ");
-  const initials =
-    (first ? first[0] : "") +
-    (mid ? mid[0] : "") +
-    (last ? last[0] : "");
-  const digits = Math.floor(100 + Math.random() * 900);
-  return `${initials.toUpperCase()}${digits}`;
-}
-
-const RAW_PRODUCTS = [
-  { id: 41, name: "Yogurt", variation: "Plain", avatar: "/sampleproduct.png", price: 7000, category: "Milks & Dairy", stock: 60, status: "Approved" },
-  { id: 3, name: "Sticky Glutinous Rice", variation: "Sticky", avatar: "/sampleproduct.png", price: 4800, category: "Grains", stock: 60, status: "Pending" },
-  { id: 27, name: "Taro", variation: "Large", avatar: "/sampleproduct.png", price: 800, category: "Root Crops", stock: 50, status: "Approved" },
-  { id: 75, name: "Dilis", variation: "Anchovy", avatar: "/sampleproduct.png", price: 900, category: "Fish", stock: 110, status: "Approved" },
-  { id: 59, name: "Banana Lacatan", variation: "Yellow", avatar: "/sampleproduct.png", price: 1500, category: "Fruits", stock: 80, status: "Approved" },
-  { id: 20, name: "Cauliflower", variation: "White", avatar: "/sampleproduct.png", price: 950, category: "Vegetable", stock: 30, status: "Approved" },
-  { id: 54, name: "Duck Meat", variation: "Whole", avatar: "/sampleproduct.png", price: 40000, category: "Meats", stock: 40, status: "Approved" },
-  { id: 11, name: "Sorghum", variation: "Grain", avatar: "/sampleproduct.png", price: 4200, category: "Grains", stock: 40, status: "Pending" },
-  { id: 68, name: "Dragonfruit", variation: "Red", avatar: "/sampleproduct.png", price: 9000, category: "Fruits", stock: 35, status: "Approved" },
-  { id: 35, name: "Camote", variation: "Red", avatar: "/sampleproduct.png", price: 800, category: "Root Crops", stock: 55, status: "Approved" },
-  { id: 45, name: "Greek Yogurt", variation: "Plain", avatar: "/sampleproduct.png", price: 15000, category: "Milks & Dairy", stock: 30, status: "Approved" },
-  { id: 66, name: "Lanzones", variation: "Sweet", avatar: "/sampleproduct.png", price: 6000, category: "Fruits", stock: 45, status: "Approved" },
-  { id: 70, name: "Tilapia", variation: "Whole", avatar: "/sampleproduct.png", price: 1800, category: "Fish", stock: 60, status: "Approved" },
-  { id: 19, name: "Spinach", variation: "Green", avatar: "/sampleproduct.png", price: 800, category: "Vegetable", stock: 50, status: "Pending" },
-  { id: 25, name: "Sweet Potato", variation: "Orange", avatar: "/sampleproduct.png", price: 600, category: "Root Crops", stock: 55, status: "Approved" },
-  { id: 29, name: "Yam", variation: "White", avatar: "/sampleproduct.png", price: 1100, category: "Root Crops", stock: 60, status: "Approved" },
-  { id: 64, name: "Papaya", variation: "Hawaiian", avatar: "/sampleproduct.png", price: 2800, category: "Fruits", stock: 65, status: "Approved" },
-  { id: 21, name: "Okra", variation: "Slender", avatar: "/sampleproduct.png", price: 400, category: "Vegetable", stock: 80, status: "Approved" },
-  { id: 44, name: "Cream Cheese", variation: "Soft", avatar: "/sampleproduct.png", price: 18000, category: "Milks & Dairy", stock: 25, status: "Approved" },
-  { id: 48, name: "Chicken Drumsticks", variation: "Cut", avatar: "/sampleproduct.png", price: 20000, category: "Meats", stock: 100, status: "Approved" },
-  { id: 30, name: "Radish", variation: "Red", avatar: "/sampleproduct.png", price: 550, category: "Root Crops", stock: 45, status: "Approved" },
-  { id: 13, name: "Eggplant", variation: "Long", avatar: "/sampleproduct.png", price: 500, category: "Vegetable", stock: 60, status: "Approved" },
-  { id: 55, name: "Lamb Chops", variation: "Chop", avatar: "/sampleproduct.png", price: 70000, category: "Meats", stock: 15, status: "Approved" },
-  { id: 38, name: "Carabao Milk", variation: "Whole", avatar: "/sampleproduct.png", price: 5200, category: "Milks & Dairy", stock: 50, status: "Approved" },
-  { id: 10, name: "Oats", variation: "Rolled", avatar: "/sampleproduct.png", price: 3800, category: "Grains", stock: 60, status: "Approved" },
-  { id: 63, name: "Pineapple", variation: "Large", avatar: "/sampleproduct.png", price: 7000, category: "Fruits", stock: 70, status: "Approved" },
-  { id: 47, name: "Fresh Pork Belly", variation: "Sliced", avatar: "/sampleproduct.png", price: 38000, category: "Meats", stock: 80, status: "Approved" },
-  { id: 74, name: "Tamban", variation: "Small", avatar: "/sampleproduct.png", price: 1200, category: "Fish", stock: 100, status: "Approved" },
-  { id: 49, name: "Beef Sirloin", variation: "Slice", avatar: "/sampleproduct.png", price: 40000, category: "Meats", stock: 50, status: "Pending" },
-  { id: 80, name: "Sardines", variation: "Can", avatar: "/sampleproduct.png", price: 1500, category: "Fish", stock: 200, status: "Approved" },
-  { id: 53, name: "Goat Meat", variation: "Cubes", avatar: "/sampleproduct.png", price: 45000, category: "Meats", stock: 20, status: "Pending" },
-  { id: 22, name: "Pechay", variation: "Baguio", avatar: "/sampleproduct.png", price: 500, category: "Vegetable", stock: 70, status: "Approved" },
-  { id: 40, name: "Mozzarella Cheese", variation: "Shredded", avatar: "/sampleproduct.png", price: 21000, category: "Milks & Dairy", stock: 30, status: "Approved" },
-  { id: 46, name: "Gouda Cheese", variation: "Block", avatar: "/sampleproduct.png", price: 25000, category: "Milks & Dairy", stock: 20, status: "Approved" },
-  { id: 67, name: "Atis", variation: "Sugar Apple", avatar: "/sampleproduct.png", price: 4200, category: "Fruits", stock: 40, status: "Approved" },
-  { id: 56, name: "Beef Brisket", variation: "Slab", avatar: "/sampleproduct.png", price: 43000, category: "Meats", stock: 30, status: "Approved" },
-  { id: 57, name: "Turkey", variation: "Whole", avatar: "/sampleproduct.png", price: 48000, category: "Meats", stock: 12, status: "Approved" },
-  { id: 81, name: "Tulingan", variation: "Skipjack", avatar: "/sampleproduct.png", price: 1800, category: "Fish", stock: 30, status: "Approved" },
-  { id: 5, name: "Jasmine Rice", variation: "Fragrant", avatar: "/sampleproduct.png", price: 5200, category: "Grains", stock: 90, status: "Approved" },
-  { id: 23, name: "Bell Pepper", variation: "Red, Green", avatar: "/sampleproduct.png", price: 1300, category: "Vegetable", stock: 40, status: "Approved" },
-  { id: 50, name: "Ground Pork", variation: "Lean", avatar: "/sampleproduct.png", price: 25000, category: "Meats", stock: 90, status: "Approved" },
-  { id: 32, name: "Ginger", variation: "Yellow", avatar: "/sampleproduct.png", price: 1400, category: "Root Crops", stock: 80, status: "Approved" },
-  { id: 1, name: "Premium White Rice", variation: "Long Grain", avatar: "/sampleproduct.png", price: 4500, category: "Grains", stock: 100, status: "Approved" },
-  { id: 28, name: "Ube", variation: "Purple", avatar: "/sampleproduct.png", price: 1200, category: "Root Crops", stock: 40, status: "Pending" },
-  { id: 51, name: "Pork Chop", variation: "Bone-in", avatar: "/sampleproduct.png", price: 30000, category: "Meats", stock: 60, status: "Approved" },
-  { id: 2, name: "Brown Rice Deluxe", variation: "Brown", avatar: "/sampleproduct.png", price: 5000, category: "Grains", stock: 80, status: "Approved" },
-  { id: 6, name: "Corn Grits", variation: "Yellow", avatar: "/sampleproduct.png", price: 3200, category: "Grains", stock: 100, status: "Approved" },
-  { id: 77, name: "Lapu-Lapu", variation: "Grouper", avatar: "/sampleproduct.png", price: 5400, category: "Fish", stock: 20, status: "Approved" },
-  { id: 7, name: "Black Rice Special", variation: "Black", avatar: "/sampleproduct.png", price: 6000, category: "Grains", stock: 30, status: "Pending" },
-  { id: 15, name: "Bitter Gourd", variation: "Small", avatar: "/sampleproduct.png", price: 350, category: "Vegetable", stock: 40, status: "Pending" },
-  { id: 76, name: "Hasa-hasa", variation: "Short Mackerel", avatar: "/sampleproduct.png", price: 2000, category: "Fish", stock: 80, status: "Approved" },
-  { id: 4, name: "Organic Red Rice", variation: "Red", avatar: "/sampleproduct.png", price: 5300, category: "Grains", stock: 70, status: "Approved" },
-  { id: 61, name: "Apple Fuji", variation: "Red", avatar: "/sampleproduct.png", price: 4000, category: "Fruits", stock: 75, status: "Approved" },
-  { id: 26, name: "Cassava", variation: "Brown", avatar: "/sampleproduct.png", price: 500, category: "Root Crops", stock: 70, status: "Approved" },
-  { id: 43, name: "Powdered Milk", variation: "Instant", avatar: "/sampleproduct.png", price: 9500, category: "Milks & Dairy", stock: 70, status: "Pending" },
-  { id: 14, name: "Tomato", variation: "Red", avatar: "/sampleproduct.png", price: 600, category: "Vegetable", stock: 75, status: "Approved" },
-  { id: 60, name: "Red Watermelon", variation: "Seedless", avatar: "/sampleproduct.png", price: 3000, category: "Fruits", stock: 60, status: "Pending" },
-  { id: 18, name: "Lettuce", variation: "Iceberg", avatar: "/sampleproduct.png", price: 1200, category: "Vegetable", stock: 55, status: "Approved" },
-  { id: 9, name: "Barley", variation: "Whole", avatar: "/sampleproduct.png", price: 3400, category: "Grains", stock: 50, status: "Approved" },
-  { id: 39, name: "Cheddar Cheese", variation: "Block", avatar: "/sampleproduct.png", price: 20000, category: "Milks & Dairy", stock: 40, status: "Pending" },
-  { id: 79, name: "Maya-maya", variation: "Snapper", avatar: "/sampleproduct.png", price: 3600, category: "Fish", stock: 45, status: "Approved" },
-  { id: 17, name: "Cabbage", variation: "Round", avatar: "/sampleproduct.png", price: 1100, category: "Vegetable", stock: 85, status: "Approved" },
-  { id: 24, name: "Broccoli", variation: "Green", avatar: "/sampleproduct.png", price: 2000, category: "Vegetable", stock: 25, status: "Approved" },
-  { id: 69, name: "Grapes", variation: "Purple", avatar: "/sampleproduct.png", price: 10000, category: "Fruits", stock: 32, status: "Approved" },
-  { id: 31, name: "Turnip", variation: "Purple", avatar: "/sampleproduct.png", price: 850, category: "Root Crops", stock: 35, status: "Approved" },
-  { id: 36, name: "Fresh Cow's Milk", variation: "Whole", avatar: "/sampleproduct.png", price: 4800, category: "Milks & Dairy", stock: 65, status: "Approved" },
-  { id: 58, name: "Carabao Mango", variation: "Yellow", avatar: "/sampleproduct.png", price: 2500, category: "Fruits", stock: 120, status: "Approved" },
-  { id: 34, name: "Singkamas", variation: "Large", avatar: "/sampleproduct.png", price: 450, category: "Root Crops", stock: 70, status: "Approved" },
-  { id: 73, name: "Tuna", variation: "Steak", avatar: "/sampleproduct.png", price: 3200, category: "Fish", stock: 40, status: "Approved" },
-  { id: 72, name: "Galunggong", variation: "Round Scad", avatar: "/sampleproduct.png", price: 1700, category: "Fish", stock: 70, status: "Pending" },
-  { id: 62, name: "Orange Valencia", variation: "Orange", avatar: "/sampleproduct.png", price: 3500, category: "Fruits", stock: 50, status: "Approved" },
-  { id: 71, name: "Bangus", variation: "Milkfish", avatar: "/sampleproduct.png", price: 2300, category: "Fish", stock: 50, status: "Approved" },
-  { id: 8, name: "Wheat Flour", variation: "All-purpose", avatar: "/sampleproduct.png", price: 2500, category: "Grains", stock: 120, status: "Approved" },
-  { id: 16, name: "Carrots", variation: "Orange", avatar: "/sampleproduct.png", price: 850, category: "Vegetable", stock: 60, status: "Approved" },
-  { id: 33, name: "Carrot Root", variation: "Orange", avatar: "/sampleproduct.png", price: 900, category: "Root Crops", stock: 60, status: "Pending" },
-  { id: 12, name: "Quinoa", variation: "White", avatar: "/sampleproduct.png", price: 12000, category: "Grains", stock: 25, status: "Approved" },
-  { id: 52, name: "Chicken Breast", variation: "Boneless", avatar: "/sampleproduct.png", price: 22000, category: "Meats", stock: 70, status: "Approved" },
-  { id: 42, name: "Butter", variation: "Salted", avatar: "/sampleproduct.png", price: 8500, category: "Milks & Dairy", stock: 45, status: "Approved" },
-  { id: 78, name: "Salmon", variation: "Slice", avatar: "/sampleproduct.png", price: 6800, category: "Fish", stock: 35, status: "Pending" },
-  { id: 65, name: "Rambutan", variation: "Red", avatar: "/sampleproduct.png", price: 5000, category: "Fruits", stock: 25, status: "Pending" },
-  { id: 60, name: "Red Watermelon", variation: "Seedless", avatar: "/sampleproduct.png", price: 3000, category: "Fruits", stock: 60, status: "Pending" },
-  { id: 37, name: "Low-fat Milk", variation: "Low-fat", avatar: "/sampleproduct.png", price: 4500, category: "Milks & Dairy", stock: 55, status: "Approved" },
-];
-
-// Assign farmer & code per product
-const INITIAL_PRODUCTS = RAW_PRODUCTS.map((item) => {
-  const farmerName = getRandomFarmerName();
-  return {
-    ...item,
-    association: "Macamot Farmers Association",
-    farmer: generateFarmerCode(farmerName),
-    unit: "1kg",
-    farmerName,
-    images: [item.avatar], // so image support is present for new and old
-    variants: [{ name: item.variation, image: item.avatar, price: item.price, unitMeasurement: "1kg", stock: item.stock }],
-    description: "",
-  };
-});
-
-// Helper to group variations by name
-function getVariationMap(products) {
-  const map = {};
-  products.forEach((p) => {
-    if (!map[p.name]) map[p.name] = [];
-    // This groups all variations with the same product name
-    if (Array.isArray(p.variants)) {
-      p.variants.forEach(v => {
-        if (v && v.name) map[p.name].push(v.name);
-      });
-    } else {
-      map[p.name].push(p.variation);
-    }
-  });
-  return map;
-}
 export default function ProductManagement() {
   const [searchQuery, setSearchQuery] = useState("");
+  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState("");
   const [showFilters, setShowFilters] = useState(false);
-  const [products, setProducts] = useState(INITIAL_PRODUCTS);
+  const [products, setProducts] = useState([]);
   const [selectedRows, setSelectedRows] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [showDraftProducts, setShowDraftProducts] = useState(false);
   const [showAddProduct, setShowAddProduct] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalProducts, setTotalProducts] = useState(0);
+  const [categories, setCategories] = useState([]);
+  const [summaryProducts, setSummaryProducts] = useState([]);
+  const [selectedStatus, setSelectedStatus] = useState(null);
 
   // For editing
   const [showEditModal, setShowEditModal] = useState(false);
   const [editProduct, setEditProduct] = useState(null);
   const [editModalMode, setEditModalMode] = useState("edit");
 
-  // UseMemo for variation mapping
-  const variationMap = useMemo(() => getVariationMap(products), [products]);
+  // For image preview
+  const [showImagePreview, setShowImagePreview] = useState(false);
+  const [imagePreviewUrl, setImagePreviewUrl] = useState("");
+  const [imageLoadErrors, setImageLoadErrors] = useState({}); // Stores image errors
 
-  const categoriesSummary = useMemo(() => {
-    return CATEGORY_NAMES.map((cat) => ({
-      name: cat,
-      count: products.filter((p) => p.category === cat).length,
+  // Helper to handle image loading errors
+  const handleImageError = useCallback((productId) => {
+    setImageLoadErrors((prevErrors) => ({
+      ...prevErrors,
+      [productId]: true,
     }));
-  }, [products]);
+  }, []);
 
-  const filteredProducts = useMemo(() => {
-    let filtered = products;
-    if (selectedCategory) {
-      filtered = filtered.filter((p) => p.category === selectedCategory);
-    }
-    if (searchQuery.trim()) {
-      filtered = filtered.filter((p) =>
-        p.name.toLowerCase().includes(searchQuery.trim().toLowerCase())
-      );
-    }
-    return filtered;
-  }, [products, selectedCategory, searchQuery]);
-  const itemsPerPage = 7;
-  const totalPages = Math.ceil(filteredProducts.length / itemsPerPage);
-  const visibleProducts = filteredProducts.slice(
-    (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage
-  );
-  const emptyRows = itemsPerPage - visibleProducts.length > 0 ? itemsPerPage - visibleProducts.length : 0;
+  const openImagePreview = useCallback((url) => {
+    setImagePreviewUrl(url);
+    setShowImagePreview(true);
+  }, []);
 
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [searchQuery, selectedCategory]);
+  const closeImagePreview = useCallback(() => {
+    setShowImagePreview(false);
+    setImagePreviewUrl("");
+  }, []);
 
-  // Delete logic (batch)
-  const handleDeleteSelected = () => {
-    if (!window.confirm("Delete selected products?")) return;
-    setProducts((prev) => prev.filter((p) => !selectedRows.includes(p.id)));
-    setSelectedRows([]);
-  };
+  // Image Preview Modal Component
+  const ImagePreviewModal = useCallback(({ isOpen, onClose, imageUrl }) => {
+    if (!isOpen) return null;
 
-  // Single delete
-  const handleDelete = (id) => {
-    if (!window.confirm("Delete this product?")) return;
-    setProducts((prev) => prev.filter((p) => p.id !== id));
-    setSelectedRows((sel) => sel.filter((sid) => sid !== id));
-  };
+    return (
+      <div
+        style={{
+          position: "fixed",
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: "rgba(0, 0, 0, 0.7)",
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          zIndex: 1000,
+        }}
+        onClick={onClose}
+      >
+        <div
+          style={{
+            backgroundColor: "#fff",
+            padding: "1rem",
+            borderRadius: "0.5rem",
+            position: "relative",
+            maxHeight: "90%",
+            maxWidth: "90%",
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+          }}
+          onClick={(e) => e.stopPropagation()} // Prevent click from closing modal
+        >
+          <button
+            onClick={onClose}
+            style={{
+              position: "absolute",
+              top: "0.5rem",
+              right: "0.5rem",
+              background: "none",
+              border: "none",
+              fontSize: "1.5rem",
+              cursor: "pointer",
+              color: "#333",
+            }}
+          >
+            <X size={24} />
+          </button>
+          <img
+            src={imageUrl}
+            alt="Product Preview"
+            style={{
+              maxWidth: "100%",
+              maxHeight: "80vh",
+              objectFit: "contain",
+            }}
+          />
+        </div>
+      </div>
+    );
+  }, []); // No dependencies, as it's a pure presentational component with props
 
-  // Add product callback (from modal)
-  const handleAddProduct = (newProduct) => {
-    const baseId = Math.max(0, ...products.map(p => p.id)) + 1;
-    const firstVariant = newProduct.variants && newProduct.variants[0] ? newProduct.variants[0] : {};
-    setProducts((prev) => [
-      ...prev,
-      {
-        id: baseId,
-        name: newProduct.name,
-        variation: firstVariant.name || "",
-        avatar: newProduct.images[0] || "/sampleproduct.png",
-        price: firstVariant.price || "",
-        category: newProduct.category,
-        stock: firstVariant.stock || "",
-        status: "Approved",
-        association: "Macamot Farmers Association",
-        farmer: newProduct.farmer || generateFarmerCode("Juan D Cruz"),
-        unit: firstVariant.unitMeasurement || "1kg",
-        farmerName: "Juan D Cruz",
-        images: newProduct.images,
-        variants: newProduct.variants,
-        description: newProduct.description || "",
-      }
-    ]);
-  };
-
-  const closeEditModal = () => {
+  const closeEditModal = useCallback(() => {
     setShowEditModal(false);
     setEditProduct(null);
-  };
+  }, []);
 
-  const handleEdit = (product) => {
+  const handleEdit = useCallback((product) => {
     setEditProduct(product);
     setEditModalMode("edit");
     setShowEditModal(true);
-  };
+  }, []);
 
-  const handleCategoryClick = (cat) => {
+  const handleCategoryClick = useCallback((cat) => {
     setSelectedCategory((prev) => (prev === cat ? null : cat));
+    setSearchQuery(""); // Clear search query when category is selected or deselected
     setSelectedRows([]);
+  }, []);
+
+  const handlePageChange = useCallback((newPage) => {
+    console.log('Changing page to:', newPage);
+    setCurrentPage(newPage);
+  }, []);
+
+  // Add debounced search effect
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearchQuery(searchQuery);
+    }, 300); // 300ms delay
+
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
+
+  // Update fetchProducts to use debouncedSearchQuery
+  const fetchProducts = useCallback(async () => {
+    console.log('fetchProducts dependencies:', { currentPage, debouncedSearchQuery, selectedCategory, selectedStatus });
+    try {
+      setLoading(true);
+      console.log('Fetching products...');
+      
+      // Build query parameters
+      const params = new URLSearchParams({
+        page: currentPage,
+        per_page: 7,
+        ...(debouncedSearchQuery && { search: debouncedSearchQuery }),
+        ...(selectedCategory && { category: selectedCategory }),
+        ...(selectedStatus && { status: selectedStatus })
+      });
+
+      const url = `${API_BASE_URL}/products/?${params}`;
+      console.log('Fetching products from URL:', url);
+
+      const response = await fetch(url);
+      if (!response.ok) {
+        throw new Error('Failed to fetch products');
+      }
+      const data = await response.json();
+      console.log('Fetched products raw data:', data);
+      
+      if (data.products) {
+        setProducts(data.products);
+        setTotalPages(data.total_pages);
+        setTotalProducts(data.total);
+        console.log('Products state set to:', data.products);
+      } else {
+        setProducts([]);
+        setTotalPages(1);
+        setTotalProducts(0);
+        console.log('Products state set to empty array (no data.products).');
+      }
+    } catch (error) {
+      console.error('Error fetching products:', error);
+      setError(error.message);
+      setProducts([]);
+      console.log('Products state set to empty array due to error.');
+    } finally {
+      setLoading(false);
+    }
+  }, [currentPage, debouncedSearchQuery, selectedCategory, selectedStatus]); // Use debouncedSearchQuery instead of searchQuery
+
+  // Fetch categories
+  const fetchCategories = useCallback(async () => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/products/categories/`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch categories');
+      }
+      const data = await response.json();
+      setCategories(data);
+      console.log('Fetched categories for summary:', data);
+    } catch (err) {
+      console.error('Error fetching categories for summary:', err);
+      setError('Failed to load categories for summary. Please try again.');
+    }
+  }, []); // No dependencies, runs once on mount
+
+  // Fetch all products for summary counts
+  const fetchSummaryProducts = useCallback(async () => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/products/?summarize=true`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch summary products');
+      }
+      const data = await response.json();
+      setSummaryProducts(data.products || []);
+      console.log('Fetched summary products:', data.products.length);
+    } catch (err) {
+      console.error('Error fetching summary products:', err);
+    } finally {
+    }
+  }, []); // No dependencies, runs once on mount
+
+  // Fetch products on mount and when filters change
+  useEffect(() => {
+    console.log('useEffect (fetchProducts) triggered.');
+    fetchProducts();
+  }, [fetchProducts]); // Depend only on the memoized fetchProducts function
+
+  // Fetch categories and summary products on mount
+  useEffect(() => {
+    fetchCategories();
+    fetchSummaryProducts(); 
+  }, [fetchCategories, fetchSummaryProducts]); // Depend on memoized functions
+
+  // Memoize filtered products
+  const filteredProducts = useMemo(() => {
+    if (!Array.isArray(products)) return [];
+    return products; 
+  }, [products]);
+
+  const categoriesSummary = useMemo(() => {
+    // Use summaryProducts for counts
+    return CATEGORY_NAMES.map((catName) => {
+      const lookupCategoryName = normalizeCategoryNameForLookup(catName);
+      const style = BADGE_STYLES[lookupCategoryName] || BADGE_STYLES["Grains"];
+      // Count products by normalizing their category name for comparison against summaryProducts
+      const count = summaryProducts.filter((p) => normalizeCategoryNameForLookup(p.category_name) === lookupCategoryName).length;
+      const isActive = selectedCategory === catName; // Use catName directly for active state
+
+      return (
+        <div
+          key={catName} // Use catName as key
+          onClick={() => handleCategoryClick(catName)} // Use catName for click handler
+          style={{
+            position: "relative",
+            border: isActive ? `2px solid ${style.border}` : "1px solid #858585",
+            borderRadius: "1.6rem",
+            minWidth: "150px",
+            height: "80px",
+            padding: "0 1.5rem",
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "center",
+            backgroundColor: isActive ? style.background : "#FFFFFF",
+            flex: "1",
+            overflow: "hidden",
+            cursor: "pointer",
+            boxShadow: isActive ? "0 2px 8px 0 rgba(2,132,199,0.08)" : undefined,
+            transition: "border 0.18s, background 0.18s",
+          }}
+        >
+          {loading && (
+            <div
+              style={{
+                position: "absolute",
+                top: "0",
+                left: "0",
+                right: "0",
+                bottom: "0",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                backgroundColor: "rgba(255, 255, 255, 0.8)", // Optional: semi-transparent overlay
+                borderRadius: "1.6rem", // Match the card's border radius
+              }}
+            >
+              <img
+                src="/categoryloading-unscreen.gif"
+                alt="Loading"
+                style={{ 
+                  width: "80px", 
+                  height: "80px",
+                  objectFit: "contain"
+                }}
+              />
+            </div>
+          )}
+          <div
+            style={{
+              position: "absolute",
+              left: "0",
+              top: "0",
+              bottom: "0",
+              width: "20px",
+              backgroundColor: style.background,
+              borderRadius: "1.6rem 0 0 1.6rem",
+            }}
+          />
+          <span style={{ fontSize: "0.81rem", color: "#9CA3AF", fontWeight: 500, marginLeft: "8px" }}>{catName}</span> {/* Use catName for display */}
+          <span style={{ fontSize: "1.4rem", fontWeight: 900, color: "#000000", marginLeft: "8px" }}>{count}</span>
+        </div>
+      );
+    });
+  }, [summaryProducts, selectedCategory, handleCategoryClick]);
+
+  const itemsPerPage = 7;
+  const emptyRows = itemsPerPage - products.length > 0 ? itemsPerPage - products.length : 0;
+
+  // Delete logic (batch)
+  const handleDeleteSelected = async () => {
+    if (!window.confirm("Delete selected products?")) return;
+    try {
+      const response = await axios.post(`${API_BASE_URL}/products/batch-delete/`, {
+        ids: selectedRows,
+      });
+      
+      // Show success message
+      alert(response.data.message);
+      
+      // If there are products that couldn't be deleted, show a warning
+      if (response.data.warning) {
+        alert(response.data.warning);
+      }
+      
+      setSelectedRows([]);
+      fetchProducts(); // Refresh the list
+      // Refresh category summary
+      fetchSummaryProducts();
+    } catch (err) {
+      console.error("Error deleting products:", err);
+      alert(err.response?.data?.error || err.response?.data?.details || "Failed to delete products");
+    }
   };
 
-  // --- RETURN ---
+  // Single delete
+  const handleDelete = async (id) => {
+    if (!window.confirm("Delete this product?")) return;
+    try {
+      await axios.delete(`${API_BASE_URL}/products/delete/${id}/`);
+      setSelectedRows((sel) => sel.filter((sid) => sid !== id));
+      fetchProducts(); // Refresh the list
+      // Refresh category summary
+      fetchSummaryProducts();
+    } catch (err) {
+      console.error("Error deleting product:", err);
+      alert("Failed to delete product");
+    }
+  };
+
+  // Add product callback (from modal)
+  const handleAddProduct = async (newProduct) => {
+    try {
+      const response = await axios.post(`${API_BASE_URL}/products/create/`, newProduct);
+      setProducts((prev) => [...prev, response.data]);
+      setShowAddProduct(false);
+      // Refresh category summary
+      fetchSummaryProducts();
+    } catch (err) {
+      console.error("Error adding product:", err);
+      alert("Failed to add product");
+    }
+  };
+
   return (
     <div className="px-6 pb-6">
       {/* Toolbar */}
@@ -309,7 +449,7 @@ export default function ProductManagement() {
         ) : (
           <div className="flex items-center gap-2" style={{ color: "#374151" }}>
             <RefreshCw size={20} style={{ color: "#16A34A" }} />
-            <span style={{ fontWeight: 500 }}>{`All Products ${products.length}`}</span>
+            <span style={{ fontWeight: 500 }}>{`All Products ${totalProducts}`}</span>
           </div>
         )}
 
@@ -330,7 +470,11 @@ export default function ProductManagement() {
               type="text"
               placeholder="Search Product"
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              onChange={(e) => {
+                const value = e.target.value;
+                console.log('Search input changed:', value);
+                setSearchQuery(value);
+              }}
               style={{
                 width: "100%",
                 padding: "0.5rem 2.5rem 0.5rem 2.5rem",
@@ -393,345 +537,319 @@ export default function ProductManagement() {
           </>
         </div>
       </div>
+
       {/* CATEGORY SUMMARY */}
       <div className="pb-4">
         <div className="flex gap-4 overflow-x-auto">
-          {categoriesSummary.map((cat) => {
-            const style = BADGE_STYLES[cat.name] || BADGE_STYLES["Grains"];
-            const isActive = selectedCategory === cat.name;
-            return (
-              <div
-                key={cat.name}
-                onClick={() => handleCategoryClick(cat.name)}
-                style={{
-                  position: "relative",
-                  border: isActive ? `2px solid ${style.border}` : "1px solid #858585",
-                  borderRadius: "1.6rem",
-                  minWidth: "150px",
-                  height: "80px",
-                  padding: "0 1.5rem",
-                  display: "flex",
-                  flexDirection: "column",
-                  justifyContent: "center",
-                  backgroundColor: isActive ? style.background : "#FFFFFF",
-                  flex: "1",
-                  overflow: "hidden",
-                  cursor: "pointer",
-                  boxShadow: isActive ? "0 2px 8px 0 rgba(2,132,199,0.08)" : undefined,
-                  transition: "border 0.18s, background 0.18s",
-                }}
-              >
-                <div
-                  style={{
-                    position: "absolute",
-                    left: "0",
-                    top: "0",
-                    bottom: "0",
-                    width: "20px",
-                    backgroundColor: style.background,
-                    borderRadius: "1.6rem 0 0 1.6rem",
-                  }}
-                />
-                <span style={{ fontSize: "0.81rem", color: "#9CA3AF", fontWeight: 500, marginLeft: "8px" }}>{cat.name}</span>
-                <span style={{ fontSize: "1.4rem", fontWeight: 900, color: "#000000", marginLeft: "8px" }}>{cat.count}</span>
-              </div>
-            );
-          })}
+          {categoriesSummary}
         </div>
       </div>
+
       {/* TABLE */}
       <div style={{ borderRadius: "1rem", overflow: "hidden", minHeight: 420 }}>
         <h2 className="px-4 pt-4 text-xl font-bold text-gray-900">Product List</h2>
-        <table style={{
-          width: "100%",
-          borderCollapse: "collapse",
-          tableLayout: "fixed"
-        }}>
-          <colgroup>
-            <col style={{ width: "4%" }} />
-            <col style={{ width: "15%" }} />
-            <col style={{ width: "10%" }} />
-            <col style={{ width: "19%" }} />
-            <col style={{ width: "13%" }} />
-            <col style={{ width: "7%" }} />
-            <col style={{ width: "9%" }} />
-            <col style={{ width: "11%" }} />
-            <col style={{ width: "7%" }} />
-            <col style={{ width: "7%" }} />
-            <col style={{ width: "8%" }} />
-          </colgroup>
-          <thead style={{ backgroundColor: "#F7F7FB" }}>
-            <tr style={{
-              color: "#4B5563",
-              fontSize: "0.92rem",
-              fontWeight: 600,
-              height: "48px",
-              verticalAlign: "middle"
-            }}>
-              <th style={{ padding: "0.55rem", verticalAlign: "middle", textAlign: "center", fontWeight: 600 }}>
-                <input
-                  type="checkbox"
-                  className="checkbox checkbox-sm rounded"
-                  checked={selectedRows.length === visibleProducts.length && visibleProducts.length > 0}
-                  onChange={(e) =>
-                    setSelectedRows(
-                      e.target.checked ? visibleProducts.map((p) => p.id) : []
-                    )
-                  }
-                />
-              </th>
-              <th style={{ padding: "0.55rem", textAlign: "left", verticalAlign: "middle", fontWeight: 600, fontSize: "0.97rem", whiteSpace: "nowrap" }}>Product</th>
-              <th style={{ padding: "0.55rem", textAlign: "left", verticalAlign: "middle", fontWeight: 600, fontSize: "0.97rem", whiteSpace: "nowrap" }}>Variation</th>
-              <th style={{ padding: "0.55rem", textAlign: "left", verticalAlign: "middle", fontWeight: 600, fontSize: "0.97rem", maxWidth: 210, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>Association</th>
-              <th style={{ padding: "0.55rem", textAlign: "left", verticalAlign: "middle", fontWeight: 600, fontSize: "0.97rem", maxWidth: 140, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>Farmer</th>
-              <th style={{ padding: "0.55rem", textAlign: "left", verticalAlign: "middle", fontWeight: 600, fontSize: "0.97rem", whiteSpace: "nowrap" }}>Unit</th>
-              <th style={{ padding: "0.55rem", textAlign: "left", verticalAlign: "middle", fontWeight: 600, fontSize: "0.97rem", whiteSpace: "nowrap" }}>Price</th>
-              <th style={{ padding: "0.55rem", textAlign: "left", verticalAlign: "middle", fontWeight: 600, fontSize: "0.97rem", whiteSpace: "nowrap" }}>Category</th>
-              <th style={{ padding: "0.55rem", textAlign: "left", verticalAlign: "middle", fontWeight: 600, fontSize: "0.97rem", whiteSpace: "nowrap" }}>Stock</th>
-              <th style={{ padding: "0.55rem", textAlign: "left", verticalAlign: "middle", fontWeight: 600, fontSize: "0.97rem", whiteSpace: "nowrap" }}>Status</th>
-              <th style={{ padding: "0.55rem", textAlign: "left", verticalAlign: "middle", fontWeight: 600, fontSize: "0.97rem", whiteSpace: "nowrap" }}>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {visibleProducts.map((p) => {
-              const style = BADGE_STYLES[p.category] || BADGE_STYLES["Grains"];
-              const isSelected = selectedRows.includes(p.id);
-              // Use the actual variants stored on the row
-              const variantCount = Array.isArray(p.variants) ? p.variants.length : 1;
-              let variationText = p.variation;
-              if (variationText && variantCount > 1) {
-                const extra = variantCount - 1;
-                variationText = `${p.variants[0]?.name} +${extra}`;
-              }
-              return (
-                <tr
-                  key={p.id}
-                  style={{
-                    backgroundColor: isSelected ? "#F0FDFA" : "transparent",
-                    minHeight: 44,
-                    verticalAlign: "middle",
-                    fontSize: "0.94rem"
-                  }}
-                >
-                  <td style={{
-                    padding: "0.55rem",
-                    verticalAlign: "middle",
-                    textAlign: "center"
-                  }}>
-                    <input
-                      type="checkbox"
-                      className="checkbox checkbox-sm rounded"
-                      checked={isSelected}
-                      onChange={(e) => {
-                        if (e.target.checked) {
-                          setSelectedRows([...selectedRows, p.id]);
-                        } else {
-                          setSelectedRows(selectedRows.filter((id) => id !== p.id));
-                        }
-                      }}
-                    />
-                  </td>
-                  <td style={{
-                    padding: "0.55rem",
-                    verticalAlign: "middle",
-                    fontSize: "0.97rem",
-                    whiteSpace: "nowrap",
-                    overflow: "hidden",
-                    textOverflow: "ellipsis"
-                  }}>
-                    <div style={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: "0.65rem",
-                      minHeight: "34px"
+        {loading ? (
+          <div className="flex justify-center items-center h-64">
+            <img
+              src="/BINHI-LOADING-unscreen.gif"
+              alt="Loading..."
+              style={{ width: 120, height: 120, objectFit: "contain" }}
+            />
+          </div>
+        ) : error ? (
+          <div className="flex justify-center items-center h-64 text-red-500">
+            {error}
+          </div>
+        ) : (
+          <table style={{
+            width: "100%",
+            borderCollapse: "collapse",
+            tableLayout: "fixed"
+          }}>
+            <colgroup>
+              <col style={{ width: "4%" }} />
+              <col style={{ width: "15%" }} />
+              <col style={{ width: "10%" }} />
+              <col style={{ width: "19%" }} />
+              <col style={{ width: "13%" }} />
+              <col style={{ width: "7%" }} />
+              <col style={{ width: "9%" }} />
+              <col style={{ width: "11%" }} />
+              <col style={{ width: "7%" }} />
+              <col style={{ width: "7%" }} />
+              <col style={{ width: "8%" }} />
+            </colgroup>
+            <thead style={{ backgroundColor: "#F7F7FB" }}>
+              <tr style={{
+                color: "#4B5563",
+                fontSize: "0.92rem",
+                fontWeight: 600,
+                height: "48px",
+                verticalAlign: "middle"
+              }}>
+                <th style={{ padding: "0.55rem", verticalAlign: "middle", textAlign: "center", fontWeight: 600 }}>
+                  <input
+                    type="checkbox"
+                    className="checkbox checkbox-sm rounded"
+                    checked={selectedRows.length === products.length && products.length > 0}
+                    onChange={(e) =>
+                      setSelectedRows(
+                        e.target.checked ? products.map((p) => p.id) : []
+                      )
+                    }
+                  />
+                </th>
+                <th style={{ padding: "0.55rem", textAlign: "left", verticalAlign: "middle", fontWeight: 600, fontSize: "0.97rem", whiteSpace: "nowrap" }}>Product</th>
+                <th style={{ padding: "0.55rem", textAlign: "left", verticalAlign: "middle", fontWeight: 600, fontSize: "0.97rem", whiteSpace: "nowrap" }}>Variation</th>
+                <th style={{ padding: "0.55rem", textAlign: "left", verticalAlign: "middle", fontWeight: 600, fontSize: "0.97rem", maxWidth: 210, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>Association</th>
+                <th style={{ padding: "0.55rem", textAlign: "left", verticalAlign: "middle", fontWeight: 600, fontSize: "0.97rem", maxWidth: 140, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>Farmer</th>
+                <th style={{ padding: "0.55rem", textAlign: "left", verticalAlign: "middle", fontWeight: 600, fontSize: "0.97rem", whiteSpace: "nowrap" }}>Unit</th>
+                <th style={{ padding: "0.55rem", textAlign: "left", verticalAlign: "middle", fontWeight: 600, fontSize: "0.97rem", whiteSpace: "nowrap" }}>Price</th>
+                <th style={{ padding: "0.55rem", textAlign: "left", verticalAlign: "middle", fontWeight: 600, fontSize: "0.97rem", whiteSpace: "nowrap" }}>Category</th>
+                <th style={{ padding: "0.55rem", textAlign: "left", verticalAlign: "middle", fontWeight: 600, fontSize: "0.97rem", whiteSpace: "nowrap" }}>Stock</th>
+                <th style={{ padding: "0.55rem", textAlign: "center", verticalAlign: "middle", fontWeight: 600, fontSize: "0.97rem", whiteSpace: "nowrap" }}>Status</th>
+                <th style={{ padding: "0.55rem", textAlign: "left", verticalAlign: "middle", fontWeight: 600, fontSize: "0.97rem", whiteSpace: "nowrap" }}>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredProducts.map((p) => {
+                const lookupCategoryName = normalizeCategoryNameForLookup(p.category_name);
+                const style = BADGE_STYLES[lookupCategoryName] || BADGE_STYLES["Grains"];
+                // Correctly use STATUS_STYLES for status display
+                const statusStyle = STATUS_STYLES[p.status] || { color: "#6B7280", background: "#E5E7EB", border: "#6B7280", text: p.status };
+                const isSelected = selectedRows.includes(p.id);
+                const variantCount = p.variations?.length || 1;
+                let variationText = p.variations?.[0]?.name || "";
+                if (variationText && variantCount > 1) {
+                  const extra = variantCount - 1;
+                  variationText = `${p.variations[0]?.name} +${extra}`;
+                }
+                const imageUrl = p.images?.[0]?.image;
+                const hasImageError = false; // No imageLoadErrors state anymore
+
+                return (
+                  <tr
+                    key={p.id}
+                    style={{
+                      backgroundColor: isSelected ? "#F0FDFA" : "transparent",
+                      minHeight: 44,
+                      verticalAlign: "middle",
+                      fontSize: "0.94rem"
+                    }}
+                  >
+                    <td style={{
+                      padding: "0.55rem",
+                      verticalAlign: "middle",
+                      textAlign: "center"
                     }}>
-                      <img
-                        src={p.avatar}
-                        alt={p.name}
-                        style={{ width: 28, height: 28, borderRadius: "50%" }}
+                      <input
+                        type="checkbox"
+                        className="checkbox checkbox-sm rounded"
+                        checked={isSelected}
+                        onChange={(e) => {
+                          if (e.target.checked) {
+                            setSelectedRows([...selectedRows, p.id]);
+                          } else {
+                            setSelectedRows(selectedRows.filter((id) => id !== p.id));
+                          }
+                        }}
                       />
-                      <div>
-                        <div style={{
-                          color: "#111827",
-                          fontSize: "0.97rem",
-                          lineHeight: 1.2,
+                    </td>
+                    <td style={{
+                      padding: "0.55rem",
+                      verticalAlign: "middle",
+                      fontSize: "0.97rem",
+                      whiteSpace: "nowrap",
+                      overflow: "hidden",
+                      textOverflow: "ellipsis"
+                    }}>
+                      <div style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "0.65rem",
+                        minHeight: "34px"
+                      }}>
+                        {hasImageError || !imageUrl ? (
+                            <div style={{ width: 28, height: 28, borderRadius: "50%", backgroundColor: '#e0e0e0', display: 'flex', justifyContent: 'center', alignItems: 'center', fontSize: '0.7rem', color: '#757575' }}>
+                                No Img
+                            </div>
+                        ) : (
+                            <img
+                                src={imageUrl}
+                                alt={p.name}
+                                style={{ width: 28, height: 28, borderRadius: "50%", cursor: 'pointer' }}
+                                onClick={() => {}} // Removed openImagePreview
+                                onError={() => {}} // Removed handleImageError
+                            />
+                        )}
+                        <div>
+                          <div style={{
+                            color: "#111827",
+                            fontSize: "0.97rem",
+                            lineHeight: 1.2,
+                            whiteSpace: "nowrap"
+                          }}>{p.name}</div>
+                        </div>
+                      </div>
+                    </td>
+                    <td style={{
+                      padding: "0.55rem",
+                      verticalAlign: "middle",
+                      fontSize: "0.96rem",
+                      whiteSpace: "nowrap"
+                    }}>
+                      {variationText}
+                    </td>
+                    <td style={{
+                      padding: "0.55rem",
+                      verticalAlign: "middle",
+                      fontSize: "0.96rem",
+                      maxWidth: 210,
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                      whiteSpace: "nowrap"
+                    }} title={p.vendor_name}>
+                      {p.vendor_name}
+                    </td>
+                    <td style={{
+                      padding: "0.55rem",
+                      verticalAlign: "middle",
+                      fontSize: "0.96rem",
+                      maxWidth: 140,
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                      whiteSpace: "nowrap"
+                    }} title={p.farmer}>
+                      {p.farmer}
+                    </td>
+                    <td style={{
+                      padding: "0.55rem",
+                      verticalAlign: "middle",
+                      fontSize: "0.95rem",
+                      whiteSpace: "nowrap"
+                    }}>
+                      {p.variations?.[0]?.unit_measurement || "1kg"}
+                    </td>
+                    <td style={{
+                      padding: "0.55rem",
+                      verticalAlign: "middle",
+                      fontSize: "0.95rem",
+                      whiteSpace: "nowrap"
+                    }}>
+                      ₱{Number(p.variations?.[0]?.unit_price || 0).toLocaleString("en-PH", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                    </td>
+                    <td style={{
+                      padding: "0.55rem",
+                      verticalAlign: "middle",
+                      fontSize: "0.95rem",
+                      whiteSpace: "nowrap"
+                    }}>
+                      <span
+                        style={{
+                          display: "inline-block",
+                          padding: "0.16rem 0.6rem",
+                          fontSize: "0.88rem",
+                          borderRadius: "9999px",
+                          color: style.color,
+                          backgroundColor: style.background,
+                          border: `1px solid ${style.border}`,
                           whiteSpace: "nowrap"
-                        }}>{p.name}</div>
-                      </div>
-                    </div>
-                  </td>
-                  <td style={{
-                    padding: "0.55rem",
-                    verticalAlign: "middle",
-                    fontSize: "0.96rem",
-                    whiteSpace: "nowrap"
-                  }}>
-                    {variationText}
-                  </td>
-                  <td style={{
-                    padding: "0.55rem",
-                    verticalAlign: "middle",
-                    fontSize: "0.96rem",
-                    maxWidth: 210,
-                    overflow: "hidden",
-                    textOverflow: "ellipsis",
-                    whiteSpace: "nowrap"
-                  }} title={p.association}>
-                    {p.association}
-                  </td>
-                  <td style={{
-                    padding: "0.55rem",
-                    verticalAlign: "middle",
-                    fontSize: "0.96rem",
-                    maxWidth: 140,
-                    overflow: "hidden",
-                    textOverflow: "ellipsis",
-                    whiteSpace: "nowrap"
-                  }} title={p.farmer}>
-                    {p.farmer}
-                  </td>
-                  <td style={{
-                    padding: "0.55rem",
-                    verticalAlign: "middle",
-                    fontSize: "0.95rem",
-                    whiteSpace: "nowrap"
-                  }}>
-                    {p.unit}
-                  </td>
-                  <td style={{
-                    padding: "0.55rem",
-                    verticalAlign: "middle",
-                    fontSize: "0.95rem",
-                    whiteSpace: "nowrap"
-                  }}>
-                    ₱{Number(p.price).toLocaleString("en-PH", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                  </td>
-                  <td style={{
-                    padding: "0.55rem",
-                    verticalAlign: "middle",
-                    fontSize: "0.95rem",
-                    whiteSpace: "nowrap"
-                  }}>
-                    <span
-                      style={{
-                        display: "inline-block",
-                        padding: "0.16rem 0.6rem",
-                        fontSize: "0.88rem",
-                        borderRadius: "9999px",
-                        color: style.color,
-                        backgroundColor: style.background,
-                        border: `1px solid ${style.border}`,
-                        whiteSpace: "nowrap"
-                      }}
-                    >
-                      {p.category}
-                    </span>
-                  </td>
-                  <td style={{
-                    padding: "0.55rem",
-                    verticalAlign: "middle",
-                    fontSize: "0.95rem",
-                    whiteSpace: "nowrap"
-                  }}>
-                    {p.stock}
-                  </td>
-                  <td style={{
-                    padding: "0.55rem",
-                    verticalAlign: "middle",
-                    fontSize: "0.95rem",
-                    whiteSpace: "nowrap"
-                  }}>
-                    <span
-                      style={{
-                        display: "inline-block",
-                        padding: "0.16rem 0.6rem",
-                        fontSize: "0.88rem",
-                        borderRadius: "9999px",
-                        color:
-                          p.status === "Pending"
-                            ? "#92400E"
-                            : p.status === "Approved"
-                            ? "#15803D"
-                            : "#DC2626",
-                        backgroundColor:
-                          p.status === "Pending"
-                            ? "#FEF3C7"
-                            : p.status === "Approved"
-                            ? "#D1FAE5"
-                            : "#FEE2E2",
-                        border: `1px solid ${
-                          p.status === "Pending"
-                            ? "#92400E"
-                            : p.status === "Approved"
-                            ? "#15803D"
-                            : "#DC2626"
-                        }`,
-                        whiteSpace: "nowrap"
-                      }}
-                    >
-                      {p.status}
-                    </span>
-                  </td>
-                  <td style={{
-                    padding: "0.55rem",
-                    verticalAlign: "middle",
-                    textAlign: "left",
-                    minWidth: 115,
-                    fontSize: "0.95rem",
-                    whiteSpace: "nowrap"
-                  }}>
-                    <div className="group flex items-center gap-3">
-                      <div className="relative flex items-center" style={{ cursor: "pointer" }}>
-                        <Pencil
+                        }}
+                      >
+                        {p.category_name}
+                      </span>
+                    </td>
+                    <td style={{
+                      padding: "0.55rem",
+                      verticalAlign: "middle",
+                      fontSize: "0.95rem",
+                      whiteSpace: "nowrap"
+                    }}>
+                      {p.variations?.[0]?.stock || 0}
+                    </td>
+                    <td style={{
+                      padding: "0.55rem",
+                      verticalAlign: "middle",
+                      fontSize: "0.95rem",
+                      whiteSpace: "nowrap",
+                      textAlign: "center"
+                    }}>
+                      <span
+                        style={{
+                          display: "inline-block",
+                          padding: "0.16rem 0.6rem",
+                          fontSize: "0.88rem",
+                          borderRadius: "9999px",
+                          color: statusStyle.color,
+                          backgroundColor: statusStyle.background,
+                          border: `1px solid ${statusStyle.border}`,
+                          whiteSpace: "nowrap"
+                        }}
+                      >
+                        {statusStyle.text}
+                      </span>
+                    </td>
+                    <td style={{
+                      padding: "0.55rem",
+                      verticalAlign: "middle",
+                      textAlign: "left",
+                      minWidth: 115,
+                      fontSize: "0.95rem",
+                      whiteSpace: "nowrap"
+                    }}>
+                      <div className="group flex items-center gap-3">
+                        <div className="relative flex items-center" style={{ cursor: "pointer" }}>
+                          <Pencil
+                            size={18}
+                            stroke="#3B82F6"
+                            className="cursor-pointer transition-transform duration-200 group-hover:-translate-x-1"
+                            onClick={() => handleEdit(p)}
+                          />
+                          <span className="absolute left-7 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 text-[#3B82F6] text-xs font-medium transition-opacity duration-200 whitespace-nowrap" style={{ minWidth: 33 }}>
+                            Edit
+                          </span>
+                        </div>
+                        <Trash2
                           size={18}
-                          stroke="#3B82F6"
-                          className="cursor-pointer transition-transform duration-200 group-hover:-translate-x-1"
-                          onClick={() => handleEdit(p)}
+                          stroke="#EF4444"
+                          className="cursor-pointer transition-transform duration-200 group-hover:translate-x-8"
+                          onClick={() => handleDelete(p.id)}
                         />
-                        <span className="absolute left-7 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 text-[#3B82F6] text-xs font-medium transition-opacity duration-200 whitespace-nowrap" style={{ minWidth: 33 }}>
-                          Edit
-                        </span>
                       </div>
-                      <Trash2
-                        size={18}
-                        stroke="#EF4444"
-                        className="cursor-pointer transition-transform duration-200 group-hover:translate-x-8"
-                        onClick={() => handleDelete(p.id)}
-                      />
-                    </div>
+                    </td>
+                  </tr>
+                );
+              })}
+              {Array.from({ length: emptyRows }).map((_, idx) => (
+                <tr key={`empty-row-${idx}`} style={{ minHeight: 44, background: "transparent" }}>
+                  <td style={{ padding: "0.55rem" }}>&nbsp;</td>
+                  <td style={{ padding: "0.55rem" }}></td>
+                  <td style={{ padding: "0.55rem" }}></td>
+                  <td style={{ padding: "0.55rem" }}></td>
+                  <td style={{ padding: "0.55rem" }}></td>
+                  <td style={{ padding: "0.55rem" }}></td>
+                  <td style={{ padding: "0.55rem" }}></td>
+                  <td style={{ padding: "0.55rem" }}></td>
+                  <td style={{ padding: "0.55rem" }}></td>
+                  <td style={{ padding: "0.55rem" }}></td>
+                </tr>
+              ))}
+              {filteredProducts.length === 0 && !loading && (
+                <tr>
+                  <td colSpan={11} style={{ textAlign: "center", padding: "2rem", color: "#888" }}>
+                    No products found.
                   </td>
                 </tr>
-              );
-            })}
-            {Array.from({ length: emptyRows }).map((_, idx) => (
-              <tr key={`empty-row-${idx}`} style={{ minHeight: 44, background: "transparent" }}>
-                <td style={{ padding: "0.55rem" }}>&nbsp;</td>
-                <td style={{ padding: "0.55rem" }}></td>
-                <td style={{ padding: "0.55rem" }}></td>
-                <td style={{ padding: "0.55rem" }}></td>
-                <td style={{ padding: "0.55rem" }}></td>
-                <td style={{ padding: "0.55rem" }}></td>
-                <td style={{ padding: "0.55rem" }}></td>
-                <td style={{ padding: "0.55rem" }}></td>
-                <td style={{ padding: "0.55rem" }}></td>
-                <td style={{ padding: "0.55rem" }}></td>
-                <td style={{ padding: "0.55rem" }}></td>
-              </tr>
-            ))}
-            {visibleProducts.length === 0 && (
-              <tr>
-                <td colSpan={11} style={{ textAlign: "center", padding: "2rem", color: "#888" }}>
-                  No products found.
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
+              )}
+            </tbody>
+          </table>
+        )}
+
         {/* PAGINATION */}
         <div className="flex justify-center my-6">
           <div className="flex items-center gap-1">
             <button
-              onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+              onClick={() => handlePageChange(currentPage - 1)}
               className="btn btn-sm"
               disabled={currentPage === 1}
             >
@@ -742,7 +860,7 @@ export default function ProductManagement() {
               return (
                 <button
                   key={page}
-                  onClick={() => setCurrentPage(page)}
+                  onClick={() => handlePageChange(page)}
                   className={`btn btn-sm ${page === currentPage ? "bg-gray-300 text-black" : "btn-ghost text-gray-600"}`}
                 >
                   {page}
@@ -750,7 +868,7 @@ export default function ProductManagement() {
               );
             })}
             <button
-              onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+              onClick={() => handlePageChange(currentPage + 1)}
               className="btn btn-sm"
               disabled={currentPage === totalPages}
             >
@@ -759,6 +877,7 @@ export default function ProductManagement() {
           </div>
         </div>
       </div>
+
       {/* MODALS */}
       <AddProductModal
         isOpen={showAddProduct}
@@ -769,16 +888,79 @@ export default function ProductManagement() {
         isOpen={showEditModal}
         onClose={closeEditModal}
         product={editProduct}
-        onConfirm={(updatedProduct) => {
-          setProducts((prev) =>
-            prev.map((p) =>
-              p.id === updatedProduct.id ? { ...p, ...updatedProduct } : p
-            )
-          );
+        onConfirm={async (updatedProduct) => {
+          try {
+            const formData = new FormData();
+
+            // Append product fields
+            formData.append('id', updatedProduct.id);
+            formData.append('name', updatedProduct.name);
+            formData.append('description', updatedProduct.description);
+            formData.append('category', updatedProduct.category);
+            formData.append('association', updatedProduct.association);
+            formData.append('farmer_code', updatedProduct.farmer_code);
+
+            // Handle variations
+            const variationsToSerialize = [];
+            updatedProduct.variations.forEach((variation, index) => {
+              const currentVariationData = { ...variation };
+              if (variation.newFile) {
+                formData.append(`variations_new_image_${variation.id || index}`, variation.newFile);
+                // Remove the blob URL and newFile from the data to be serialized
+                delete currentVariationData.image;
+                delete currentVariationData.newFile;
+                // Add a reference to the new file in the JSON data, e.g., for the backend to map
+                currentVariationData.image_file_key = `variations_new_image_${variation.id || index}`;
+              } else if (variation.image) {
+                // If it's an existing image, keep its URL or ID in the JSON data
+                currentVariationData.image = variation.image;
+              }
+              variationsToSerialize.push(currentVariationData);
+            });
+            formData.append('variations', JSON.stringify(variationsToSerialize));
+
+            // Handle main product images (if applicable, based on product.images)
+            // Assuming updatedProduct has an 'images' array for main product images
+            const imagesToSerialize = [];
+            if (updatedProduct.images && updatedProduct.images.length > 0) {
+              updatedProduct.images.forEach((image, index) => {
+                const currentImageData = { ...image };
+                if (image.newFile) {
+                  formData.append(`images_new_image_${image.id || index}`, image.newFile);
+                  delete currentImageData.image;
+                  delete currentImageData.newFile;
+                  currentImageData.image_file_key = `images_new_image_${image.id || index}`;
+                } else if (image.image) {
+                  currentImageData.image = image.image;
+                }
+                imagesToSerialize.push(currentImageData);
+              });
+            }
+            formData.append('images', JSON.stringify(imagesToSerialize));
+
+            const response = await axios.put(
+              `${API_BASE_URL}/products/update/${updatedProduct.id}/`,
+              formData, // Send FormData
+              {
+                headers: {
+                  'Content-Type': 'multipart/form-data', // Axios will set this automatically, but explicitly
+                },
+              }
+            );
+            setProducts((prev) =>
+              prev.map((p) =>
+                p.id === updatedProduct.id ? response.data : p
+              )
+            );
+            closeEditModal();
+          } catch (err) {
+            console.error("Error updating product:", err.response ? err.response.data : err.message);
+            alert("Failed to update product");
+          }
         }}
         mode={editModalMode}
       />
       <DraftProductModal isOpen={showDraftProducts} onClose={() => setShowDraftProducts(false)} />
     </div>
   );
-}
+} 

@@ -1,4 +1,3 @@
-// Financial.jsx
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { FaFilePdf, FaFileExcel } from 'react-icons/fa6';
 import { Search, SlidersHorizontal, X, RefreshCw } from 'lucide-react';
@@ -51,11 +50,11 @@ export default function Financial() {
   // ─── HISTORY DATA & HANDLERS ────────────────────────────────────────────────
   const [transactions, setTransactions] = useState([
     { name: 'Kaye Arroyo', email: 'juandcruz@gmail.com', avatar: '/sampleproduct.png', type: 'Income', source: 'Marketplace', category: 'Hunos', amount: '12,999', date: 'Apr 17, 2025', relativeDate: '5 days ago' },
-    { name: 'Carlo Bascuna',   email: 'juandcruz@gmail.com', avatar: '/sampleproduct.png', type: 'Expense', source: '-', category: 'Hunos', amount: '5,400', date: 'Apr 16, 2025', relativeDate: '6 days ago' },
-    { name: 'Yna Mae Nieves',   email: 'juandcruz@gmail.com', avatar: '/sampleproduct.png', type: 'Expense', source: '-', category: 'Hunos', amount: '7,000', date: 'Apr 15, 2025', relativeDate: '7 days ago' },
-    { name: 'Tanggol Montenegro',    email: 'juandcruz@gmail.com', avatar: '/sampleproduct.png', type: 'Expense', source: '-', category: 'Hunos', amount: '1,500', date: 'Apr 14, 2025', relativeDate: '8 days ago' },
-    { name: 'Aldrin Gueverra',     email: 'juandcruz@gmail.com', avatar: '/sampleproduct.png', type: 'Income', source: 'Marketplace', category: 'Hunos', amount: '2,500', date: 'Apr 13, 2025', relativeDate: '9 days ago' },
-    { name: 'Nisi Viloria',   email: 'juandcruz@gmail.com', avatar: '/sampleproduct.png', type: 'Income', source: 'Marketplace', category: 'Hunos', amount: '999',   date: 'Apr 12, 2025', relativeDate: '10 days ago' }
+    { name: 'Carlo Bascuna', email: 'juandcruz@gmail.com', avatar: '/sampleproduct.png', type: 'Expense', source: '-', category: 'Hunos', amount: '5,400', date: 'Apr 16, 2025', relativeDate: '6 days ago' },
+    { name: 'Yna Mae Nieves', email: 'juandcruz@gmail.com', avatar: '/sampleproduct.png', type: 'Expense', source: '-', category: 'Hunos', amount: '7,000', date: 'Apr 15, 2025', relativeDate: '7 days ago' },
+    { name: 'Tanggol Montenegro', email: 'juandcruz@gmail.com', avatar: '/sampleproduct.png', type: 'Expense', source: '-', category: 'Hunos', amount: '1,500', date: 'Apr 14, 2025', relativeDate: '8 days ago' },
+    { name: 'Aldrin Gueverra', email: 'juandcruz@gmail.com', avatar: '/sampleproduct.png', type: 'Income', source: 'Marketplace', category: 'Hunos', amount: '2,500', date: 'Apr 13, 2025', relativeDate: '9 days ago' },
+    { name: 'Nisi Viloria', email: 'juandcruz@gmail.com', avatar: '/sampleproduct.png', type: 'Income', source: 'Marketplace', category: 'Hunos', amount: '999', date: 'Apr 12, 2025', relativeDate: '10 days ago' }
   ]);
   const itemsPerPage = 5;
   const [currentPage, setCurrentPage] = useState(1);
@@ -114,6 +113,11 @@ export default function Financial() {
     setHistoryDownloadOpen(false);
   };
 
+  // Add Transaction to history
+  const addTransactionToHistory = (transaction) => {
+    setTransactions((prev) => [transaction, ...prev]);
+  };
+
   // ─── CLICK‐OUTSIDE DROPDOWNS ─────────────────────────────────────────────────
   useEffect(() => {
     function onClick(e) {
@@ -127,21 +131,21 @@ export default function Financial() {
 
   // ─── STATIC HISTORY PREVIEW LIST ────────────────────────────────────────────
   const previewList = [
-    { date: 'Apr 12, 2024', name: 'Juan',  amount: '₱800',  color: 'green' },
-    { date: 'Apr 13, 2024', name: 'Emman', amount: '₱1,203', color: 'red'   },
-    { date: 'Apr 14, 2024', name: 'Grace', amount: '₱500',  color: 'green' },
-    { date: 'Apr 14, 2024', name: 'Grace', amount: '₱500',  color: 'green' },
-    { date: 'Apr 14, 2024', name: 'Grace', amount: '₱500',  color: 'green' },
-    { date: 'Apr 14, 2024', name: 'Grace', amount: '₱500',  color: 'green' },
-    { date: 'Apr 13, 2024', name: 'Emman', amount: '₱1,203', color: 'red'   },
-    { date: 'Apr 14, 2024', name: 'Grace', amount: '₱500',  color: 'green' },
-    { date: 'Apr 13, 2024', name: 'Emman', amount: '₱1,203', color: 'red'   },
-    { date: 'Apr 14, 2024', name: 'Grace', amount: '₱500',  color: 'green' },
-    { date: 'Apr 13, 2024', name: 'Emman', amount: '₱1,203', color: 'red'   },
-    { date: 'Apr 14, 2024', name: 'Grace', amount: '₱500',  color: 'green' },
-    { date: 'Apr 14, 2024', name: 'Grace', amount: '₱500',  color: 'green' },
-    { date: 'Apr 13, 2024', name: 'Emman', amount: '₱1,203', color: 'red'   },
-    { date: 'Apr 14, 2024', name: 'Grace', amount: '₱500',  color: 'green' }
+    { date: 'Apr 12, 2024', name: 'Juan', amount: '₱800', color: 'green' },
+    { date: 'Apr 13, 2024', name: 'Emman', amount: '₱1,203', color: 'red' },
+    { date: 'Apr 14, 2024', name: 'Grace', amount: '₱500', color: 'green' },
+    { date: 'Apr 14, 2024', name: 'Grace', amount: '₱500', color: 'green' },
+    { date: 'Apr 14, 2024', name: 'Grace', amount: '₱500', color: 'green' },
+    { date: 'Apr 14, 2024', name: 'Grace', amount: '₱500', color: 'green' },
+    { date: 'Apr 13, 2024', name: 'Emman', amount: '₱1,203', color: 'red' },
+    { date: 'Apr 14, 2024', name: 'Grace', amount: '₱500', color: 'green' },
+    { date: 'Apr 13, 2024', name: 'Emman', amount: '₱1,203', color: 'red' },
+    { date: 'Apr 14, 2024', name: 'Grace', amount: '₱500', color: 'green' },
+    { date: 'Apr 13, 2024', name: 'Emman', amount: '₱1,203', color: 'red' },
+    { date: 'Apr 14, 2024', name: 'Grace', amount: '₱500', color: 'green' },
+    { date: 'Apr 14, 2024', name: 'Grace', amount: '₱500', color: 'green' },
+    { date: 'Apr 13, 2024', name: 'Emman', amount: '₱1,203', color: 'red' },
+    { date: 'Apr 14, 2024', name: 'Grace', amount: '₱500', color: 'green' }
   ];
 
   // ─── HEADER ROWS (UPDATED DESIGN) ─────────────────────────────
@@ -151,7 +155,7 @@ export default function Financial() {
       <div className="flex items-center gap-2 text-base font-medium">
         <RefreshCw size={20} stroke="#3b82f6" />
         <span className="font-medium text-lg" style={{ color: '#3b82f6' }}>Current Federation Balance:</span>
-        <span className="text-blue-700 font-bold text-lg">₱52,438</span>
+        <span className="text-blue-700 font-bold text-lg">₱{calculateTotalIncome() - calculateTotalExpense()}</span>
         <span className="text-gray-400 text-lg ml-2 opacity-60">Last Updated Apr 30</span>
       </div>
       <div className="flex gap-2">
@@ -232,91 +236,14 @@ export default function Financial() {
     </div>
   );
 
-  // Transaction History Tab: Balance left, Search+Download right, NO divider below
-  const headerRowHistory = (
-    <div className="flex flex-wrap items-center justify-between my-4 gap-2">
-      <div className="flex items-center gap-2 text-base font-medium">
-        <RefreshCw size={20} stroke="#3b82f6" />
-        <span className="font-medium text-lg" style={{ color: '#3b82f6' }}>Current Federation Balance:</span>
-        <span className="text-blue-700 font-bold text-lg">₱52,438</span>
-        <span className="text-gray-400 text-lg ml-2 opacity-60">Last Updated Apr 30</span>
-      </div>
-      <div className="flex items-center gap-4 relative">
-        {/* Search Bar */}
-        <div className="relative" style={{ width: "240px" }}>
-          <Search
-            size={18}
-            style={{
-              position: "absolute",
-              left: "0.75rem",
-              top: "50%",
-              transform: "translateY(-50%)",
-              color: "#6B7280",
-            }}
-          />
-          <input
-            type="text"
-            placeholder="Search Transaction"
-            className="flex-1 outline-none bg-white"
-            value={searchTransaction}
-            onChange={e => setSearchTransaction(e.target.value)}
-            style={{
-              width: "100%",
-              padding: "0.5rem 2.5rem 0.5rem 2.5rem",
-              border: "1px solid #D1D5DB",
-              borderRadius: "9999px",
-              outline: "none",
-            }}
-          />
-          <SlidersHorizontal
-            size={18}
-            onClick={() => setShowFilters(!showFilters)}
-            style={{
-              position: "absolute",
-              right: "0.75rem",
-              top: "50%",
-              transform: "translateY(-50%)",
-              color: "#6B7280",
-              cursor: "pointer",
-            }}
-          />
-        </div>
-        {/* Download */}
-        <div className="dropdown dropdown-end" ref={historyDownloadRef} style={{ zIndex: 9999 }}>
-          <button
-            onClick={() => setHistoryDownloadOpen(!historyDownloadOpen)}
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: "0.5rem",
-              padding: "0.5rem 1.2rem",
-              backgroundColor: "#fff",
-              color: "#16A34A",
-              border: "1.5px solid #16A34A",
-              borderRadius: "9999px",
-              fontWeight: 600,
-              fontSize: "1rem",
-              cursor: "pointer",
-              boxShadow: "0 2px 8px 0 rgba(36,185,111,0.05)",
-            }}
-            className="relative"
-          >
-            Download
-            <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
-            </svg>
-          </button>
-          {historyDownloadOpen && (
-            <ul tabIndex={0} className="dropdown-content menu p-2 shadow bg-base-100 border w-52 rounded-box z-50 absolute right-0 mt-2">
-              <li><a onClick={() => handleHistoryDownload('PDF')}><FaFilePdf className="text-red-500" /> PDF</a></li>
-              <li><a onClick={() => handleHistoryDownload('Excel')}><FaFileExcel className="text-green-600" /> Excel</a></li>
-              <li><a onClick={() => handleHistoryDownload('Custom Range')}>Custom Range</a></li>
-            </ul>
-          )}
-        </div>
-      </div>
-    </div>
-  );
+  // Calculate Total Income and Expense
+  const calculateTotalIncome = () => {
+    return transactions.filter(t => t.type === 'Income').reduce((acc, curr) => acc + parseFloat(curr.amount.replace(/,/g, '')), 0);
+  };
+
+  const calculateTotalExpense = () => {
+    return transactions.filter(t => t.type === 'Expense').reduce((acc, curr) => acc + parseFloat(curr.amount.replace(/,/g, '')), 0);
+  };
 
   return (
     <div className="p-0">
@@ -413,7 +340,7 @@ export default function Financial() {
                         <span className="font-semibold text-gray-700">Total Income</span>
                         <span className="text-yellow-400 text-base">🔔</span>
                       </div>
-                      <div className="text-3xl font-bold text-black mb-1">₱12,999</div>
+                      <div className="text-3xl font-bold text-black mb-1">₱{calculateTotalIncome()}</div>
                     </div>
                     <div className="flex items-end justify-between">
                       <div className="text-xs text-gray-500 flex items-center gap-1">
@@ -450,7 +377,7 @@ export default function Financial() {
                         <span className="font-semibold text-gray-700">Total Expenses</span>
                         <span className="text-yellow-400 text-base">🔔</span>
                       </div>
-                      <div className="text-3xl font-bold text-black mb-1">₱12,999</div>
+                      <div className="text-3xl font-bold text-black mb-1">₱{calculateTotalExpense()}</div>
                     </div>
                     <div className="flex items-end justify-between">
                       <div className="text-xs text-gray-500 flex items-center gap-1">
