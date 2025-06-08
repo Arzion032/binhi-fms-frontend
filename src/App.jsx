@@ -15,6 +15,7 @@ import LayoutAdmin from "./components/LayoutAdmin/LayoutAdmin";
 import FinancialTracker from "./components/AdminView/FinancialTracker";
 import MarketplaceAdmin from "./components/AdminView/MarketplaceAdmin/MarketplaceAdmin";
 
+// Melvin yung route pala, /association (admin view) then /membership (president view po
 
 function App() {
   return (
