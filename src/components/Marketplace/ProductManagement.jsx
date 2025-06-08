@@ -378,6 +378,8 @@ export default function ProductManagement() {
       });
       setSelectedRows([]);
       fetchProducts(); // Refresh the list
+      // Refresh category summary
+      fetchSummaryProducts();
     } catch (err) {
       console.error("Error deleting products:", err);
       alert("Failed to delete products");
@@ -391,6 +393,8 @@ export default function ProductManagement() {
       await axios.delete(`${API_BASE_URL}/products/delete/${id}/`);
       setSelectedRows((sel) => sel.filter((sid) => sid !== id));
       fetchProducts(); // Refresh the list
+      // Refresh category summary
+      fetchSummaryProducts();
     } catch (err) {
       console.error("Error deleting product:", err);
       alert("Failed to delete product");
@@ -403,6 +407,8 @@ export default function ProductManagement() {
       const response = await axios.post(`${API_BASE_URL}/products/create/`, newProduct);
       setProducts((prev) => [...prev, response.data]);
       setShowAddProduct(false);
+      // Refresh category summary
+      fetchSummaryProducts();
     } catch (err) {
       console.error("Error adding product:", err);
       alert("Failed to add product");

@@ -71,7 +71,7 @@ function VariationModal({ isOpen, onClose, onConfirm, variationNumber, initialVa
           <label className="font-semibold text-[17px] mb-1 block text-[#222A35]">
             Product Name <span className="text-[#F64B4B]">*</span>
           </label>
-          <input className={inputBox} value={name} onChange={e => setName(e.target.value)} placeholder="Enter the Product" required />
+          <input className={inputBox} value={name} onChange={e => setName(e.target.value)} placeholder="Enter the Equipment" required />
         </div>
         <div className="mb-4">
           <label className="font-semibold text-[17px] mb-1 block text-[#222A35]">
@@ -128,9 +128,9 @@ export default function AddProductModal({ isOpen, onClose, onSaveProduct }) {
   const [category, setCategory] = useState('');
   const [images, setImages] = useState(Array(5).fill(null));
   const [description, setDescription] = useState('');
-  const [association] = useState('Macamot Farmers Association');
+  const [association] = useState('Darangan Farmers Association');
   const [farmerCode, setFarmerCode] = useState('');
-  const [variants, setVariants] = useState([{}, {}, {}]);
+  const [variants, setVariants] = useState([{}]);
   const [showVariationModal, setShowVariationModal] = useState(false);
   const [editingVariantIndex, setEditingVariantIndex] = useState(null);
   const [error, setError] = useState('');
@@ -170,9 +170,16 @@ export default function AddProductModal({ isOpen, onClose, onSaveProduct }) {
     reader.readAsDataURL(file);
   };
 
+  // Add new variant
+  const handleAddVariant = () => {
+    setVariants(prev => [...prev, {}]);
+  };
+
   // Remove a variant
   const handleDeleteVariant = (idx) => {
-    setVariants(prev => prev.map((item, i) => (i === idx ? {} : item)));
+    if (variants.length > 1) {
+      setVariants(prev => prev.filter((_, i) => i !== idx));
+    }
   };
 
   // Validate form for save and submit
@@ -190,8 +197,18 @@ export default function AddProductModal({ isOpen, onClose, onSaveProduct }) {
         setError('At least one product image is required.');
         return false;
       }
-      if (!variants.some(v => v && v.name)) {
-        setError('At least one variant is required.');
+      // Stricter validation for all required fields in each variant
+      for (const v of variants) {
+        if (!v.name || !v.price || !v.unitMeasurement || !v.stock) {
+          setError('Each variant must have a name, price, unit measurement, and stock.');
+          return false;
+        }
+      }
+      // Check for unique variant names
+      const names = variants.map(v => v.name && v.name.trim().toLowerCase()).filter(Boolean);
+      const hasDuplicate = names.some((name, idx) => names.indexOf(name) !== idx);
+      if (hasDuplicate) {
+        setError('Each variant name must be unique.');
         return false;
       }
       if (!farmerCode.trim()) {
@@ -204,31 +221,18 @@ export default function AddProductModal({ isOpen, onClose, onSaveProduct }) {
   }
 
   // Handle Save and Submit
-  const handleSaveSubmit = async (e) => {
-    e.preventDefault(); // Prevent default form submission behavior
-
-    // Clear previous errors
-    setError('');
-    setBackendError('');
-
-    // Frontend validation using the existing validateProduct function
-    if (!validateProduct()) {
-      // If validation fails, an error message is already set by validateProduct
-      console.log('Frontend validation failed. Not sending request.');
-      return;
-    }
-
+  const handleSaveSubmit = async () => {
     try {
       // Filter out empty variants
       const filledVariants = variants
-        .filter(v => v && v.name && v.price)
-        .map(v => ({
+        .filter(v => v && v.name && v.price && v.unitMeasurement && v.stock)
+        .map((v, idx) => ({
           name: v.name,
-          unit_price: parseFloat(v.price) || 0,
-          stock: parseInt(v.stock) || 0,
+          unit_price: Number(v.price),
+          stock: Number(v.stock),
           unit_measurement: v.unitMeasurement,
           is_available: true,
-          is_default: true,
+          is_default: idx === 0, // Only the first is default
           status: "active"
         }));
 
@@ -245,8 +249,7 @@ export default function AddProductModal({ isOpen, onClose, onSaveProduct }) {
 
       if (imageFiles.length === 0) {
         setError('At least one image is required');
-        console.log('No images provided. Not sending request.');
-        return; // Stop if no images
+        return;
       }
 
       // Create FormData object
@@ -255,6 +258,7 @@ export default function AddProductModal({ isOpen, onClose, onSaveProduct }) {
       formDataToSend.append('description', description.trim());
       formDataToSend.append('category', category);
       formDataToSend.append('farmer_code', farmerCode.trim());
+      formDataToSend.append('vendor_id', 'cc9bbb5a-a701-4374-95f9-585857d5b211');
       
       // Add images
       imageFiles.forEach((file) => {
@@ -268,10 +272,12 @@ export default function AddProductModal({ isOpen, onClose, onSaveProduct }) {
 
       console.log('--- Preparing to send product data ---');
       console.log('Product Name:', productName.trim());
+      console.log('Description:', description.trim());
       console.log('Category ID:', category);
-      console.log('Farmer Code (from state):', farmerCode.trim());
-      console.log('Number of Images (after processing):', imageFiles.length);
-      console.log('Number of Variations (filtered):', filledVariants.length);
+      console.log('Farmer Code:', farmerCode.trim());
+      console.log('Vendor ID:', 'cc9bbb5a-a701-4374-95f9-585857d5b211');
+      console.log('Number of Images:', imageFiles.length);
+      console.log('Number of Variations:', filledVariants.length);
 
       // Log FormData contents for debugging
       console.log('--- FormData contents (before fetch) ---');
@@ -280,29 +286,12 @@ export default function AddProductModal({ isOpen, onClose, onSaveProduct }) {
       }
       console.log('--------------------------------------');
 
-      console.log('--- Sending request ---');
-
-      const response = await fetch('http://127.0.0.1:8000/products/create/', {
-        method: 'POST',
-        body: formDataToSend,
-      });
-
-      console.log('Response status:', response.status);
-      const responseData = await response.json();
-      console.log('Response data:', responseData);
-
-      if (!response.ok) {
-        setBackendError(responseData.error || responseData.detail || 'Failed to create product');
-        console.error('Backend error:', responseData);
-        return; // Stop if backend returns an error
-      }
-
-      console.log('Product created successfully:', responseData);
-      onSaveProduct && onSaveProduct(responseData); // Pass data to parent
-      onClose(); // Close the modal
+      // Call the parent's onSaveProduct with the FormData
+      onSaveProduct(formDataToSend);
+      onClose();
     } catch (error) {
-      console.error('Error creating product (frontend catch):', error);
-      setBackendError(error.message || 'Failed to add product due to an unexpected error.');
+      console.error('Error preparing product data:', error);
+      setBackendError(error.message || 'Failed to prepare product data');
     }
   };
 
@@ -340,7 +329,7 @@ export default function AddProductModal({ isOpen, onClose, onSaveProduct }) {
               className={inputBox}
               value={productName}
               onChange={e => setProductName(e.target.value)}
-              placeholder="Enter the Product"
+              placeholder="Enter the Equipment"
               required
             />
           </div>
@@ -437,6 +426,17 @@ export default function AddProductModal({ isOpen, onClose, onSaveProduct }) {
 
         {/* Variants */}
         <div className="w-full mt-1 mb-1">
+          <div className="flex justify-between items-center mb-2">
+            <label className={labelStyle}>Product Variations <span className="text-[#F64B4B]">*</span></label>
+            <button
+              type="button"
+              onClick={handleAddVariant}
+              className="flex items-center gap-1 text-[#16A34A] hover:text-green-700 font-medium"
+            >
+              <PlusIcon className="w-5 h-5" />
+              Add Variation
+            </button>
+          </div>
           <div
             id="variant-row"
             className="grid grid-cols-3 gap-x-4 gap-y-2"
@@ -479,14 +479,16 @@ export default function AddProductModal({ isOpen, onClose, onSaveProduct }) {
                       <PencilIcon />
                     </button>
                     {/* Delete */}
-                    <button
-                      type="button"
-                      className="p-1 hover:bg-red-50 rounded-full ml-1"
-                      onClick={() => handleDeleteVariant(idx)}
-                      aria-label="Delete Variant"
-                    >
-                      <TrashIcon />
-                    </button>
+                    {variants.length > 1 && (
+                      <button
+                        type="button"
+                        className="p-1 hover:bg-red-50 rounded-full ml-1"
+                        onClick={() => handleDeleteVariant(idx)}
+                        aria-label="Delete Variant"
+                      >
+                        <TrashIcon />
+                      </button>
+                    )}
                   </div>
                 ) : (
                   // Unfilled variant button
