@@ -373,16 +373,25 @@ export default function ProductManagement() {
   const handleDeleteSelected = async () => {
     if (!window.confirm("Delete selected products?")) return;
     try {
-      await axios.post(`${API_BASE_URL}/products/batch-delete/`, {
+      const response = await axios.post(`${API_BASE_URL}/products/batch-delete/`, {
         ids: selectedRows,
       });
+      
+      // Show success message
+      alert(response.data.message);
+      
+      // If there are products that couldn't be deleted, show a warning
+      if (response.data.warning) {
+        alert(response.data.warning);
+      }
+      
       setSelectedRows([]);
       fetchProducts(); // Refresh the list
       // Refresh category summary
       fetchSummaryProducts();
     } catch (err) {
       console.error("Error deleting products:", err);
-      alert("Failed to delete products");
+      alert(err.response?.data?.error || err.response?.data?.details || "Failed to delete products");
     }
   };
 
@@ -954,4 +963,4 @@ export default function ProductManagement() {
       <DraftProductModal isOpen={showDraftProducts} onClose={() => setShowDraftProducts(false)} />
     </div>
   );
-}
+} 

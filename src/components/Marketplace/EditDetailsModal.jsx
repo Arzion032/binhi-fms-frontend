@@ -390,7 +390,9 @@ export default function EditDetailsModal({
           </div>
 
           {/* Variation 1, Price, Unit, Stock */}
-          {variations.length > 0 && variationRows}
+          <div className="overflow-y-auto max-h-[320px]">
+            {variations.length > 0 && variationRows}
+          </div>
 
           {/* Association and Farmer Code */}
           <div className="grid grid-cols-2 gap-x-4">
