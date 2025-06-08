@@ -13,6 +13,7 @@ import AddProductModal from "./AddProductModal";
 import EditDetailsModal from "./EditDetailsModal";
 import DraftProductModal from "./DraftProductModal";
 import axios from "axios";
+import { BASE_URL } from "../../api";
 
 // Helper to normalize category names for consistent lookup in BADGE_STYLES
 // This function is specifically to handle cases like "Vegetables" from backend matching "Vegetable" in BADGE_STYLES
@@ -624,9 +625,9 @@ export default function ProductManagement() {
                   const extra = variantCount - 1;
                   variationText = `${p.variations[0]?.name} +${extra}`;
                 }
-                const imageUrl = p.images?.[0]?.image;
+                const imageUrl = p.images[0].image;
                 const hasImageError = false; // No imageLoadErrors state anymore
-
+                const imageSrc = imageUrl.startsWith('http') ? imageUrl : `${BASE_URL}${imageUrl}`;
                 return (
                   <tr
                     key={p.id}
@@ -675,7 +676,7 @@ export default function ProductManagement() {
                             </div>
                         ) : (
                             <img
-                                src={imageUrl}
+                                src={imageSrc}
                                 alt={p.name}
                                 style={{ width: 28, height: 28, borderRadius: "50%", cursor: 'pointer' }}
                                 onClick={() => {}} // Removed openImagePreview

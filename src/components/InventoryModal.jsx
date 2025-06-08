@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { X, SlidersHorizontal, Check } from "lucide-react";
 import Pencil2 from '../assets/PencilBlack.png';
 import Time from '../assets/Time.png';
+import { addInventoryItem } from '../api/inventory';
 
 const InventoryModal = ({
   showModal,
@@ -36,6 +37,7 @@ const InventoryModal = ({
   setHistoryData,
   selectedMachineryName,
   setSelectedMachineryName,
+  onItemAdded,
 }) => {
   if (
     !showModal &&
@@ -52,8 +54,57 @@ const InventoryModal = ({
 
     const [status, setStatus] = useState(selectedItem?.status || "Operational");
     const [viewingRecord, setViewingRecord] = useState(null); // null or a specific date record
+    const [formData, setFormData] = useState({
+      name: '',
+      model: '',
+      price: '',
+      unit: '',
+      status: 'Operational'
+    });
+    const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState(null);
 
-   
+    const handleInputChange = (e) => {
+      const { name, value } = e.target;
+      setFormData(prev => ({
+        ...prev,
+        [name]: value
+      }));
+    };
+
+    const handleSubmit = async (e) => {
+      e.preventDefault();
+      setIsLoading(true);
+      setError(null);
+
+      try {
+        const response = await addInventoryItem(formData);
+        
+        // Show success modal
+        setShowAddedModal(true);
+        setIsModalOpen(false);
+        
+        // Reset form
+        setFormData({
+          name: '',
+          model: '',
+          price: '',
+          unit: '',
+          status: 'Operational'
+        });
+
+        // Notify parent component
+        if (onItemAdded) {
+          onItemAdded();
+        }
+      } catch (error) {
+        setError(error.message || 'Failed to add machinery');
+        console.error('Error adding machinery:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
     useEffect(() => {
       if (isEditOpen && typeof onStatusChange === 'function') {
         onStatusChange(status);
@@ -144,7 +195,7 @@ const InventoryModal = ({
 
             <div className="text-left">
               <h2 className="text-lg font-bold mb-1">Machinery Details</h2>
-              <p className="text-sm text-gray-600 mb-4">Here’s the details of this machinery.</p>
+              <p className="text-sm text-gray-600 mb-4">Here's the details of this machinery.</p>
             </div>
 
             <div className="border-b border-gray-300 mb-4"></div>
@@ -372,7 +423,7 @@ const InventoryModal = ({
         </button>
       </div>
       <p className="text-sm text-gray-500 mb-4 text-left">
-        Here’s the rent history of this machinery.
+        Here's the rent history of this machinery.
       </p>
       <div className="border-b border-gray-300 mb-4"></div>
       {/* Search */}
@@ -437,7 +488,7 @@ const InventoryModal = ({
       <div className="flex justify-between items-center mb-4">
         <div>
           <h2 className="text-2xl font-bold text-left">{viewingRecord.date}</h2>
-          <p className="text-sm text-gray-500">Here’s the rent history of this date.</p>
+          <p className="text-sm text-gray-500">Here's the rent history of this date.</p>
         </div>
         <button onClick={() => setViewingRecord(null)}>
           <X className="w-5 h-5 text-gray-400" />
@@ -487,7 +538,7 @@ const InventoryModal = ({
 
       {/*Add Machinery Modal */}
       {isModalOpen && (
-                    <div className="fixed inset-0 flex items-center justify-center bg-black  bg-opacity-40 z-50">
+                    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-40 z-50">
                       <div className="bg-white rounded-2xl w-[400px] p-6 border border-black relative shadow-xl">
                         <div className="flex justify-between items-center mb-2">
                           <div>
@@ -500,15 +551,24 @@ const InventoryModal = ({
                           </button>
                         </div>
                         <div className="border-b border-gray-300 my-4"></div>
-                        <form className="space-y-4 mt-4" onSubmit={handleConfirm}>
+                        <form className="space-y-4 mt-4" onSubmit={handleSubmit}>
+                          {error && (
+                            <div className="bg-red-50 text-red-500 p-3 rounded-lg text-sm">
+                              {error}
+                            </div>
+                          )}
                           <div>
                             <label className="block text-sm font-semibold">
                               Machinery <span className="text-red">*</span>
                             </label>
                             <input
                               type="text"
+                              name="name"
+                              value={formData.name}
+                              onChange={handleInputChange}
                               placeholder="Enter the Machinery"
                               className="w-full px-3 py-2 rounded-full border border-gray-300 focus:outline-none"
+                              required
                             />
                           </div>
 
@@ -518,8 +578,12 @@ const InventoryModal = ({
                             </label>
                             <input
                               type="text"
+                              name="model"
+                              value={formData.model}
+                              onChange={handleInputChange}
                               placeholder="Enter the Model"
                               className="w-full px-3 py-2 rounded-full border border-gray-300 focus:outline-none"
+                              required
                             />
                           </div>
 
@@ -529,8 +593,12 @@ const InventoryModal = ({
                               <span className="text-gray-500 text-sm">₱</span>
                               <input
                                 type="number"
+                                name="price"
+                                value={formData.price}
+                                onChange={handleInputChange}
                                 placeholder="Enter the Rental Price"
                                 className="w-full px-2 py-2 bg-transparent focus:outline-none"
+                                required
                               />
                             </div>
                           </div>
@@ -541,9 +609,30 @@ const InventoryModal = ({
                             </label>
                             <input
                               type="text"
-                              placeholder="Enter the Model"
+                              name="unit"
+                              value={formData.unit}
+                              onChange={handleInputChange}
+                              placeholder="Enter the Unit"
                               className="w-full px-3 py-2 rounded-full border border-gray-300 focus:outline-none"
+                              required
                             />
+                          </div>
+
+                          <div>
+                            <label className="block text-sm font-semibold">
+                              Status <span className="text-red">*</span>
+                            </label>
+                            <select
+                              name="status"
+                              value={formData.status}
+                              onChange={handleInputChange}
+                              className="w-full px-4 py-2 border rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+                              required
+                            >
+                              <option value="Operational">Operational</option>
+                              <option value="Non-operational">Non-operational</option>
+                              <option value="Need Maintenance">Need Maintenance</option>
+                            </select>
                           </div>
 
                           <div className="flex justify-center gap-3 pt-20">
@@ -552,15 +641,16 @@ const InventoryModal = ({
                               onClick={() => setShowDisregardModal(true)}
                               className="px-4 py-2 rounded-3xl bg-[#FF3B4E] text-white hover:bg-[#E02A3B] text-sm"
                               style={{ width: "160px", height: "39px" }}
+                              disabled={isLoading}
                             >
                               Disregard
                             </button>
                             <button
                               type="submit"
-                            
-                              className="px-14 py-2 bg-[#4CAE4F] text-white border border-[#4CAE4F] rounded-full hover:bg-[dark green] hover:text-white"
+                              className="px-14 py-2 bg-[#4CAE4F] text-white border border-[#4CAE4F] rounded-full hover:bg-[dark green] hover:text-white disabled:opacity-50"
+                              disabled={isLoading}
                             >
-                              Confirm
+                              {isLoading ? 'Adding...' : 'Confirm'}
                             </button>
                           </div>
                         </form>
@@ -589,7 +679,7 @@ const InventoryModal = ({
             </div>
             <h2 className="text-3xl font-bold mb-2">Machinery added successfully!</h2>
             <p className="text-sm text-gray-600 mb-6">
-                Everything’s set. Feel free to check your machinery!
+                Everything's set. Feel free to check your machinery!
               </p>
               <div className="flex justify-center gap-4">
                 <button
