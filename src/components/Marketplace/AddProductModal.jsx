@@ -345,11 +345,16 @@ export default function AddProductModal({ isOpen, onClose, onSaveProduct }) {
         setError('Farmer code is required.');
         return false;
       }
+      if (!description.trim()) {
+        setError('Description is required.');
+        return false;
+      }
     }
     setError('');
     return true;
   }
 
+  // UPDATED handleSaveSubmit
   const handleSaveSubmit = async (e) => {
     if (e) e.preventDefault();
     if (!validateProduct(false)) return;
@@ -368,6 +373,7 @@ export default function AddProductModal({ isOpen, onClose, onSaveProduct }) {
           status: "active"
         }));
 
+      // Convert base64 images to File objects
       const imageFiles = await Promise.all(
         images
           .filter(Boolean)
@@ -378,27 +384,31 @@ export default function AddProductModal({ isOpen, onClose, onSaveProduct }) {
           })
       );
 
-      if (imageFiles.length === 0) {
-        setError('At least one image is required');
+      // Defensive check for required fields
+      if (
+        !productName.trim() ||
+        !category ||
+        !imageFiles.length ||
+        !description.trim() ||
+        !farmerCode.trim() ||
+        !filledVariants.length
+      ) {
+        setError('Please fill in all required fields.');
         return;
       }
 
-      const formDataToSend = new FormData();
-      formDataToSend.append('name', productName.trim());
-      formDataToSend.append('description', description.trim());
-      formDataToSend.append('category', category);
-      formDataToSend.append('farmer_code', farmerCode.trim());
-      formDataToSend.append('vendor_id', 'cc9bbb5a-a701-4374-95f9-585857d5b211');
-      
-      imageFiles.forEach((file) => {
-        formDataToSend.append('images', file);
-      });
+      // Build the plain object
+      const productData = {
+        name: productName.trim(),
+        description: description.trim(),
+        category,
+        vendor_id: 'cc9bbb5a-a701-4374-95f9-585857d5b211', // Replace with actual vendor_id logic if needed
+        images: imageFiles,
+        variations: filledVariants,
+        farmer_id: farmerCode.trim(),
+      };
 
-      if (filledVariants.length > 0) {
-        formDataToSend.append('variations', JSON.stringify(filledVariants));
-      }
-
-      onSaveProduct(formDataToSend);
+      onSaveProduct(productData); // Pass plain object, not FormData
       onClose();
     } catch (error) {
       console.error('Error preparing product data:', error);
@@ -523,7 +533,7 @@ export default function AddProductModal({ isOpen, onClose, onSaveProduct }) {
 
         {/* Description */}
         <div className="mb-4">
-          <label className={labelStyle}>Description</label>
+          <label className={labelStyle}>Description <span style={{ color: '#FF3B3F' }}>*</span></label>
           <textarea
             className="w-full px-6 py-3 rounded-[2rem] border border-[#D1D5DB] focus:border-[#16A34A] focus:ring-2 focus:ring-[#16A34A] text-base bg-white min-h-[90px] resize-none"
             value={description}
@@ -532,6 +542,7 @@ export default function AddProductModal({ isOpen, onClose, onSaveProduct }) {
             rows={3}
             maxLength={600}
             style={{ fontSize: "15.5px", fontWeight: 500 }}
+            required
           />
         </div>
 
@@ -650,4 +661,4 @@ export default function AddProductModal({ isOpen, onClose, onSaveProduct }) {
       </form>
     </div>
   );
-}
+} 
