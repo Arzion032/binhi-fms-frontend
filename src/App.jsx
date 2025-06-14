@@ -25,7 +25,7 @@ function App() {
           <Route path="/membership" element={<Layout><Membership/></Layout>} />
           <Route path="/document" element={<Layout><Document/></Layout>} />
           <Route path="/inventory" element={<Layout><Inventory/></Layout>} />
-          <Route path="/signup" element={<SignUp/>} />
+          <Route path="/" element={<SignUp/>} />
           <Route path="/verification" element={<NextStep />} />
           <Route path="/password" element={<SetPassword />} />
           <Route path="/setup" element={<SetUp />} />

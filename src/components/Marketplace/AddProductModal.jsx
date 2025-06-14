@@ -14,21 +14,33 @@ const PlusIcon = ({ className = "" }) => (
   </svg>
 );
 
+const MEASUREMENT_OPTIONS = [
+  'pcs', 'kg', 'g', 'pounds', 'liters', 'ml', 'sacks', 'boxes', 'dozen'
+];
+
 function VariationModal({ isOpen, onClose, onConfirm, variationNumber, initialValue }) {
   const [name, setName] = useState(initialValue?.name || '');
   const [image, setImage] = useState(initialValue?.image || null);
   const [price, setPrice] = useState(initialValue?.price || '');
-  const [unitMeasurement, setUnitMeasurement] = useState(initialValue?.unitMeasurement || '');
+  const [unitMeasurement, setUnitMeasurement] = useState(initialValue?.unitMeasurement?.quantity || '');
+  const [unitType, setUnitType] = useState(initialValue?.unitMeasurement?.type || '');
   const [stock, setStock] = useState(initialValue?.stock || '');
   const [error, setError] = useState('');
+  const [priceError, setPriceError] = useState('');
+  const [stockError, setStockError] = useState('');
+  const [unitError, setUnitError] = useState('');
 
   useEffect(() => {
     setName(initialValue?.name || '');
     setImage(initialValue?.image || null);
     setPrice(initialValue?.price || '');
-    setUnitMeasurement(initialValue?.unitMeasurement || '');
+    setUnitMeasurement(initialValue?.unitMeasurement?.quantity || '');
+    setUnitType(initialValue?.unitMeasurement?.type || '');
     setStock(initialValue?.stock || '');
     setError('');
+    setPriceError('');
+    setStockError('');
+    setUnitError('');
   }, [initialValue, isOpen]);
 
   const handleImageChange = (e) => {
@@ -39,12 +51,73 @@ function VariationModal({ isOpen, onClose, onConfirm, variationNumber, initialVa
     reader.readAsDataURL(file);
   };
 
+  const handlePriceChange = (e) => {
+    let value = e.target.value.replace(/[^0-9.]/g, '');
+    if ((value.match(/\./g) || []).length > 1) {
+      value = value.substring(0, value.length - 1);
+    }
+    setPrice(value);
+    if (!value || parseFloat(value) <= 0) {
+      setPriceError('Unit Price must be greater than zero.');
+    } else {
+      setPriceError('');
+    }
+  };
+
+  const handleStockChange = (e) => {
+    let value = e.target.value.replace(/\D/g, '');
+    setStock(value);
+    if (!value || parseInt(value) <= 0) {
+      setStockError('Stock must be greater than zero.');
+    } else {
+      setStockError('');
+    }
+  };
+
+  const handleUnitMeasurementChange = (e) => {
+    let value = e.target.value.replace(/\D/g, '');
+    setUnitMeasurement(value);
+    if (!value || parseInt(value) <= 0) {
+      setUnitError('Unit Quantity must be greater than zero.');
+    } else {
+      setUnitError('');
+    }
+  };
+
   const handleConfirm = () => {
-    if (!unitMeasurement.trim()) {
-      setError('Unit Measurement is required.');
+    if (!name.trim()) {
+      setError('Product Name is required.');
       return;
     }
-    onConfirm && onConfirm({ name, image, price, unitMeasurement, stock });
+    if (!image) {
+      setError('Product Picture is required.');
+      return;
+    }
+    if (!price || isNaN(price) || parseFloat(price) <= 0) {
+      setError('');
+      setPriceError('Unit Price must be greater than zero.');
+      return;
+    }
+    if (!unitMeasurement || isNaN(unitMeasurement) || Number(unitMeasurement) <= 0) {
+      setError('');
+      setUnitError('Unit Quantity must be greater than zero.');
+      return;
+    }
+    if (!unitType) {
+      setError('');
+      setUnitError('Unit Type is required.');
+      return;
+    }
+    if (!stock || isNaN(stock) || parseInt(stock) <= 0) {
+      setError('');
+      setStockError('Stock must be greater than zero.');
+      return;
+    }
+    setError('');
+    setPriceError('');
+    setStockError('');
+    setUnitError('');
+    onConfirm && onConfirm({ name, image, price, unitMeasurement: { quantity: unitMeasurement, type: unitType }, stock });
     onClose && onClose();
   };
 
@@ -69,13 +142,13 @@ function VariationModal({ isOpen, onClose, onConfirm, variationNumber, initialVa
         <hr className="mb-6 mt-1 border-[#D8D8D8]" />
         <div className="mb-4">
           <label className="font-semibold text-[17px] mb-1 block text-[#222A35]">
-            Product Name <span className="text-[#F64B4B]">*</span>
+            Product Name <span style={{ color: '#FF3B3F' }}>*</span>
           </label>
           <input className={inputBox} value={name} onChange={e => setName(e.target.value)} placeholder="Enter the Equipment" required />
         </div>
         <div className="mb-4">
           <label className="font-semibold text-[17px] mb-1 block text-[#222A35]">
-            Product Picture <span className="text-[#F64B4B]">*</span>
+            Product Picture <span style={{ color: '#FF3B3F' }}>*</span>
           </label>
           <div className="flex">
             <label className="flex flex-col items-center justify-center border-2 border-dashed border-[#C1C1C1] rounded-xl w-[85px] h-[85px] text-[#888] text-xs bg-[#fafafa] cursor-pointer hover:border-[#16A34A] transition">
@@ -92,28 +165,69 @@ function VariationModal({ isOpen, onClose, onConfirm, variationNumber, initialVa
           </div>
         </div>
         <div className="mb-4">
-          <label className="font-semibold text-[17px] mb-1 block text-[#222A35]">Unit Price</label>
+          <label className="font-semibold text-[17px] mb-1 block text-[#222A35]">
+            Unit Price <span style={{ color: '#FF3B3F' }}>*</span>
+          </label>
           <div className="flex items-center relative">
             <span className="absolute left-6 text-gray-500 text-lg font-bold">₱</span>
-            <input className="w-full pl-10 pr-4 py-3 rounded-[2rem] border border-[#D1D5DB] focus:border-[#16A34A] focus:ring-2 focus:ring-[#16A34A] text-base bg-white placeholder-[#B7B7B7] font-medium"
+            <input
+              className="w-full pl-10 pr-4 py-3 rounded-[2rem] border border-[#D1D5DB] focus:border-[#16A34A] focus:ring-2 focus:ring-[#16A34A] text-base bg-white placeholder-[#B7B7B7] font-medium"
               value={price}
-              onChange={e => setPrice(e.target.value.replace(/[^\d.]/g, ""))}
+              onChange={handlePriceChange}
               placeholder="Enter Unit Price"
               inputMode="decimal"
             />
           </div>
+          {priceError && <p className="text-red-500 text-sm mt-1">{priceError}</p>}
         </div>
         <div className="mb-4">
           <label className="font-semibold text-[17px] mb-1 block text-[#222A35]">
-            Unit Measurement <span className="text-[#F64B4B]">*</span>
+            Unit Quantity <span style={{ color: '#FF3B3F' }}>*</span>
           </label>
-          <input className={inputBox} value={unitMeasurement} onChange={e => { setUnitMeasurement(e.target.value); if (error) setError(''); }} placeholder="e.g. kg, pcs, liter" required />
-          {error && <p className="text-red-500 text-sm mt-1">{error}</p>}
+          <input
+            className={inputBox}
+            type="number"
+            min={1}
+            step={1}
+            value={unitMeasurement}
+            onChange={handleUnitMeasurementChange}
+            placeholder="e.g. 1, 2, 5"
+            required
+          />
+        </div>
+        <div className="mb-4">
+          <label className="font-semibold text-[17px] mb-1 block text-[#222A35]">
+            Unit Type <span style={{ color: '#FF3B3F' }}>*</span>
+          </label>
+          <select
+            className={inputBox}
+            value={unitType || ''}
+            onChange={e => setUnitType(e.target.value)}
+            required
+          >
+            <option value="">Select unit</option>
+            {MEASUREMENT_OPTIONS.map(opt => (
+              <option key={opt} value={opt}>{opt}</option>
+            ))}
+          </select>
         </div>
         <div className="mb-8">
-          <label className="font-semibold text-[17px] mb-1 block text-[#222A35]">Stock</label>
-          <input className={inputBox} value={stock} onChange={e => setStock(e.target.value.replace(/\D/, ""))} placeholder="0" inputMode="numeric" />
+          <label className="font-semibold text-[17px] mb-1 block text-[#222A35]">
+            Stock <span style={{ color: '#FF3B3F' }}>*</span>
+          </label>
+          <input
+            className={inputBox}
+            value={stock}
+            onChange={handleStockChange}
+            placeholder="0"
+            inputMode="numeric"
+            min={1}
+            required
+          />
+          {stockError && <p className="text-red-500 text-sm mt-1">{stockError}</p>}
         </div>
+        {unitError && <p className="text-red-500 text-sm mt-1">{unitError}</p>}
+        {error && <p className="text-red-500 text-sm mt-1">{error}</p>}
         <div className="flex gap-4 mt-4">
           <button type="button" className={discardBtn} onClick={onClose}>Disregard</button>
           <button type="button" className={confirmBtn} onClick={handleConfirm}>Confirm</button>
@@ -138,7 +252,6 @@ export default function AddProductModal({ isOpen, onClose, onSaveProduct }) {
   const [categories, setCategories] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
 
-  // Fetch categories on component mount
   useEffect(() => {
     const fetchCategories = async () => {
       try {
@@ -159,7 +272,6 @@ export default function AddProductModal({ isOpen, onClose, onSaveProduct }) {
     }
   }, [isOpen]);
 
-  // Handle image change
   const handleImageChange = (e, idx) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -170,19 +282,16 @@ export default function AddProductModal({ isOpen, onClose, onSaveProduct }) {
     reader.readAsDataURL(file);
   };
 
-  // Add new variant
   const handleAddVariant = () => {
     setVariants(prev => [...prev, {}]);
   };
 
-  // Remove a variant
   const handleDeleteVariant = (idx) => {
     if (variants.length > 1) {
       setVariants(prev => prev.filter((_, i) => i !== idx));
     }
   };
 
-  // Validate form for save and submit
   function validateProduct(isDraft = false) {
     if (!isDraft) {
       if (!productName.trim()) {
@@ -197,14 +306,35 @@ export default function AddProductModal({ isOpen, onClose, onSaveProduct }) {
         setError('At least one product image is required.');
         return false;
       }
-      // Stricter validation for all required fields in each variant
       for (const v of variants) {
-        if (!v.name || !v.price || !v.unitMeasurement || !v.stock) {
-          setError('Each variant must have a name, price, unit measurement, and stock.');
+        if (
+          !v.name ||
+          !v.price ||
+          !v.unitMeasurement ||
+          !v.unitMeasurement.quantity ||
+          !v.unitMeasurement.type ||
+          !v.stock
+        ) {
+          setError('Each variant must have a name, price, unit measurement, unit type, and stock.');
+          return false;
+        }
+        if (isNaN(v.price) || Number(v.price) <= 0) {
+          setError('Each variant Unit Price must be greater than zero.');
+          return false;
+        }
+        if (isNaN(v.unitMeasurement.quantity) || Number(v.unitMeasurement.quantity) <= 0) {
+          setError('Each variant Unit Quantity must be greater than zero.');
+          return false;
+        }
+        if (!v.unitMeasurement.type) {
+          setError('Each variant Unit Type is required.');
+          return false;
+        }
+        if (isNaN(v.stock) || Number(v.stock) <= 0) {
+          setError('Each variant Stock must be greater than zero.');
           return false;
         }
       }
-      // Check for unique variant names
       const names = variants.map(v => v.name && v.name.trim().toLowerCase()).filter(Boolean);
       const hasDuplicate = names.some((name, idx) => names.indexOf(name) !== idx);
       if (hasDuplicate) {
@@ -220,23 +350,24 @@ export default function AddProductModal({ isOpen, onClose, onSaveProduct }) {
     return true;
   }
 
-  // Handle Save and Submit
-  const handleSaveSubmit = async () => {
+  const handleSaveSubmit = async (e) => {
+    if (e) e.preventDefault();
+    if (!validateProduct(false)) return;
     try {
-      // Filter out empty variants
       const filledVariants = variants
-        .filter(v => v && v.name && v.price && v.unitMeasurement && v.stock)
+        .filter(
+          v => v && v.name && v.price && v.unitMeasurement && v.unitMeasurement.quantity && v.unitMeasurement.type && v.stock
+        )
         .map((v, idx) => ({
           name: v.name,
           unit_price: Number(v.price),
           stock: Number(v.stock),
-          unit_measurement: v.unitMeasurement,
+          unit_measurement: `${v.unitMeasurement.quantity} ${v.unitMeasurement.type}`,
           is_available: true,
-          is_default: idx === 0, // Only the first is default
+          is_default: idx === 0,
           status: "active"
         }));
 
-      // Convert base64 images to File objects
       const imageFiles = await Promise.all(
         images
           .filter(Boolean)
@@ -252,7 +383,6 @@ export default function AddProductModal({ isOpen, onClose, onSaveProduct }) {
         return;
       }
 
-      // Create FormData object
       const formDataToSend = new FormData();
       formDataToSend.append('name', productName.trim());
       formDataToSend.append('description', description.trim());
@@ -260,33 +390,14 @@ export default function AddProductModal({ isOpen, onClose, onSaveProduct }) {
       formDataToSend.append('farmer_code', farmerCode.trim());
       formDataToSend.append('vendor_id', 'cc9bbb5a-a701-4374-95f9-585857d5b211');
       
-      // Add images
       imageFiles.forEach((file) => {
         formDataToSend.append('images', file);
       });
 
-      // Add variations if any
       if (filledVariants.length > 0) {
         formDataToSend.append('variations', JSON.stringify(filledVariants));
       }
 
-      console.log('--- Preparing to send product data ---');
-      console.log('Product Name:', productName.trim());
-      console.log('Description:', description.trim());
-      console.log('Category ID:', category);
-      console.log('Farmer Code:', farmerCode.trim());
-      console.log('Vendor ID:', 'cc9bbb5a-a701-4374-95f9-585857d5b211');
-      console.log('Number of Images:', imageFiles.length);
-      console.log('Number of Variations:', filledVariants.length);
-
-      // Log FormData contents for debugging
-      console.log('--- FormData contents (before fetch) ---');
-      for (let pair of formDataToSend.entries()) {
-        console.log(pair[0] + ': ' + pair[1]);
-      }
-      console.log('--------------------------------------');
-
-      // Call the parent's onSaveProduct with the FormData
       onSaveProduct(formDataToSend);
       onClose();
     } catch (error) {
@@ -324,7 +435,7 @@ export default function AddProductModal({ isOpen, onClose, onSaveProduct }) {
         {/* Product Name & Category */}
         <div className="grid grid-cols-2 gap-4 mb-5">
           <div>
-            <label className={labelStyle}>Product Name <span className="text-[#F64B4B]">*</span></label>
+            <label className={labelStyle}>Product Name <span style={{ color: '#FF3B3F' }}>*</span></label>
             <input
               className={inputBox}
               value={productName}
@@ -334,7 +445,7 @@ export default function AddProductModal({ isOpen, onClose, onSaveProduct }) {
             />
           </div>
           <div>
-            <label className={labelStyle}>Category <span className="text-[#F64B4B]">*</span></label>
+            <label className={labelStyle}>Category <span style={{ color: '#FF3B3F' }}>*</span></label>
             <div className="relative">
               <select
                 className={inputBox}
@@ -367,7 +478,7 @@ export default function AddProductModal({ isOpen, onClose, onSaveProduct }) {
           </div>
           <div>
             <label className={labelStyle}>
-              Farmer Code <span className="text-[#F64B4B]">*</span>
+              Farmer Code <span style={{ color: '#FF3B3F' }}>*</span>
             </label>
             <input
               className={inputBox}
@@ -382,8 +493,8 @@ export default function AddProductModal({ isOpen, onClose, onSaveProduct }) {
         {/* Product Pictures */}
         <div className="mb-2">
           <div className="flex items-end justify-between">
-            <label className={labelStyle + " mb-0"}>Product Picture <span className="text-[#F64B4B]">*</span></label>
-            <span className="text-[#F64B4B] text-2xl font-bold" style={{ visibility: 'hidden' }}>*</span>
+            <label className={labelStyle + " mb-0"}>Product Picture <span style={{ color: '#FF3B3F' }}>*</span></label>
+            <span className="text-[#FF3B3F] text-2xl font-bold" style={{ visibility: 'hidden' }}>*</span>
           </div>
           <div className="flex gap-3 mt-1 mb-2">
             {images.map((img, idx) => (
@@ -427,7 +538,9 @@ export default function AddProductModal({ isOpen, onClose, onSaveProduct }) {
         {/* Variants */}
         <div className="w-full mt-1 mb-1">
           <div className="flex justify-between items-center mb-2">
-            <label className={labelStyle}>Product Variations <span className="text-[#F64B4B]">*</span></label>
+            <label className={labelStyle}>
+              Product Variations <span style={{ color: '#FF3B3F' }}>*</span>
+            </label>
             <button
               type="button"
               onClick={handleAddVariant}
@@ -447,7 +560,6 @@ export default function AddProductModal({ isOpen, onClose, onSaveProduct }) {
                 className="flex flex-col items-center mb-1"
                 style={{ minWidth: 120, maxWidth: 210 }}
               >
-                {/* Filled variant button */}
                 {variant?.name ? (
                   <div className="flex items-center border rounded-full px-2 py-2 bg-white w-full justify-between gap-2 shadow"
                     style={{
@@ -456,17 +568,14 @@ export default function AddProductModal({ isOpen, onClose, onSaveProduct }) {
                       maxWidth: 210
                     }}
                   >
-                    {/* Image */}
                     {variant.image ? (
                       <img src={variant.image} alt="variant" className="w-8 h-8 rounded-full object-cover border mr-2" />
                     ) : (
                       <div className="w-8 h-8 rounded-full bg-gray-200 mr-2 flex items-center justify-center" />
                     )}
-                    {/* Name */}
                     <span className="font-semibold text-[15px] flex-1 truncate" title={variant.name}>
                       {variant.name}
                     </span>
-                    {/* Edit */}
                     <button
                       type="button"
                       className="p-1 hover:bg-gray-100 rounded-full"
@@ -478,7 +587,6 @@ export default function AddProductModal({ isOpen, onClose, onSaveProduct }) {
                     >
                       <PencilIcon />
                     </button>
-                    {/* Delete */}
                     {variants.length > 1 && (
                       <button
                         type="button"
@@ -491,7 +599,6 @@ export default function AddProductModal({ isOpen, onClose, onSaveProduct }) {
                     )}
                   </div>
                 ) : (
-                  // Unfilled variant button
                   <button
                     type="button"
                     className="w-full flex items-center justify-center gap-2 py-4 bg-[#888] rounded-full font-semibold text-white text-base border-0"
@@ -506,20 +613,18 @@ export default function AddProductModal({ isOpen, onClose, onSaveProduct }) {
                 )}
                 <div className="text-center text-xs mt-1 text-gray-900 font-bold">
                   {`Variant ${idx + 1}`}
-                  {idx === 0 && <span className="text-[#F64B4B]">*</span>}
+                  {idx === 0 && <span style={{ color: '#FF3B3F' }}>*</span>}
                 </div>
               </div>
             ))}
           </div>
         </div>
-        {/* Error message */}
         {error && (
           <div className="text-red-500 text-base mb-3 text-center">{error}</div>
         )}
         {backendError && (
           <div className="text-red-500 text-base mb-3 text-center">{backendError}</div>
         )}
-        {/* Modal Buttons */}
         <div className="flex gap-4 mt-8">
           <button type="button" className={discardBtn} onClick={onClose}>
             Disregard
@@ -528,7 +633,6 @@ export default function AddProductModal({ isOpen, onClose, onSaveProduct }) {
             Save and Submit
           </button>
         </div>
-        {/* Variation Modal */}
         <VariationModal
           isOpen={showVariationModal}
           onClose={() => setShowVariationModal(false)}
@@ -546,4 +650,4 @@ export default function AddProductModal({ isOpen, onClose, onSaveProduct }) {
       </form>
     </div>
   );
-} 
+}

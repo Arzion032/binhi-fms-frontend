@@ -17,6 +17,7 @@ const TransactionModal = ({ isOpen, onClose, type, onSuccess }) => {
   const [error, setError] = useState(null);
   const [name, setName] = useState("");
   const [nameError, setNameError] = useState("");
+  const [amountError, setAmountError] = useState("");
 
   // Reset all form fields and file list
   const resetForm = () => {
@@ -28,6 +29,7 @@ const TransactionModal = ({ isOpen, onClose, type, onSuccess }) => {
     setError(null);
     setName("");
     setNameError("");
+    setAmountError("");
   };
 
   // Finalize "Disregard" action
@@ -37,20 +39,38 @@ const TransactionModal = ({ isOpen, onClose, type, onSuccess }) => {
     onClose();
   };
 
+  // Validate and sanitize amount on input
+  const handleAmountChange = (e) => {
+    let value = e.target.value.replace(/[^0-9.]/g, '');
+    // Only allow one decimal
+    if ((value.match(/\./g) || []).length > 1) {
+      value = value.substring(0, value.length - 1);
+    }
+    setAmount(value);
+
+    // Show validation immediately
+    if (!value || parseFloat(value) <= 0) {
+      setAmountError("Amount must be greater than zero.");
+    } else {
+      setAmountError("");
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError(null);
     setNameError("");
-    
+    setAmountError("");
+
     // Validate required fields
     if (!name.trim()) {
       setNameError("Name is required.");
       setLoading(false);
       return;
     }
-    if (!amount || amount <= 0) {
-      setError("Please enter a valid amount.");
+    if (!amount || isNaN(Number(amount)) || Number(amount) <= 0) {
+      setAmountError("Amount must be greater than zero.");
       setLoading(false);
       return;
     }
@@ -76,8 +96,6 @@ const TransactionModal = ({ isOpen, onClose, type, onSuccess }) => {
         payment_method: paymentMethod
       };
 
-      console.log('Transaction data:', transactionData);
-
       const response = await axios.post(
         `${API_URL}/financials/add_transaction/`,
         transactionData,
@@ -89,8 +107,6 @@ const TransactionModal = ({ isOpen, onClose, type, onSuccess }) => {
         }
       );
 
-      console.log('Response:', response);
-
       if (response.status === 201) {
         setIsSuccessModalOpen(true);
         if (onSuccess) onSuccess();
@@ -100,9 +116,6 @@ const TransactionModal = ({ isOpen, onClose, type, onSuccess }) => {
         setError(errorMessage);
       }
     } catch (err) {
-      console.error('Error adding transaction:', err);
-      console.error('Error response:', err.response);
-      
       let errorMessage = 'Failed to add transaction. Please try again.';
       if (err.response?.data?.error) {
         errorMessage = err.response.data.error;
@@ -111,7 +124,6 @@ const TransactionModal = ({ isOpen, onClose, type, onSuccess }) => {
       } else if (err.message) {
         errorMessage = err.message;
       }
-      
       setError(errorMessage);
     } finally {
       setLoading(false);
@@ -279,7 +291,9 @@ const TransactionModal = ({ isOpen, onClose, type, onSuccess }) => {
 
         {/* Name */}
         <div className="mb-4">
-          <label className="block text-sm font-medium mb-1">Name</label>
+          <label className="block text-sm font-medium mb-1">
+            Name <span style={{ color: '#FF3B3F' }}>*</span>
+          </label>
           <input
             type="text"
             className={`input input-bordered w-full ${nameError ? 'border-red-500' : ''}`}
@@ -293,24 +307,27 @@ const TransactionModal = ({ isOpen, onClose, type, onSuccess }) => {
         {/* Amount */}
         <div className="mb-4">
           <label className="block mb-1 font-medium">
-            Amount <span className="text-red-500">*</span>
+            Amount <span style={{ color: '#FF3B3F' }}>*</span>
           </label>
           <div className="relative">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
               <span className="text-gray-500">₱</span>
             </div>
             <input
-              type="text" placeholder="Enter the Amount"
-              className="w-full pl-8 pr-4 py-3 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-green-500"
-              value={amount} onChange={e => setAmount(e.target.value)}
+              type="text"
+              placeholder="Enter the Amount"
+              className={`w-full pl-8 pr-4 py-3 border ${amountError ? 'border-red-500' : 'border-gray-300'} rounded-full focus:outline-none focus:ring-2 focus:ring-green-500`}
+              value={amount}
+              onChange={handleAmountChange}
             />
           </div>
+          {amountError && <p className="text-red-500 text-xs mt-1">{amountError}</p>}
         </div>
 
         {/* Source */}
         <div className="mb-4">
           <label className="block mb-1 font-medium">
-            Source <span className="text-red-500">*</span>
+            Source <span style={{ color: '#FF3B3F' }}>*</span>
           </label>
           <div className="relative">
             <select
@@ -338,7 +355,7 @@ const TransactionModal = ({ isOpen, onClose, type, onSuccess }) => {
         {/* Payment Method */}
         <div className="mb-4">
           <label className="block mb-1 font-medium">
-            Payment Method <span className="text-red-500">*</span>
+            Payment Method <span style={{ color: '#FF3B3F' }}>*</span>
           </label>
           <div className="relative">
             <select
@@ -359,11 +376,14 @@ const TransactionModal = ({ isOpen, onClose, type, onSuccess }) => {
 
         {/* Remarks */}
         <div className="mb-4">
-          <label className="block mb-1 font-medium">Remarks/Notes</label>
+          <label className="block mb-1 font-medium">
+            Remarks/Notes <span style={{ color: '#FF3B3F' }}>*</span>
+          </label>
           <textarea
             className="w-full px-4 py-3 border border-gray-300 rounded-xl min-h-[100px] focus:outline-none focus:ring-2 focus:ring-green-500"
             placeholder="Remarks or Notes"
             value={remarks} onChange={e => setRemarks(e.target.value)}
+            required
           />
         </div>
 
@@ -371,6 +391,7 @@ const TransactionModal = ({ isOpen, onClose, type, onSuccess }) => {
         <button
           onClick={() => setIsUploadModalOpen(true)}
           className="w-full mb-6 py-3 border border-gray-300 rounded-xl flex items-center justify-center gap-2 hover:bg-gray-50"
+          type="button"
         >
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="20" height="20" viewBox="0 0 24 24">
             <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
@@ -385,12 +406,21 @@ const TransactionModal = ({ isOpen, onClose, type, onSuccess }) => {
           <button
             onClick={() => setIsCancelConfirmOpen(true)}
             className="flex-1 py-3 bg-[#E53E3E] text-white rounded-full font-medium hover:bg-[#C53030]"
+            type="button"
           >
             Disregard
           </button>
           <button
             onClick={handleSubmit}
-            disabled={!amount || !source || !paymentMethod || loading}
+            disabled={
+              !amount ||
+              !source ||
+              !paymentMethod ||
+              !remarks ||
+              !name ||
+              amountError ||
+              loading
+            }
             className="flex-1 py-3 bg-green-500 text-white rounded-full font-medium hover:bg-green-600 disabled:opacity-50"
           >
             {loading ? (
@@ -407,4 +437,4 @@ const TransactionModal = ({ isOpen, onClose, type, onSuccess }) => {
   );
 };
 
-export default TransactionModal; 
+export default TransactionModal;

@@ -276,7 +276,7 @@ export default function Financial() {
     <div className="flex flex-wrap items-center justify-between my-4 gap-2">
       <div className="flex items-center gap-2 text-base font-medium">
         <RefreshCw size={20} stroke="#3b82f6" />
-        <span className="font-medium text-lg" style={{ color: '#3b82f6' }}>Current Federation Balance:</span>
+        <span className="font-medium text-lg" style={{ color: '#3b82f6' }}>Current Association Balance:</span>
         <span className="text-blue-700 font-bold text-lg">₱{balance.toLocaleString()}</span>
         {lastUpdated && (
           <span className="text-gray-400 text-lg ml-2 opacity-60">

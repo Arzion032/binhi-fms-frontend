@@ -77,9 +77,7 @@ export default function ProductManagement() {
   const [editProduct, setEditProduct] = useState(null);
   const [editModalMode, setEditModalMode] = useState("edit");
 
-  // For image preview
-  const [showImagePreview, setShowImagePreview] = useState(false);
-  const [imagePreviewUrl, setImagePreviewUrl] = useState("");
+  // For image errors
   const [imageLoadErrors, setImageLoadErrors] = useState({}); // Stores image errors
 
   // Helper to handle image loading errors
@@ -89,79 +87,6 @@ export default function ProductManagement() {
       [productId]: true,
     }));
   }, []);
-
-  const openImagePreview = useCallback((url) => {
-    setImagePreviewUrl(url);
-    setShowImagePreview(true);
-  }, []);
-
-  const closeImagePreview = useCallback(() => {
-    setShowImagePreview(false);
-    setImagePreviewUrl("");
-  }, []);
-
-  // Image Preview Modal Component
-  const ImagePreviewModal = useCallback(({ isOpen, onClose, imageUrl }) => {
-    if (!isOpen) return null;
-
-    return (
-      <div
-        style={{
-          position: "fixed",
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          backgroundColor: "rgba(0, 0, 0, 0.7)",
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          zIndex: 1000,
-        }}
-        onClick={onClose}
-      >
-        <div
-          style={{
-            backgroundColor: "#fff",
-            padding: "1rem",
-            borderRadius: "0.5rem",
-            position: "relative",
-            maxHeight: "90%",
-            maxWidth: "90%",
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-          }}
-          onClick={(e) => e.stopPropagation()} // Prevent click from closing modal
-        >
-          <button
-            onClick={onClose}
-            style={{
-              position: "absolute",
-              top: "0.5rem",
-              right: "0.5rem",
-              background: "none",
-              border: "none",
-              fontSize: "1.5rem",
-              cursor: "pointer",
-              color: "#333",
-            }}
-          >
-            <X size={24} />
-          </button>
-          <img
-            src={imageUrl}
-            alt="Product Preview"
-            style={{
-              maxWidth: "100%",
-              maxHeight: "80vh",
-              objectFit: "contain",
-            }}
-          />
-        </div>
-      </div>
-    );
-  }, []); // No dependencies, as it's a pure presentational component with props
 
   const closeEditModal = useCallback(() => {
     setShowEditModal(false);
@@ -413,8 +338,38 @@ export default function ProductManagement() {
   // Add product callback (from modal)
   const handleAddProduct = async (newProduct) => {
     try {
-      const response = await axios.post(`${API_BASE_URL}/products/create/`, newProduct);
-      setProducts((prev) => [...prev, response.data]);
+      const formData = new FormData();
+      
+      // Append product fields
+      formData.append('name', newProduct.name);
+      formData.append('description', newProduct.description);
+      formData.append('category', newProduct.category);
+      formData.append('vendor_id', newProduct.vendor_id);
+      
+      // Handle variations
+      if (newProduct.variations) {
+        formData.append('variations', JSON.stringify(newProduct.variations));
+      }
+      
+      // Handle images
+      if (newProduct.images) {
+        newProduct.images.forEach((image, index) => {
+          formData.append(`images`, image);
+        });
+      }
+      
+      const response = await axios.post(
+        `${API_BASE_URL}/products/create/`,
+        formData,
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        }
+      );
+      
+      // Update the products list with the new product
+      setProducts(prev => [response.data, ...prev]);
       setShowAddProduct(false);
       // Refresh category summary
       fetchSummaryProducts();
@@ -576,7 +531,7 @@ export default function ProductManagement() {
               <col style={{ width: "9%" }} />
               <col style={{ width: "11%" }} />
               <col style={{ width: "7%" }} />
-              <col style={{ width: "7%" }} />
+              <col style={{ width: "9%" }} />
               <col style={{ width: "8%" }} />
             </colgroup>
             <thead style={{ backgroundColor: "#F7F7FB" }}>
@@ -625,7 +580,7 @@ export default function ProductManagement() {
                   variationText = `${p.variations[0]?.name} +${extra}`;
                 }
                 const imageUrl = p.images?.[0]?.image;
-                const hasImageError = false; // No imageLoadErrors state anymore
+                const hasImageError = imageLoadErrors[p.id]; // Use the state here
 
                 return (
                   <tr
@@ -677,9 +632,9 @@ export default function ProductManagement() {
                             <img
                                 src={imageUrl}
                                 alt={p.name}
-                                style={{ width: 28, height: 28, borderRadius: "50%", cursor: 'pointer' }}
+                                style={{ width: 28, height: 28, borderRadius: "50%", cursor: 'default', objectFit: 'cover' }} // Changed cursor to default, added objectFit
                                 onClick={() => {}} // Removed openImagePreview
-                                onError={() => {}} // Removed handleImageError
+                                onError={() => handleImageError(p.id)} // Kept onError handler
                             />
                         )}
                         <div>

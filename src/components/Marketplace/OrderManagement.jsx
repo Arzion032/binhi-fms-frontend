@@ -38,6 +38,7 @@ export default function OrderManagement() {
   const [loading, setLoading] = useState(true);
   const [orderManagementModalOpen, setOrderManagementModalOpen] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState(null);
+  const [userMap, setUserMap] = useState({});
   const [statusCategories, setStatusCategories] = useState([
     { name: "Pending", value: "pending", count: 0, border: "#F59E42" },
     { name: "Processing", value: "processing", count: 0, border: "#2563EB" },
@@ -53,6 +54,25 @@ export default function OrderManagement() {
     const t = setTimeout(() => setDebouncedSearchQuery(searchQuery), 300);
     return () => clearTimeout(t);
   }, [searchQuery]);
+
+  // Fetch users from members endpoint
+  const fetchUsers = useCallback(async () => {
+    try {
+      const response = await axios.get(`${API_BASE_URL}/users/members/`);
+      const users = response.data;
+      const userMap = {};
+      users.forEach(user => {
+        userMap[user.id] = user.username;
+      });
+      setUserMap(userMap);
+    } catch (error) {
+      console.error("Error fetching users:", error);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchUsers();
+  }, [fetchUsers]);
 
   // Fetch Orders
   const fetchOrders = useCallback(async () => {
@@ -86,6 +106,9 @@ export default function OrderManagement() {
           variation: order.items?.[0]?.variation || "-",
         },
         transaction: order.payment_method || "Pending",
+        buyer: {
+          username: userMap[order.buyer_id] || "-"
+        }
       }));
 
       setOrderRows(mappedOrders);
@@ -104,7 +127,7 @@ export default function OrderManagement() {
       setTotalOrders(0);
     }
     setLoading(false);
-  }, [orderPage, ordersPerPage, debouncedSearchQuery]);
+  }, [orderPage, ordersPerPage, debouncedSearchQuery, userMap]);
 
   useEffect(() => {
     fetchOrders();
@@ -298,7 +321,8 @@ export default function OrderManagement() {
                   />
                 </th>
                 <th style={{ padding: "0.75rem", textAlign: "left" }}>Order ID</th>
-                <th style={{ padding: "0.75rem", textAlign: "left" }}>Customer</th>
+                <th style={{ padding: "0.75rem", textAlign: "left" }}>Buyer</th>
+                <th style={{ padding: "0.75rem", textAlign: "left" }}>address</th>
                 <th style={{ padding: "0.75rem", textAlign: "left" }}>Product</th>
                 <th style={{ padding: "0.75rem", textAlign: "left" }}>Date Ordered</th>
                 <th style={{ padding: "0.75rem", textAlign: "left" }}>Order Status</th>
@@ -345,6 +369,9 @@ export default function OrderManagement() {
                     </td>
                     <td style={{ padding: "0.75rem" }}>
                       <span className="font-medium">{o.orderId || o.id}</span>
+                    </td>
+                    <td style={{ padding: "0.75rem" }}>
+                      <span className="font-medium">{o.buyer?.username || '-'}</span>
                     </td>
                     <td style={{ padding: "0.75rem" }}>
                       <div style={{
