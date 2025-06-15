@@ -5,7 +5,6 @@ import axios from "axios";
 
 const API_BASE_URL = "http://127.0.0.1:8000";
 
-// Badge styles for statuses and transaction types
 const BADGE_STYLES = {
   pending: { color: "#F59E42", background: "#FFF6E9", border: "#F59E42" },
   processing: { color: "#2563EB", background: "#E0E7FF", border: "#2563EB" },
@@ -13,7 +12,7 @@ const BADGE_STYLES = {
   delivered: { color: "#0EA5E9", background: "#E0F2FE", border: "#0EA5E9" },
   cancelled: { color: "#EF4444", background: "#FEE2E2", border: "#EF4444" },
   paid: { color: "#22C55E", background: "#DCFAE6", border: "#22C55E" },
-  refunded: { color: "#F59E42", background: "#FFF6E9", border: "#F59E42" },
+  refunded: { color: "#EF4444", background: "#FEE2E2", border: "#EF4444" },
   gcash: {
     color: "#fff",
     background: "#40a3fe",
@@ -49,13 +48,11 @@ export default function OrderManagement() {
 
   const ordersPerPage = 7;
 
-  // Debounce search for smooth typing
   useEffect(() => {
     const t = setTimeout(() => setDebouncedSearchQuery(searchQuery), 300);
     return () => clearTimeout(t);
   }, [searchQuery]);
 
-  // Fetch users from members endpoint
   const fetchUsers = useCallback(async () => {
     try {
       const response = await axios.get(`${API_BASE_URL}/users/members/`);
@@ -74,7 +71,6 @@ export default function OrderManagement() {
     fetchUsers();
   }, [fetchUsers]);
 
-  // Fetch Orders
   const fetchOrders = useCallback(async () => {
     setLoading(true);
     try {
@@ -86,9 +82,8 @@ export default function OrderManagement() {
         }
       });
 
-      // Map backend data for table use; pass through full object for modal
       const mappedOrders = response.data.map(order => ({
-        ...order, // include all backend data, so order.id is the UUID
+        ...order,
         date: order.orderDate ? order.orderDate.split("T")[0] : "-",
         time: order.orderDate
           ? (order.orderDate.split("T")[1] || "").split("+")[0].slice(0, 5)
@@ -106,6 +101,7 @@ export default function OrderManagement() {
           variation: order.items?.[0]?.variation || "-",
         },
         transaction: order.payment_method || "Pending",
+        payment_status: order.payment_status || "Pending", // Show as is!
         buyer: {
           username: userMap[order.buyer_id] || "-"
         }
@@ -114,7 +110,6 @@ export default function OrderManagement() {
       setOrderRows(mappedOrders);
       setTotalOrders(mappedOrders.length);
 
-      // Update status categories counts
       const newStatusCategories = statusCategories.map((cat) => ({
         ...cat,
         count: mappedOrders.filter((o) =>
@@ -131,13 +126,10 @@ export default function OrderManagement() {
 
   useEffect(() => {
     fetchOrders();
-    // eslint-disable-next-line
   }, [orderPage, debouncedSearchQuery]);
 
-  // Pagination
   const orderTotalPages = Math.ceil(totalOrders / ordersPerPage);
 
-  // Loading screen (BINHI GIF, medium size)
   const renderLoading = () => (
     <div className="flex justify-center items-center h-64">
       <img
@@ -148,7 +140,11 @@ export default function OrderManagement() {
     </div>
   );
 
-  // Table logic
+  const handleCloseModalWithoutRefresh = () => {
+    setOrderManagementModalOpen(false);
+    setSelectedOrder(null);
+  };
+
   return (
     <div className="px-6 pb-6">
       {/* Top bar */}
@@ -235,31 +231,31 @@ export default function OrderManagement() {
               }}
             >
               {loading && (
-            <div
-              style={{
-                position: "absolute",
-                top: "0",
-                left: "0",
-                right: "0",
-                bottom: "0",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                backgroundColor: "rgba(255, 255, 255, 0.8)", // Optional: semi-transparent overlay
-                borderRadius: "1.6rem", // Match the card's border radius
-              }}
-            >
-              <img
-                src="/categoryloading-unscreen.gif"
-                alt="Loading"
-                style={{ 
-                  width: "80px", 
-                  height: "80px",
-                  objectFit: "contain"
-                }}
-              />
-            </div>
-          )}
+                <div
+                  style={{
+                    position: "absolute",
+                    top: "0",
+                    left: "0",
+                    right: "0",
+                    bottom: "0",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    backgroundColor: "rgba(255, 255, 255, 0.8)",
+                    borderRadius: "1.6rem",
+                  }}
+                >
+                  <img
+                    src="/categoryloading-unscreen.gif"
+                    alt="Loading"
+                    style={{ 
+                      width: "80px", 
+                      height: "80px",
+                      objectFit: "contain"
+                    }}
+                  />
+                </div>
+              )}
               <div
                 style={{
                   position: "absolute",
@@ -326,7 +322,8 @@ export default function OrderManagement() {
                 <th style={{ padding: "0.75rem", textAlign: "left" }}>Product</th>
                 <th style={{ padding: "0.75rem", textAlign: "left" }}>Date Ordered</th>
                 <th style={{ padding: "0.75rem", textAlign: "left" }}>Order Status</th>
-                <th style={{ padding: "0.75rem", textAlign: "left" }}>Transaction</th>
+                <th style={{ padding: "0.75rem", textAlign: "left" }}>Payment Method</th>
+                <th style={{ padding: "0.75rem", textAlign: "left" }}>Payment Status</th>
                 <th style={{ padding: "0.75rem", textAlign: "left" }}>Actions</th>
               </tr>
             </thead>
@@ -338,7 +335,6 @@ export default function OrderManagement() {
                   background: "#E5E7EB",
                   border: "#D4D4D8"
                 };
-                // -- Transaction badge logic (same style as status badge) --
                 const txnType = o.transaction?.toLowerCase?.() || "";
                 const transactionBadge = BADGE_STYLES[txnType] || {
                   color: "#757575",
@@ -454,10 +450,26 @@ export default function OrderManagement() {
                       </span>
                     </td>
                     <td style={{ padding: "0.75rem" }}>
+                      <span
+                        style={{
+                          display: "inline-block",
+                          padding: "0.25rem 0.75rem",
+                          fontSize: "0.75rem",
+                          fontWeight: 500,
+                          borderRadius: "9999px",
+                          color: BADGE_STYLES[o.payment_status?.toLowerCase()]?.color || "#757575",
+                          background: BADGE_STYLES[o.payment_status?.toLowerCase()]?.background || "#E5E7EB",
+                          border: `1.5px solid ${BADGE_STYLES[o.payment_status?.toLowerCase()]?.border || "#D4D4D8"}`,
+                        }}
+                      >
+                        {o.payment_status || "Pending"}
+                      </span>
+                    </td>
+                    <td style={{ padding: "0.75rem" }}>
                       <div
                         className="group flex items-center gap-2 cursor-pointer"
                         onClick={() => {
-                          setSelectedOrder(o); // THIS PASSES THE FULL OBJECT, WITH id = UUID!
+                          setSelectedOrder(o);
                           setOrderManagementModalOpen(true);
                         }}
                       >
@@ -487,7 +499,7 @@ export default function OrderManagement() {
               })}
               {orderRows.length === 0 && !loading && (
                 <tr>
-                  <td colSpan={8} style={{ textAlign: "center", padding: "2rem", color: "#888" }}>
+                  <td colSpan={10} style={{ textAlign: "center", padding: "2rem", color: "#888" }}>
                     No orders found.
                   </td>
                 </tr>
@@ -527,13 +539,15 @@ export default function OrderManagement() {
       {orderManagementModalOpen && selectedOrder && (
         <OrderManagementModal
           isOpen={orderManagementModalOpen}
-          onClose={() => {
-            setOrderManagementModalOpen(false);
-            setSelectedOrder(null);
-            fetchOrders(); // Auto-refresh after modal closes
-          }}
+          onClose={fetchOrders}
+          onCloseNoRefresh={handleCloseModalWithoutRefresh}
           order={selectedOrder}
-          onStatusUpdate={() => {
+          onStatusUpdate={(orderId, newStatus, newTransactionStatus) => {
+            setOrderRows(prevRows =>
+              prevRows.map(row =>
+                row.id === orderId ? { ...row, status: newStatus, payment_status: newTransactionStatus } : row
+              )
+            );
             fetchOrders();
           }}
         />
